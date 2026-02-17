@@ -28,7 +28,7 @@ export default function Hero() {
           </div>
           
           <p className="text-xl sm:text-2xl md:text-3xl text-gray-200 mb-4 sm:mb-6 max-w-4xl mx-auto font-light px-4">
-            Innovating Tomorrow's Technology Today
+            One step ahead of tech
           </p>
           
           <p className="text-base sm:text-lg md:text-xl text-gray-400 mb-8 sm:mb-12 max-w-3xl mx-auto leading-relaxed px-4">
