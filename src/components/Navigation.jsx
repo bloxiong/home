@@ -45,7 +45,7 @@ export default function Navigation() {
       <div className="container mx-auto px-4 sm:px-6 py-3 sm:py-4">
         <div className="flex items-center justify-between">
           <Link to="/" className="flex items-center gap-3 flex-shrink-0">
-            <img src="/bloxio.jpg" alt="Bloxio" className="w-16 h-7 sm:w-20 sm:h-8 object-contain" />
+            <img src="/bloxio.png" alt="Bloxio" className="w-16 h-7 sm:w-20 sm:h-8 object-contain" />
           </Link>
           
           {/* Desktop Menu */}

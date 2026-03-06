@@ -19,21 +19,13 @@ export default function Hero() {
       
       <div className="container mx-auto px-4 sm:px-6 relative z-10 py-20 sm:py-0">
         <div className="text-center">
-          <div className="mb-8 sm:mb-12 flex justify-center animate-float">
+          <div className="mb-2 sm:mb-3 flex justify-center">
             <img 
-              src="/bloxio.gif" 
+              src="/bloxiofull.png" 
               alt="Bloxio Logo" 
-              className="w-64 sm:w-80 h-auto drop-shadow-2xl max-w-full"
+              className="w-128 sm:w-160 h-auto drop-shadow-2xl max-w-full"
             />
           </div>
-          
-          <p className="text-xl sm:text-2xl md:text-3xl text-gray-200 mb-4 sm:mb-6 max-w-4xl mx-auto font-light px-4">
-            One step ahead of tech
-          </p>
-          
-          <p className="text-base sm:text-lg md:text-xl text-gray-400 mb-8 sm:mb-12 max-w-3xl mx-auto leading-relaxed px-4">
-            Pioneering research, development, and delivery of cutting-edge technology solutions that transform industries and improve lives across the globe.
-          </p>
           
           <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 justify-center px-4">
             <button onClick={() => scrollToSection('about')} className="group bg-gradient-to-r from-gold-light via-gold to-gold-dark text-black px-8 sm:px-10 py-3 sm:py-4 rounded-full font-bold text-base sm:text-lg hover:shadow-2xl hover:shadow-amber-500/50 transition-all duration-300 transform hover:scale-110 flex items-center justify-center gap-2">
