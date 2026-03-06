@@ -4,6 +4,7 @@ import Navigation from './components/Navigation';
 import Footer from './components/Footer';
 import Home from './pages/Home';
 import Survey from './pages/Survey';
+import AgroSense360_Survey from './pages/AgroSense360-Survey';
 
 export default function App() {
   return (
@@ -14,6 +15,7 @@ export default function App() {
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/survey" element={<Survey />} />
+            <Route path="/survey/AgroSense360" element={<AgroSense360_Survey />} />
           </Routes>
         </main>
         <Footer />

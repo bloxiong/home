@@ -28,7 +28,7 @@ export default function Footer() {
         <div className="grid md:grid-cols-3 gap-8 mb-8">
           <div>
             <Link to="/" className="flex items-center gap-3 mb-4">
-              <img src="/bloxio.jpg" alt="Bloxio" className="w-20 h-8 object-contain" />
+              <img src="/bloxio.png" alt="Bloxio" className="w-20 h-8 object-contain" />
             </Link>
             <p className="text-gray-400 text-sm leading-relaxed">
               Innovating tomorrow's technology today. Pioneering research, development, and delivery of cutting-edge solutions.
