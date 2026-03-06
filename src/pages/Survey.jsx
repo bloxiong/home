@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
-import { ClipboardCheck, ExternalLink, ArrowLeft, ChevronRight, ChevronLeft, CheckCircle2, Loader2 } from 'lucide-react';
+import { ClipboardCheck, ExternalLink, ArrowLeft, ChevronRight, ChevronLeft, CheckCircle2, Loader2, Eye, Edit2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 const SCRIPT_URL = `https://script.google.com/macros/s/AKfycbzr7lB1Rc572hvOqwYs4Xbo7oNSbVeDMNubvSymy9JbsBEChYqc8upG6KUCfv6iMKpF/exec`;
 
-const TOTAL_STEPS = 7;
+const TOTAL_STEPS = 7; // steps 1-7 = questions, step 8 = review
 
 const initialFormData = {
   respondentType: "",
@@ -23,6 +23,9 @@ const initialFormData = {
   investmentInterest: "",
   earlyAccess: "",
   email: "",
+  respondentOther: "",
+  biggestChallengesOther: "",
+  detectionMethodsOther: "",
 };
 
 /* ─── Reusable field components ─── */
@@ -68,6 +71,141 @@ function FieldLabel({ number, children }) {
 
 function FieldBlock({ children }) {
   return <div className="mb-6 last:mb-0">{children}</div>;
+}
+
+// Always-visible "please specify" input shown when "Other" is selected
+function OtherInput({ show, name, value, onChange }) {
+  if (!show) return null;
+  return (
+    <input
+      type="text"
+      name={name}
+      value={value || ""}
+      onChange={onChange}
+      placeholder="Please specify…"
+      className="mt-2 ml-8 w-[calc(100%-2rem)] bg-gray-900 border border-amber-500/40 rounded-xl px-4 py-2.5 text-white text-sm placeholder-gray-600 focus:outline-none focus:border-amber-400 transition-colors animate-fadeIn"
+    />
+  );
+}
+
+// ── Review screen ──
+function ReviewScreen({ formData, onEdit, onSubmit, isSubmitting }) {
+  const sections = [
+    {
+      title: "About You",
+      step: 1,
+      rows: [
+        { label: "Role", value: formData.respondentType + (formData.respondentOther ? ` — ${formData.respondentOther}` : "") },
+        { label: "Experience", value: formData.yearsExperience },
+        { label: "Location", value: formData.location },
+      ],
+    },
+    {
+      title: "Current Challenges",
+      step: 2,
+      rows: [
+        { label: "Monitoring issues", value: formData.monitoringChallenges },
+        { label: "Biggest challenges", value: formData.biggestChallenges.join(", ") + (formData.biggestChallengesOther ? ` — ${formData.biggestChallengesOther}` : "") },
+        { label: "Detection methods", value: formData.detectionMethods.join(", ") + (formData.detectionMethodsOther ? ` — ${formData.detectionMethodsOther}` : "") },
+      ],
+    },
+    {
+      title: "AgroSense360",
+      step: 3,
+      rows: [
+        { label: "Usefulness rating", value: formData.usefulnessRating ? `${formData.usefulnessRating} / 5` : "" },
+        { label: "Valuable features", value: formData.valuableFeatures.join(", ") },
+        { label: "Would consider using", value: formData.considerUsing },
+      ],
+    },
+    {
+      title: "Pricing",
+      step: 4,
+      rows: [
+        { label: "Willing to pay", value: formData.willingToPay },
+        { label: "Payment model", value: formData.paymentModel },
+      ],
+    },
+    {
+      title: "Future Products",
+      step: 5,
+      rows: [
+        { label: "Interested in", value: formData.futureProducts.join(", ") },
+        { label: "Open to Nigerian tech", value: formData.openToNewTech },
+      ],
+    },
+    {
+      title: "Investment",
+      step: 6,
+      rows: [{ label: "Investment interest", value: formData.investmentInterest }],
+    },
+    {
+      title: "Early Access",
+      step: 7,
+      rows: [
+        { label: "Wants early access", value: formData.earlyAccess },
+        { label: "Email", value: formData.email || "Not provided" },
+      ],
+    },
+  ];
+
+  return (
+    <div className="animate-fadeIn">
+      <div className="mb-7">
+        <div className="flex items-center gap-3 mb-1">
+          <Eye className="text-amber-400" size={20} />
+          <h2 className="text-xl font-bold text-white">Review Your Answers</h2>
+        </div>
+        <p className="text-gray-500 text-sm pl-8">Double-check everything before submitting. Click <span className="text-amber-400">Edit</span> on any section to go back.</p>
+      </div>
+
+      <div className="space-y-3">
+        {sections.map((sec) => (
+          <div key={sec.title} className="bg-gray-900/60 border border-amber-500/15 rounded-2xl overflow-hidden">
+            <div className="flex items-center justify-between px-4 py-2.5 border-b border-amber-500/10 bg-amber-500/5">
+              <span className="text-amber-300 text-xs font-bold tracking-wide uppercase">{sec.title}</span>
+              <button
+                type="button"
+                onClick={() => onEdit(sec.step)}
+                className="flex items-center gap-1 text-amber-400/70 hover:text-amber-300 text-xs font-semibold transition-colors"
+              >
+                <Edit2 size={11} /> Edit
+              </button>
+            </div>
+            <div className="px-4 py-3 space-y-2">
+              {sec.rows.map((row) => (
+                <div key={row.label} className="flex gap-3">
+                  <span className="text-gray-500 text-xs w-36 flex-shrink-0 pt-0.5">{row.label}</span>
+                  <span className={`text-sm flex-1 leading-snug ${row.value ? "text-white" : "text-gray-600 italic"}`}>
+                    {row.value || "Not answered"}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <div className="mt-8 pt-6 border-t border-gray-800 flex items-center justify-between">
+        <button type="button" onClick={() => onEdit(7)} className="flex items-center gap-2 text-gray-400 hover:text-white text-sm font-medium transition-colors group">
+          <ChevronLeft className="group-hover:-translate-x-0.5 transition-transform" size={18} />
+          Back
+        </button>
+        <button
+          type="button"
+          disabled={isSubmitting}
+          onClick={onSubmit}
+          className="flex items-center gap-2 bg-gradient-to-r from-amber-400 to-amber-600 text-black px-8 py-2.5 rounded-full font-bold text-sm hover:shadow-lg hover:shadow-amber-500/30 transition-all duration-300 hover:scale-105 disabled:opacity-70 disabled:cursor-not-allowed disabled:hover:scale-100"
+        >
+          {isSubmitting ? (
+            <><Loader2 size={16} className="animate-spin" />Submitting…</>
+          ) : (
+            <><CheckCircle2 size={16} />Confirm &amp; Submit</>
+          )}
+        </button>
+      </div>
+    </div>
+  );
 }
 
 /* ─── Step progress bar ─── */
@@ -154,11 +292,12 @@ export default function Survey() {
     }
   };
 
-  const nextStep = () => setStep((prev) => Math.min(prev + 1, TOTAL_STEPS));
+  const nextStep = () => setStep((prev) => prev < TOTAL_STEPS ? prev + 1 : 8); // 8 = review
   const prevStep = () => setStep((prev) => Math.max(prev - 1, 1));
+  const goToReview = () => setStep(8);
+  const goToEdit = (s) => setStep(s);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const handleSubmit = async () => {
     setIsSubmitting(true);
 
     const formBody = new URLSearchParams();
@@ -251,8 +390,8 @@ export default function Survey() {
               </div>
             </div>
 
-            {/* Progress (hidden when submitted) */}
-            {!submitted && <ProgressBar step={step} total={TOTAL_STEPS} />}
+            {/* Progress (hidden on review=8 and submitted) */}
+            {!submitted && step <= TOTAL_STEPS && <ProgressBar step={step} total={TOTAL_STEPS} />}
 
             {/* Form body */}
             <form onSubmit={handleSubmit}>
@@ -277,9 +416,7 @@ export default function Survey() {
                               <RadioOption key={opt} name="respondentType" value={opt} checked={formData.respondentType === opt} onChange={handleChange} label={opt} />
                             ))}
                           </div>
-                          {formData.respondentType === "Other" && (
-                            <input type="text" name="respondentOther" placeholder="Please specify…" onChange={handleChange} className="mt-2 w-full bg-gray-900 border border-amber-500/30 rounded-xl px-4 py-2.5 text-white text-sm placeholder-gray-600 focus:outline-none focus:border-amber-500/60 transition-colors" />
-                          )}
+                          <OtherInput show={formData.respondentType === "Other"} name="respondentOther" value={formData.respondentOther} onChange={handleChange} />
                         </FieldBlock>
 
                         <FieldBlock>
@@ -322,9 +459,7 @@ export default function Survey() {
                               <CheckOption key={opt} name="biggestChallenges" value={opt} checked={formData.biggestChallenges.includes(opt)} onChange={handleChange} label={opt} />
                             ))}
                           </div>
-                          {formData.biggestChallenges.includes("Other") && (
-                            <input type="text" name="biggestChallengesOther" placeholder="Please specify…" onChange={handleChange} className="mt-2 w-full bg-gray-900 border border-amber-500/30 rounded-xl px-4 py-2.5 text-white text-sm placeholder-gray-600 focus:outline-none focus:border-amber-500/60 transition-colors" />
-                          )}
+                          <OtherInput show={formData.biggestChallenges.includes("Other")} name="biggestChallengesOther" value={formData.biggestChallengesOther} onChange={handleChange} />
                         </FieldBlock>
 
                         <FieldBlock>
@@ -334,9 +469,7 @@ export default function Survey() {
                               <CheckOption key={opt} name="detectionMethods" value={opt} checked={formData.detectionMethods.includes(opt)} onChange={handleChange} label={opt} />
                             ))}
                           </div>
-                          {formData.detectionMethods.includes("Other") && (
-                            <input type="text" name="detectionMethodsOther" placeholder="Please specify…" onChange={handleChange} className="mt-2 w-full bg-gray-900 border border-amber-500/30 rounded-xl px-4 py-2.5 text-white text-sm placeholder-gray-600 focus:outline-none focus:border-amber-500/60 transition-colors" />
-                          )}
+                          <OtherInput show={formData.detectionMethods.includes("Other")} name="detectionMethodsOther" value={formData.detectionMethodsOther} onChange={handleChange} />
                         </FieldBlock>
                       </div>
                     )}
@@ -492,36 +625,39 @@ export default function Survey() {
                       </div>
                     )}
 
-                    {/* ── Navigation ── */}
-                    <div className="flex items-center justify-between mt-10 pt-6 border-t border-gray-800">
-                      {step > 1 ? (
-                        <button type="button" onClick={prevStep} className="flex items-center gap-2 text-gray-400 hover:text-white text-sm font-medium transition-colors group">
-                          <ChevronLeft className="group-hover:-translate-x-0.5 transition-transform" size={18} />
-                          Previous
-                        </button>
-                      ) : <div />}
+                    {/* ── Step navigation (steps 1-7 only) ── */}
+                    {step <= TOTAL_STEPS && (
+                      <div className="flex items-center justify-between mt-10 pt-6 border-t border-gray-800">
+                        {step > 1 ? (
+                          <button type="button" onClick={prevStep} className="flex items-center gap-2 text-gray-400 hover:text-white text-sm font-medium transition-colors group">
+                            <ChevronLeft className="group-hover:-translate-x-0.5 transition-transform" size={18} />
+                            Previous
+                          </button>
+                        ) : <div />}
 
-                      {step < TOTAL_STEPS ? (
-                        <button type="button" onClick={nextStep} className="flex items-center gap-2 bg-gradient-to-r from-amber-400 to-amber-600 text-black px-6 py-2.5 rounded-full font-bold text-sm hover:shadow-lg hover:shadow-amber-500/30 transition-all duration-300 hover:scale-105">
-                          Next
-                          <ChevronRight size={16} />
-                        </button>
-                      ) : (
-                        <button type="submit" disabled={isSubmitting} className="flex items-center gap-2 bg-gradient-to-r from-amber-400 to-amber-600 text-black px-8 py-2.5 rounded-full font-bold text-sm hover:shadow-lg hover:shadow-amber-500/30 transition-all duration-300 hover:scale-105 disabled:opacity-70 disabled:cursor-not-allowed disabled:hover:scale-100">
-                          {isSubmitting ? (
-                            <>
-                              <Loader2 size={16} className="animate-spin" />
-                              Submitting…
-                            </>
-                          ) : (
-                            <>
-                              <CheckCircle2 size={16} />
-                              Submit Survey
-                            </>
-                          )}
-                        </button>
-                      )}
-                    </div>
+                        {step < TOTAL_STEPS ? (
+                          <button type="button" onClick={nextStep} className="flex items-center gap-2 bg-gradient-to-r from-amber-400 to-amber-600 text-black px-6 py-2.5 rounded-full font-bold text-sm hover:shadow-lg hover:shadow-amber-500/30 transition-all duration-300 hover:scale-105">
+                            Next
+                            <ChevronRight size={16} />
+                          </button>
+                        ) : (
+                          <button type="button" onClick={goToReview} className="flex items-center gap-2 bg-gradient-to-r from-amber-400 to-amber-600 text-black px-6 py-2.5 rounded-full font-bold text-sm hover:shadow-lg hover:shadow-amber-500/30 transition-all duration-300 hover:scale-105">
+                            <Eye size={16} />
+                            Review Answers
+                          </button>
+                        )}
+                      </div>
+                    )}
+
+                    {/* ── Review screen (step 8) ── */}
+                    {step === 8 && (
+                      <ReviewScreen
+                        formData={formData}
+                        onEdit={goToEdit}
+                        onSubmit={handleSubmit}
+                        isSubmitting={isSubmitting}
+                      />
+                    )}
                   </>
                 )}
               </div>
