@@ -66,7 +66,7 @@ export default function Hero() {
   ];
 
   return (
-    <section id="home" className="relative min-h-screen flex items-center justify-center bg-black overflow-hidden">
+    <section id="home" className="relative min-h-screen flex flex-col items-center justify-between bg-black overflow-hidden pt-28">
       {/* Canvas */}
       <canvas ref={canvasRef} className="absolute inset-0 pointer-events-none z-[1]" />
 
@@ -87,8 +87,8 @@ export default function Hero() {
       <div className="absolute -bottom-32 -right-32 w-[600px] h-[600px] rounded-full pointer-events-none z-[1]"
         style={{ background: 'radial-gradient(circle,rgba(168,116,60,0.1) 0%,transparent 70%)', filter: 'blur(80px)' }} />
 
-      {/* Content */}
-      <div className="relative z-10 flex flex-col items-center text-center w-full max-w-4xl mx-auto px-6 pt-28 pb-20">
+      {/* Main content — grows to fill available space */}
+      <div className="relative z-10 flex flex-col items-center text-center w-full max-w-4xl mx-auto px-6 py-10 flex-1 justify-center">
 
         {/* Badge */}
         <div className="inline-flex items-center gap-2 border border-amber-500/30 rounded-full px-4 py-1.5 mb-8"
@@ -104,7 +104,6 @@ export default function Hero() {
             style={{ width: 'clamp(240px,42vw,520px)', filter: 'drop-shadow(0 0 60px rgba(189,138,76,0.25))' }}
           />
         </div>
-
 
         {/* CTAs */}
         <div className="flex flex-wrap gap-3 justify-center mb-14"
@@ -127,7 +126,7 @@ export default function Hero() {
         {/* Stats */}
         <div className="flex sm:divide-x divide-amber-500/10 border border-amber-500/15 rounded-2xl overflow-hidden bg-black/40 backdrop-blur-sm flex-col sm:flex-row"
           style={{ animation: 'heroUp 0.7s ease 0.7s both' }}>
-          {STATS.map((s, i) => (
+          {STATS.map((s) => (
             <div key={s.label} className="flex flex-col items-center px-8 sm:px-10 py-4 border-b sm:border-b-0 border-amber-500/10 last:border-b-0">
               <span className="text-2xl font-black bg-gradient-to-r from-gold-light to-gold-dark bg-clip-text text-transparent leading-tight">
                 {s.value}
@@ -140,19 +139,21 @@ export default function Hero() {
         </div>
       </div>
 
-      {/* Scroll cue */}
-      <button
-        onClick={() => scrollToSection('about')}
-        aria-label="Scroll down"
-        className="absolute bottom-8 left-1/2 -translate-x-1/2 z-10 w-10 h-10 border border-amber-500/25 rounded-full flex items-center justify-center text-amber-400/60 bg-black/30 hover:bg-amber-500/10 hover:border-amber-500/60 hover:text-amber-400 transition-all duration-300"
-        style={{ animation: 'scrollBounce 2.5s ease-in-out infinite' }}
-      >
-        <ChevronDown size={18} />
-      </button>
+      {/* Scroll cue — sits at the bottom, naturally centered by flex column + items-center */}
+      <div className="relative z-10 pb-10">
+        <button
+          onClick={() => scrollToSection('about')}
+          aria-label="Scroll down"
+          className="w-10 h-10 border border-amber-500/25 rounded-full flex items-center justify-center text-amber-400/60 bg-black/30 hover:bg-amber-500/10 hover:border-amber-500/60 hover:text-amber-400 transition-all duration-300"
+          style={{ animation: 'scrollBounce 2.5s ease-in-out infinite' }}
+        >
+          <ChevronDown size={18} />
+        </button>
+      </div>
 
       <style>{`
         @keyframes heroUp { from { opacity:0; transform:translateY(20px); } to { opacity:1; transform:translateY(0); } }
-        @keyframes scrollBounce { 0%,100%{transform:translateX(-50%) translateY(0);} 50%{transform:translateX(-50%) translateY(7px);} }
+        @keyframes scrollBounce { 0%,100%{ transform:translateY(0); } 50%{ transform:translateY(7px); } }
       `}</style>
     </section>
   );

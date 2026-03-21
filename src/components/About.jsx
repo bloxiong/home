@@ -29,7 +29,7 @@ export default function About() {
     <section id="about" className="relative py-28 bg-gradient-to-b from-black via-gray-950 to-black overflow-hidden">
       {/* Ambient glow */}
       <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute top-0 left-0 w-[500px] h-[500px] rounded-full opacity-100"
+        <div className="absolute top-0 left-0 w-[500px] h-[500px] rounded-full"
           style={{ background: 'radial-gradient(ellipse,rgba(189,138,76,0.05) 0%,transparent 70%)', filter: 'blur(60px)' }} />
         <div className="absolute bottom-0 right-0 w-[400px] h-[400px] rounded-full"
           style={{ background: 'radial-gradient(ellipse,rgba(168,116,60,0.04) 0%,transparent 70%)', filter: 'blur(60px)' }} />
@@ -54,24 +54,22 @@ export default function About() {
           </p>
         </div>
 
-        {/* Intro quote */}
-        <div className="flex items-center gap-6 mb-16 max-w-3xl mx-auto px-4">
-          <div className="flex-1 h-px bg-gradient-to-r from-transparent via-amber-500/25 to-transparent" />
-          <p className="text-white/50 text-sm sm:text-base text-center italic leading-relaxed max-w-lg flex-shrink-0">
+        {/* Intro quote — centered block, no side lines */}
+        <div className="mb-16 text-center">
+          <p className="text-white/50 text-sm sm:text-base italic leading-relaxed max-w-2xl mx-auto">
             "A next-generation technology company dedicated to building hardware and software products that solve real problems — all designed and engineered with world-class standards."
           </p>
-          <div className="flex-1 h-px bg-gradient-to-r from-transparent via-amber-500/25 to-transparent" />
         </div>
 
         {/* Pillars */}
         <div className="grid md:grid-cols-2 gap-5 mb-12">
-          {PILLARS.map(({ icon: Icon, title, body }, i) => (
+          {PILLARS.map(({ icon: Icon, title, body }) => (
             <div
               key={title}
-              className="group relative bg-white/[0.02] border border-amber-500/10 rounded-2xl p-7 hover:border-amber-500/25 hover:-translate-y-1 transition-all duration-400 overflow-hidden"
+              className="group relative bg-white/[0.02] border border-amber-500/10 rounded-2xl p-7 hover:border-amber-500/25 hover:-translate-y-1 transition-all duration-300 overflow-hidden"
             >
               {/* Top shimmer on hover */}
-              <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-amber-500/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-400" />
+              <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-amber-500/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
 
               <div className="w-11 h-11 rounded-xl border border-amber-500/20 flex items-center justify-center mb-5 group-hover:border-amber-500/40 group-hover:rotate-6 transition-all duration-300"
                 style={{ background: 'rgba(189,138,76,0.08)' }}>
