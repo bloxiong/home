@@ -1,115 +1,144 @@
 import React, { useState } from 'react';
-import { Mail, Phone, MapPin } from 'lucide-react';
+import { Mail, Phone, MapPin, Send, CheckCircle2 } from 'lucide-react';
+
+const INFO = [
+  {
+    icon: MapPin,
+    label: 'Office Address',
+    lines: ['Plot AV 27B, 251 Road Festac Phase II,', 'Abule Ado, Lagos State, Nigeria'],
+  },
+  {
+    icon: Mail,
+    label: 'Email',
+    lines: ['bloxionigerialimited@gmail.com'],
+    href: 'mailto:bloxionigerialimited@gmail.com',
+  },
+  {
+    icon: Phone,
+    label: 'Phone',
+    lines: ['[removed] — Owen', '[removed] — Austin'],
+  },
+];
 
 export default function Contact() {
-  const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    message: ''
-  });
+  const [form, setForm] = useState({ name: '', email: '', subject: '', message: '' });
+  const [sent, setSent] = useState(false);
 
   const handleSubmit = () => {
-    const subject = encodeURIComponent(`Message from ${formData.name}`);
-    const body = encodeURIComponent(`Name: ${formData.name}\nEmail: ${formData.email}\n\nMessage:\n${formData.message}`);
-    window.location.href = `mailto:bloxionigerialimited@gmail.com?subject=${subject}&body=${body}`;
+    if (!form.name || !form.email || !form.message) return;
+    const sub = encodeURIComponent(form.subject || `Message from ${form.name}`);
+    const body = encodeURIComponent(`Name: ${form.name}\nEmail: ${form.email}\n\nMessage:\n${form.message}`);
+    window.location.href = `mailto:bloxionigerialimited@gmail.com?subject=${sub}&body=${body}`;
+    setSent(true);
   };
 
+  const inputClass =
+    'w-full bg-white/[0.03] border border-amber-500/15 rounded-xl px-4 py-3 text-white text-sm placeholder-white/20 focus:outline-none focus:border-amber-500/40 focus:bg-amber-500/[0.03] transition-all duration-200 font-sans';
+
   return (
-    <section id="contact" className="py-24 bg-gradient-to-b from-black via-gray-950 to-black relative">
-      <div className="container mx-auto px-6">
-        <div className="text-center mb-20">
-          <h2 className="text-5xl md:text-6xl font-black mb-4">
+    <section id="contact" className="relative py-28 bg-gradient-to-b from-black via-gray-950 to-black overflow-hidden">
+      <div className="absolute inset-0 pointer-events-none">
+        <div className="absolute top-1/2 left-0 w-[400px] h-[400px] -translate-y-1/2"
+          style={{ background: 'radial-gradient(ellipse,rgba(189,138,76,0.05) 0%,transparent 70%)', filter: 'blur(60px)' }} />
+        <div className="absolute top-1/2 right-0 w-[400px] h-[400px] -translate-y-1/2"
+          style={{ background: 'radial-gradient(ellipse,rgba(168,116,60,0.04) 0%,transparent 70%)', filter: 'blur(60px)' }} />
+      </div>
+
+      <div className="relative z-10 container mx-auto px-6 max-w-5xl">
+        {/* Header */}
+        <div className="text-center mb-16">
+          <span className="inline-block text-[11px] font-bold tracking-[0.16em] uppercase text-amber-500 border border-amber-500/25 rounded-full px-4 py-1.5 mb-5"
+            style={{ background: 'rgba(189,138,76,0.07)' }}>
+            Let's Talk
+          </span>
+          <h2 className="text-5xl md:text-6xl font-black tracking-tight mb-4">
+            Get In{' '}
             <span className="bg-gradient-to-r from-gold-light via-gold to-gold-dark bg-clip-text text-transparent">
-              Get In Touch
+              Touch
             </span>
           </h2>
-          <div className="w-32 h-1.5 bg-gradient-to-r from-amber-400 via-amber-500 to-amber-600 mx-auto rounded-full"></div>
-          <p className="text-gray-400 mt-6 text-lg max-w-2xl mx-auto">
-            Ready to innovate together? We'd love to hear from you
+          <div className="w-14 h-[3px] bg-gradient-to-r from-gold-light to-gold-dark rounded-full mx-auto mb-6" />
+          <p className="text-white/40 text-base sm:text-lg max-w-xl mx-auto leading-relaxed">
+            Ready to innovate together? We'd love to hear from you.
           </p>
         </div>
-        
-        <div className="max-w-6xl mx-auto grid md:grid-cols-2 gap-10">
-          <div className="bg-gradient-to-br from-gray-900 to-black rounded-3xl p-10 border border-amber-500/20 shadow-2xl">
-            <h3 className="text-3xl font-bold text-gold-light mb-8">Contact Information</h3>
-            
-            <div className="space-y-6">
-              <div className="flex items-start gap-4 p-5 bg-black/40 rounded-2xl border border-amber-500/10">
-                <MapPin className="text-amber-500 flex-shrink-0 mt-1" size={28} />
-                <div>
-                  <p className="text-gray-300 font-bold mb-2 text-lg">Company Address</p>
-                  <p className="text-gray-400 leading-relaxed">
-                    Plot AV 27B 251 Road Festac Phase II,<br />
-                    Abule Ado, Lagos State, Nigeria
-                  </p>
+
+        <div className="grid md:grid-cols-[1fr_1.6fr] gap-6 items-start">
+          {/* Info card */}
+          <div className="bg-gradient-to-br from-gray-900/80 to-black border border-amber-500/12 rounded-3xl p-8">
+            <h3 className="text-white font-bold text-base mb-1">Contact Information</h3>
+            <p className="text-white/30 text-xs leading-relaxed mb-7">We respond within 24 hours.</p>
+
+            <div className="space-y-5 mb-7">
+              {INFO.map(({ icon: Icon, label, lines, href }) => (
+                <div key={label} className="flex items-start gap-3">
+                  <div className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5"
+                    style={{ background: 'rgba(189,138,76,0.1)', border: '1px solid rgba(189,138,76,0.15)' }}>
+                    <Icon size={14} className="text-amber-500" />
+                  </div>
+                  <div>
+                    <div className="text-[10px] uppercase tracking-widest text-white/20 font-bold mb-0.5">{label}</div>
+                    {lines.map((l, i) =>
+                      href && i === 0 ? (
+                        <a key={i} href={href} className="text-amber-400 hover:text-amber-300 text-xs font-semibold block transition-colors">{l}</a>
+                      ) : (
+                        <div key={i} className="text-white/45 text-xs">{l}</div>
+                      )
+                    )}
+                  </div>
                 </div>
-              </div>
-              
-              <div className="flex items-start gap-4 p-5 bg-black/40 rounded-2xl border border-amber-500/10">
-                <Mail className="text-amber-500 flex-shrink-0 mt-1" size={28} />
-                <div>
-                  <p className="text-gray-300 font-bold mb-2 text-lg">Email Address</p>
-                  <a href="mailto:bloxionigerialimited@gmail.com" className="text-gold-light hover:text-amber-300 transition-colors text-lg">
-                    bloxionigerialimited@gmail.com
-                  </a>
-                </div>
-              </div>
-              
-              <div className="flex items-start gap-4 p-5 bg-black/40 rounded-2xl border border-amber-500/10">
-                <Phone className="text-amber-500 flex-shrink-0 mt-1" size={28} />
-                <div>
-                  <p className="text-gray-300 font-bold mb-2 text-lg">Phone Numbers</p>
-                  <p className="text-gray-400 mb-1 text-lg">[removed] (Owen)</p>
-                  <p className="text-gray-400 text-lg">[removed] (Austin)</p>
-                </div>
-              </div>
+              ))}
+            </div>
+
+            <div className="flex items-center gap-2.5 pt-5 border-t border-amber-500/8 text-white/30 text-xs">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 shadow-[0_0_0_3px_rgba(52,211,153,0.2)] flex-shrink-0" />
+              Available Mon–Fri · 9AM – 6PM WAT
             </div>
           </div>
-          
-          <div className="bg-gradient-to-br from-gray-900 to-black rounded-3xl p-10 border border-amber-500/20 shadow-2xl">
-            <h3 className="text-3xl font-bold text-gold-light mb-8">Send Us a Message</h3>
-            
-            <div className="space-y-5">
-              <div>
-                <label className="text-gray-400 text-sm mb-2 block">Your Name</label>
-                <input 
-                  type="text" 
-                  placeholder="Enter your name" 
-                  value={formData.name}
-                  onChange={(e) => setFormData({...formData, name: e.target.value})}
-                  className="w-full bg-black/60 border border-amber-500/30 rounded-xl px-5 py-4 text-gray-300 focus:border-amber-500 focus:outline-none transition-all"
-                />
+
+          {/* Form card */}
+          <div className="bg-gradient-to-br from-gray-900/80 to-black border border-amber-500/12 rounded-3xl p-8">
+            {sent ? (
+              <div className="flex flex-col items-center text-center py-10 gap-4">
+                <CheckCircle2 size={44} className="text-emerald-400" />
+                <h4 className="text-white font-bold text-lg">Message Prepared!</h4>
+                <p className="text-white/35 text-sm leading-relaxed max-w-xs">
+                  Your email client is opening with the message pre-filled. We'll get back to you shortly.
+                </p>
               </div>
-              
-              <div>
-                <label className="text-gray-400 text-sm mb-2 block">Your Email</label>
-                <input 
-                  type="email" 
-                  placeholder="Enter your email" 
-                  value={formData.email}
-                  onChange={(e) => setFormData({...formData, email: e.target.value})}
-                  className="w-full bg-black/60 border border-amber-500/30 rounded-xl px-5 py-4 text-gray-300 focus:border-amber-500 focus:outline-none transition-all"
-                />
+            ) : (
+              <div className="space-y-4">
+                <div className="grid sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-[10px] uppercase tracking-widest text-white/30 font-bold mb-1.5">Your Name</label>
+                    <input type="text" placeholder="Enter your name" value={form.name}
+                      onChange={(e) => setForm({ ...form, name: e.target.value })} className={inputClass} />
+                  </div>
+                  <div>
+                    <label className="block text-[10px] uppercase tracking-widest text-white/30 font-bold mb-1.5">Email Address</label>
+                    <input type="email" placeholder="you@example.com" value={form.email}
+                      onChange={(e) => setForm({ ...form, email: e.target.value })} className={inputClass} />
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-[10px] uppercase tracking-widest text-white/30 font-bold mb-1.5">Subject</label>
+                  <input type="text" placeholder="What's this about?" value={form.subject}
+                    onChange={(e) => setForm({ ...form, subject: e.target.value })} className={inputClass} />
+                </div>
+                <div>
+                  <label className="block text-[10px] uppercase tracking-widest text-white/30 font-bold mb-1.5">Message</label>
+                  <textarea placeholder="Tell us about your project or inquiry..." value={form.message}
+                    onChange={(e) => setForm({ ...form, message: e.target.value })}
+                    rows={5} className={`${inputClass} resize-none`} />
+                </div>
+                <button
+                  onClick={handleSubmit}
+                  className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-gold-light via-gold to-gold-dark text-black py-3.5 rounded-xl font-bold text-sm tracking-wide hover:shadow-lg hover:shadow-amber-500/25 hover:-translate-y-0.5 transition-all duration-300"
+                >
+                  <Send size={14} /> Send Message
+                </button>
               </div>
-              
-              <div>
-                <label className="text-gray-400 text-sm mb-2 block">Your Message</label>
-                <textarea 
-                  placeholder="Tell us about your project or inquiry..."
-                  value={formData.message}
-                  onChange={(e) => setFormData({...formData, message: e.target.value})}
-                  rows={5}
-                  className="w-full bg-black/60 border border-amber-500/30 rounded-xl px-5 py-4 text-gray-300 focus:border-amber-500 focus:outline-none transition-all resize-none"
-                ></textarea>
-              </div>
-              
-              <button 
-                onClick={handleSubmit}
-                className="w-full bg-gradient-to-r from-gold-light via-gold to-gold-dark text-black px-8 py-4 rounded-xl font-bold text-lg hover:shadow-lg hover:shadow-amber-500/50 transition-all duration-300 transform hover:scale-105"
-              >
-                Send Message
-              </button>
-            </div>
+            )}
           </div>
         </div>
       </div>

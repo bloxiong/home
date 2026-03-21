@@ -1,73 +1,100 @@
 import React from 'react';
-import { Target, Users, Lightbulb, Award, Zap, Globe, Shield, TrendingUp, Cpu, Rocket } from 'lucide-react';
+import { Target, Lightbulb, Zap, Globe } from 'lucide-react';
+
+const PILLARS = [
+  {
+    icon: Target,
+    title: 'Our Aim',
+    body: 'To research, invent, develop, produce, market, and deliver innovative technology products and services that improve lives, solve real-world problems, and drive technological advancement globally.',
+  },
+  {
+    icon: Lightbulb,
+    title: 'Our Mission',
+    body: "To become a leading force in technology innovation — delivering solutions that not only meet today's challenges but anticipate tomorrow's needs, while maintaining the highest standards of quality.",
+  },
+  {
+    icon: Globe,
+    title: 'Our Reach',
+    body: 'Rooted in Nigeria, built for the world. We engineer products and platforms with a global perspective, ensuring every solution scales beyond borders and delivers meaningful impact.',
+  },
+  {
+    icon: Zap,
+    title: 'Our Edge',
+    body: 'We combine deep engineering expertise with startup agility — moving fast, iterating boldly, and shipping products that set new benchmarks in quality, usability, and technological sophistication.',
+  },
+];
 
 export default function About() {
   return (
-    <section id="about" className="py-24 bg-gradient-to-b from-black via-gray-950 to-black relative">
-      <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNhNzhmMjAiIGZpbGwtb3BhY2l0eT0iMC4wMyI+PHBhdGggZD0iTTM2IDE2djEwaC0xMFYxNmgxMHpNMTQgMTZ2MTBINFYxNmgxMHptNDQgMHYxMGgtMTBWMTZoMTB6TTE0IDR2MTBINFY0aDEwem00NCAwdjEwaC0xMFY0aDEwek0zNiA0djEwaC0xMFY0aDEweiIvPjwvZz48L2c+PC9zdmc+')] opacity-20"></div>
-      
-      <div className="container mx-auto px-6 relative z-10">
-        <div className="text-center mb-20">
-          <h2 className="text-5xl md:text-6xl font-black mb-4">
+    <section id="about" className="relative py-28 bg-gradient-to-b from-black via-gray-950 to-black overflow-hidden">
+      {/* Ambient glow */}
+      <div className="absolute inset-0 pointer-events-none">
+        <div className="absolute top-0 left-0 w-[500px] h-[500px] rounded-full opacity-100"
+          style={{ background: 'radial-gradient(ellipse,rgba(189,138,76,0.05) 0%,transparent 70%)', filter: 'blur(60px)' }} />
+        <div className="absolute bottom-0 right-0 w-[400px] h-[400px] rounded-full"
+          style={{ background: 'radial-gradient(ellipse,rgba(168,116,60,0.04) 0%,transparent 70%)', filter: 'blur(60px)' }} />
+      </div>
+
+      <div className="relative z-10 container mx-auto px-6 max-w-6xl">
+        {/* Section header */}
+        <div className="text-center mb-16">
+          <span className="inline-block text-[11px] font-bold tracking-[0.16em] uppercase text-amber-500 border border-amber-500/25 rounded-full px-4 py-1.5 mb-5"
+            style={{ background: 'rgba(189,138,76,0.07)' }}>
+            Who We Are
+          </span>
+          <h2 className="text-5xl md:text-6xl font-black tracking-tight mb-4">
+            About{' '}
             <span className="bg-gradient-to-r from-gold-light via-gold to-gold-dark bg-clip-text text-transparent">
-              About Bloxio
+              Bloxio
             </span>
           </h2>
-          <div className="w-32 h-1.5 bg-gradient-to-r from-amber-400 via-amber-500 to-amber-600 mx-auto rounded-full"></div>
-          <p className="text-gray-400 mt-6 text-lg max-w-2xl mx-auto">
+          <div className="w-14 h-[3px] bg-gradient-to-r from-gold-light to-gold-dark rounded-full mx-auto mb-6" />
+          <p className="text-white/40 text-base sm:text-lg max-w-xl mx-auto leading-relaxed">
             A technology company built on innovation, excellence, and the vision to shape the future
           </p>
         </div>
-        
-        <div className="max-w-6xl mx-auto grid md:grid-cols-2 gap-8 mb-16">
-          <div className="bg-gradient-to-br from-gray-900 to-black rounded-3xl p-10 border border-amber-500/20 shadow-2xl shadow-amber-900/10 hover:border-amber-500/40 transition-all duration-300 transform hover:scale-105">
-            <div className="w-16 h-16 bg-gradient-to-br from-amber-400 to-amber-600 rounded-2xl flex items-center justify-center mb-6">
-              <Target className="text-black" size={32} />
-            </div>
-            <h3 className="text-3xl font-bold text-gold-dark mb-6">Our Aim</h3>
-            <p className="text-gray-300 text-lg leading-relaxed">
-              To research, invent, develop, produce, market, and deliver innovative and high-quality technology products and services that improve lives, solve real-world problems, and drive technological advancement globally.
-            </p>
-          </div>
-          
-          <div className="bg-gradient-to-br from-gray-900 to-black rounded-3xl p-10 border border-amber-500/20 shadow-2xl shadow-amber-900/10 hover:border-amber-500/40 transition-all duration-300 transform hover:scale-105">
-            <div className="w-16 h-16 bg-gradient-to-br from-amber-400 to-amber-600 rounded-2xl flex items-center justify-center mb-6">
-              <Lightbulb className="text-black" size={32} />
-            </div>
-            <h3 className="text-3xl font-bold text-gold-dark mb-6">Our Mission</h3>
-            <p className="text-gray-300 text-lg leading-relaxed">
-              To become a leading force in technology innovation, delivering solutions that not only meet today's challenges but anticipate tomorrow's needs, while maintaining the highest standards of quality and sustainability.
-            </p>
-          </div>
+
+        {/* Intro quote */}
+        <div className="flex items-center gap-6 mb-16 max-w-3xl mx-auto px-4">
+          <div className="flex-1 h-px bg-gradient-to-r from-transparent via-amber-500/25 to-transparent" />
+          <p className="text-white/50 text-sm sm:text-base text-center italic leading-relaxed max-w-lg flex-shrink-0">
+            "A next-generation technology company dedicated to building hardware and software products that solve real problems — all designed and engineered with world-class standards."
+          </p>
+          <div className="flex-1 h-px bg-gradient-to-r from-transparent via-amber-500/25 to-transparent" />
         </div>
-        
-        <div className="max-w-6xl mx-auto">
-          <div className="bg-gradient-to-br from-gray-900 via-black to-gray-900 rounded-3xl p-10 md:p-14 border border-amber-500/20 shadow-2xl shadow-amber-900/10">
-            <h3 className="text-3xl md:text-4xl font-bold text-gold-light mb-10 text-center">Our Strategic Objectives</h3>
-            <div className="grid md:grid-cols-2 gap-6">
-              {[
-                { icon: Cpu, text: "Conduct extensive research in emerging and advanced technologies" },
-                { icon: Rocket, text: "Invent and develop new technological solutions that address industry needs" },
-                { icon: Award, text: "Design, prototype, and manufacture high-quality tech products" },
-                { icon: Globe, text: "Create integrated ecosystems of smart devices and platforms" },
-                { icon: TrendingUp, text: "Market and distribute technology products globally" },
-                { icon: Zap, text: "Transform research findings into commercially successful solutions" },
-                { icon: Shield, text: "Provide technical services, maintenance, and customer support" },
-                { icon: Target, text: "Uphold sustainability and energy-efficient practices" },
-                { icon: Lightbulb, text: "Ensure continuous improvement through innovation" },
-                { icon: Users, text: "Build partnerships for growth and market expansion" }
-              ].map((objective, index) => {
-                const Icon = objective.icon;
-                return (
-                  <div key={index} className="flex items-start gap-4 bg-black/40 p-5 rounded-2xl border border-amber-500/10 hover:border-amber-500/30 transition-all duration-300 group">
-                    <div className="flex-shrink-0 w-12 h-12 bg-gradient-to-br from-amber-500 to-amber-700 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
-                      <Icon className="text-black" size={24} />
-                    </div>
-                    <p className="text-gray-300 text-base leading-relaxed pt-2">{objective.text}</p>
-                  </div>
-                );
-              })}
+
+        {/* Pillars */}
+        <div className="grid md:grid-cols-2 gap-5 mb-12">
+          {PILLARS.map(({ icon: Icon, title, body }, i) => (
+            <div
+              key={title}
+              className="group relative bg-white/[0.02] border border-amber-500/10 rounded-2xl p-7 hover:border-amber-500/25 hover:-translate-y-1 transition-all duration-400 overflow-hidden"
+            >
+              {/* Top shimmer on hover */}
+              <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-amber-500/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-400" />
+
+              <div className="w-11 h-11 rounded-xl border border-amber-500/20 flex items-center justify-center mb-5 group-hover:border-amber-500/40 group-hover:rotate-6 transition-all duration-300"
+                style={{ background: 'rgba(189,138,76,0.08)' }}>
+                <Icon size={20} className="text-amber-500" />
+              </div>
+              <h3 className="text-amber-400 font-bold text-base mb-3 tracking-tight">{title}</h3>
+              <p className="text-white/40 text-sm leading-relaxed">{body}</p>
             </div>
+          ))}
+        </div>
+
+        {/* Registration badge */}
+        <div className="flex flex-col sm:flex-row items-center gap-6 sm:gap-10 bg-black/50 border border-amber-500/12 rounded-2xl px-8 py-5 backdrop-blur-sm max-w-2xl mx-auto">
+          <div className="flex flex-col gap-1 text-center sm:text-left">
+            <span className="text-[10px] uppercase tracking-widest text-white/20 font-bold">Registered Entity</span>
+            <span className="text-amber-400 font-bold text-sm">Bloxio Nigeria Limited</span>
+            <span className="text-white/30 text-xs">Plot AV 27B, 251 Road Festac Phase II · Lagos, Nigeria</span>
+          </div>
+          <div className="hidden sm:block w-px h-10 bg-amber-500/15" />
+          <div className="flex flex-col gap-1 text-center sm:text-left">
+            <span className="text-[10px] uppercase tracking-widest text-white/20 font-bold">CAC Registered</span>
+            <span className="text-amber-400 font-bold text-sm">Nigeria</span>
+            <span className="text-white/30 text-xs">Legally incorporated and operational</span>
           </div>
         </div>
       </div>
