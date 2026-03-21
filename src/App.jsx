@@ -5,10 +5,12 @@ import Footer from './components/Footer';
 import Home from './pages/Home';
 import Survey from './pages/Survey';
 import AgroSense360_Survey from './pages/AgroSense360-Survey';
+import ScrollToTop from './components/ScrollToTop';
 
 export default function App() {
   return (
     <Router>
+      <ScrollToTop />
       <div className="bg-black text-white min-h-screen flex flex-col overflow-x-hidden">
         <Navigation />
         <main className="flex-grow">

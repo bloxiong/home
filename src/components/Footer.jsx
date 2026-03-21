@@ -66,7 +66,7 @@ export default function Footer() {
           <div>
             <h4 className="text-[10px] font-bold uppercase tracking-[0.15em] text-amber-500/50 mb-4">Products</h4>
             <div className="space-y-2.5">
-              <Link to="/survey" className="flex items-center gap-2 text-white/45 hover:text-white/70 text-xs transition-colors">
+              <Link to="/survey/AgroSense360" className="flex items-center gap-2 text-white/45 hover:text-white/70 text-xs transition-colors">
                 AgroSense360
                 <span className="text-[9px] font-bold uppercase tracking-wider text-amber-500/60 border border-amber-500/20 rounded-full px-1.5 py-0.5"
                   style={{ background: 'rgba(189,138,76,0.08)' }}>Beta</span>
