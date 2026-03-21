@@ -105,12 +105,6 @@ export default function Hero() {
           />
         </div>
 
-        {/* Tagline */}
-        <p className="text-white/40 text-base sm:text-lg max-w-md leading-relaxed mb-10"
-          style={{ animation: 'heroUp 0.7s ease 0.4s both' }}>
-          Research. Invent. Deliver.{' '}
-          <span className="text-amber-400 font-semibold">The future is engineered here.</span>
-        </p>
 
         {/* CTAs */}
         <div className="flex flex-wrap gap-3 justify-center mb-14"
