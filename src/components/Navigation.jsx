@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { Menu, X } from 'lucide-react';
+import { Menu, X, Sun, Moon } from 'lucide-react';
+import { useTheme } from '../contexts/ThemeContext';
 
 const NAV_LINKS = [
   { label: 'About',      section: 'about' },
@@ -9,6 +10,32 @@ const NAV_LINKS = [
   { label: 'Leadership', section: 'directors' },
   { label: 'FAQ',        section: 'faq' },
 ];
+
+function ThemeToggle({ className = '' }) {
+  const { theme, toggleTheme } = useTheme();
+  const isDark = theme === 'dark';
+  return (
+    <button
+      onClick={toggleTheme}
+      aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
+      title={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
+      className={`relative w-10 h-10 flex items-center justify-center border border-amber-500/25 rounded-xl text-amber-500 hover:bg-amber-500/10 hover:border-amber-500/55 hover:text-amber-400 transition-all duration-300 overflow-hidden ${className}`}
+    >
+      <Sun
+        size={17}
+        className={`absolute transition-all duration-500 ${
+          isDark ? 'opacity-0 -rotate-90 scale-50' : 'opacity-100 rotate-0 scale-100'
+        }`}
+      />
+      <Moon
+        size={17}
+        className={`absolute transition-all duration-500 ${
+          isDark ? 'opacity-100 rotate-0 scale-100' : 'opacity-0 rotate-90 scale-50'
+        }`}
+      />
+    </button>
+  );
+}
 
 export default function Navigation() {
   const [isOpen, setIsOpen]   = useState(false);
@@ -39,10 +66,16 @@ export default function Navigation() {
     }
   };
 
+  // Only treat the navbar as "over a dark hero" on the home route at top of page,
+  // since CinematicHero is always dark.
+  const overDarkHero = location.pathname === '/' && !scrolled;
+
   return (
     <>
       <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-400 ${
-        scrolled ? 'bg-black/90 backdrop-blur-xl border-b border-amber-500/10 shadow-lg shadow-black/40' : 'bg-transparent'
+        scrolled
+          ? 'bg-white/85 dark:bg-black/90 backdrop-blur-xl border-b border-amber-500/20 dark:border-amber-500/10 shadow-lg shadow-stone-900/10 dark:shadow-black/40'
+          : 'bg-transparent'
       }`}>
         <div className="container mx-auto px-4 sm:px-6 max-w-7xl">
           <div className="flex items-center justify-between h-[68px] gap-6">
@@ -57,7 +90,11 @@ export default function Navigation() {
                 <button
                   key={l.label}
                   onClick={() => scrollTo(l.section)}
-                  className="relative px-4 py-2 text-sm font-semibold text-white/50 hover:text-white rounded-lg hover:bg-amber-500/5 transition-all duration-200 group"
+                  className={`relative px-4 py-2 text-sm font-semibold rounded-lg hover:bg-amber-500/8 transition-all duration-200 group ${
+                    overDarkHero
+                      ? 'text-white/60 hover:text-white'
+                      : 'text-stone-600 hover:text-stone-900 dark:text-white/55 dark:hover:text-white'
+                  }`}
                 >
                   {l.label}
                   <span className="absolute bottom-1.5 left-4 right-4 h-px bg-amber-500 scale-x-0 group-hover:scale-x-100 origin-left transition-transform duration-300 rounded-full" />
@@ -65,15 +102,20 @@ export default function Navigation() {
               ))}
               <Link
                 to="/survey"
-                className="relative px-4 py-2 text-sm font-semibold text-white/50 hover:text-white rounded-lg hover:bg-amber-500/5 transition-all duration-200 group"
+                className={`relative px-4 py-2 text-sm font-semibold rounded-lg hover:bg-amber-500/8 transition-all duration-200 group ${
+                  overDarkHero
+                    ? 'text-white/60 hover:text-white'
+                    : 'text-stone-600 hover:text-stone-900 dark:text-white/55 dark:hover:text-white'
+                }`}
               >
                 Survey
                 <span className="absolute bottom-1.5 left-4 right-4 h-px bg-amber-500 scale-x-0 group-hover:scale-x-100 origin-left transition-transform duration-300 rounded-full" />
               </Link>
             </div>
 
-            {/* CTA + hamburger */}
-            <div className="flex items-center gap-3 flex-shrink-0">
+            {/* Theme toggle + CTA + hamburger */}
+            <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
+              <ThemeToggle />
               <button
                 onClick={() => scrollTo('contact')}
                 className="hidden lg:inline-flex items-center bg-gradient-to-r from-gold-light via-gold to-gold-dark text-black px-5 py-2 rounded-full text-sm font-bold tracking-wide hover:shadow-md hover:shadow-amber-500/30 hover:-translate-y-px transition-all duration-300"
@@ -82,7 +124,7 @@ export default function Navigation() {
               </button>
               <button
                 onClick={() => setIsOpen(!isOpen)}
-                className="lg:hidden w-10 h-10 flex items-center justify-center border border-amber-500/25 rounded-xl text-amber-400 hover:bg-amber-500/8 hover:border-amber-500/50 transition-all duration-200"
+                className="lg:hidden w-10 h-10 flex items-center justify-center border border-amber-500/25 rounded-xl text-amber-500 hover:bg-amber-500/10 hover:border-amber-500/55 transition-all duration-200"
                 aria-label="Toggle menu"
               >
                 {isOpen ? <X size={20} /> : <Menu size={20} />}
@@ -93,7 +135,7 @@ export default function Navigation() {
       </nav>
 
       {/* Mobile full-screen overlay */}
-      <div className={`fixed inset-0 z-40 bg-black/97 backdrop-blur-2xl flex items-center justify-center transition-opacity duration-300 ${
+      <div className={`fixed inset-0 z-40 bg-stone-50/97 dark:bg-black/97 backdrop-blur-2xl flex items-center justify-center transition-opacity duration-300 ${
         isOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
       }`}>
         <div className="flex flex-col items-center gap-2 w-full px-8 pt-20 pb-10">
@@ -101,7 +143,7 @@ export default function Navigation() {
             <button
               key={l.label}
               onClick={() => scrollTo(l.section)}
-              className="text-3xl font-black text-white/40 hover:text-white py-1.5 transition-colors duration-200"
+              className="text-3xl font-black text-stone-700 hover:text-stone-900 dark:text-white/40 dark:hover:text-white py-1.5 transition-colors duration-200"
               style={{
                 animation: isOpen ? `heroUp 0.4s ease ${i * 0.06}s both` : 'none',
               }}
@@ -111,7 +153,7 @@ export default function Navigation() {
           ))}
           <Link
             to="/survey"
-            className="text-3xl font-black text-white/40 hover:text-white py-1.5 transition-colors duration-200"
+            className="text-3xl font-black text-stone-700 hover:text-stone-900 dark:text-white/40 dark:hover:text-white py-1.5 transition-colors duration-200"
             style={{ animation: isOpen ? `heroUp 0.4s ease ${NAV_LINKS.length * 0.06}s both` : 'none' }}
           >
             Survey

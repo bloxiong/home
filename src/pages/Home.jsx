@@ -1,5 +1,5 @@
 import React from 'react';
-import Hero from '../components/Hero';
+import CinematicHero from '../components/CinematicHero';
 import About from '../components/About';
 import Services from '../components/Services';
 import Vision from '../components/Vision';
@@ -10,7 +10,7 @@ import Contact from '../components/Contact';
 export default function Home() {
   return (
     <>
-      <Hero />
+      <CinematicHero />
       <About />
       <Services />
       <Vision />
