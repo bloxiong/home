@@ -11,7 +11,7 @@ export default function App() {
   return (
     <Router>
       <ScrollToTop />
-      <div className="bg-black text-white min-h-screen flex flex-col overflow-x-hidden">
+      <div className="bg-stone-50 text-stone-900 dark:bg-black dark:text-white min-h-screen flex flex-col overflow-x-hidden transition-colors duration-500">
         <Navigation />
         <main className="flex-grow">
           <Routes>
