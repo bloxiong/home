@@ -13,11 +13,6 @@ const INFO = [
     lines: ['bloxionigerialimited@gmail.com'],
     href: 'mailto:bloxionigerialimited@gmail.com',
   },
-  {
-    icon: Phone,
-    label: 'Phone',
-    lines: ['07068919754 — Owen', '08062439424 — Austin'],
-  },
 ];
 
 export default function Contact() {
