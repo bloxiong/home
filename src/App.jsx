@@ -6,6 +6,7 @@ import Home from './pages/Home';
 import Survey from './pages/Survey';
 import AgroSense360_Survey from './pages/AgroSense360-Survey';
 import ScrollToTop from './components/ScrollToTop';
+import ScrollToTopButton from './components/ScrollToTopButton';
 
 export default function App() {
   return (
@@ -21,6 +22,7 @@ export default function App() {
           </Routes>
         </main>
         <Footer />
+        <ScrollToTopButton />
       </div>
     </Router>
   );

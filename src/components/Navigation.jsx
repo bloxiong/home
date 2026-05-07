@@ -66,8 +66,6 @@ export default function Navigation() {
     }
   };
 
-  // Only treat the navbar as "over a dark hero" on the home route at top of page,
-  // since CinematicHero is always dark.
   const overDarkHero = location.pathname === '/' && !scrolled;
 
   return (
@@ -90,7 +88,7 @@ export default function Navigation() {
                 <button
                   key={l.label}
                   onClick={() => scrollTo(l.section)}
-                  className={`relative px-4 py-2 text-sm font-semibold rounded-lg hover:bg-amber-500/8 transition-all duration-200 group ${
+                  className={`relative px-4 py-2 text-sm font-semibold rounded-lg hover:bg-amber-500/8 transition-all duration-200 group cursor-pointer ${
                     overDarkHero
                       ? 'text-white/60 hover:text-white'
                       : 'text-stone-600 hover:text-stone-900 dark:text-white/55 dark:hover:text-white'
@@ -118,7 +116,7 @@ export default function Navigation() {
               <ThemeToggle />
               <button
                 onClick={() => scrollTo('contact')}
-                className="hidden lg:inline-flex items-center bg-gradient-to-r from-gold-light via-gold to-gold-dark text-black px-5 py-2 rounded-full text-sm font-bold tracking-wide hover:shadow-md hover:shadow-amber-500/30 hover:-translate-y-px transition-all duration-300"
+                className="hidden lg:inline-flex items-center bg-gradient-to-r from-gold-light via-gold to-gold-dark text-black px-5 py-2 rounded-full text-sm font-bold tracking-wide hover:shadow-md hover:shadow-amber-500/30 hover:-translate-y-px transition-all duration-300 cursor-pointer"
               >
                 Contact Us
               </button>
@@ -160,7 +158,7 @@ export default function Navigation() {
           </Link>
           <button
             onClick={() => scrollTo('contact')}
-            className="mt-6 bg-gradient-to-r from-gold-light via-gold to-gold-dark text-black px-10 py-4 rounded-full text-base font-bold tracking-wide hover:shadow-xl hover:shadow-amber-500/30 transition-all duration-300"
+            className="mt-6 bg-gradient-to-r from-gold-light via-gold to-gold-dark text-black px-10 py-4 rounded-full text-base font-bold tracking-wide hover:shadow-xl hover:shadow-amber-500/30 transition-all duration-300 cursor-pointer"
             style={{ animation: isOpen ? `heroUp 0.4s ease ${(NAV_LINKS.length + 1) * 0.06}s both` : 'none' }}
           >
             Contact Us
