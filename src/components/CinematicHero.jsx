@@ -717,7 +717,7 @@ export default function CinematicHero() {
                style={{ width: '60vw', minWidth: '380px' }}>
             <div className="text-center">
               <span className="panel-rise font-display text-xs tracking-[0.4em] uppercase text-amber-400 mb-6 block">
-                And much more →
+                And much more
               </span>
               <button
                 onClick={() => scrollToSection('services')}
