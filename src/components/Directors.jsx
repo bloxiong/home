@@ -3,22 +3,22 @@ import { Mail, Phone, GraduationCap, Briefcase } from 'lucide-react';
 
 const DIRECTORS = [
   {
-    name: 'Anyakie Owen',
+    name: 'Anyakie Owen (GMNSE, P.COREN)',
     initials: 'AO',
     title: 'Co-Founder & Director',
     education: 'B.Eng Electrical Electronics Engineering',
-    specialization: 'Major in Electronics',
-    email: 'owenanyakie@gmail.com',
-    phone: '07068919754',
+    specialization: 'Major in Electronics and Computer Engineering',
+    // email: 'owenanyakie@gmail.com',
+    // phone: '07068919754',
   },
   {
-    name: 'Austin Chris',
+    name: 'Austin Chris (GMNSE, P.COREN)',
     initials: 'AC',
     title: 'Co-Founder & Director',
     education: 'B.Eng Electrical Electronics Engineering',
-    specialization: 'Major in Electronics',
-    email: 'austinchrisiwu@gmail.com',
-    phone: '08062439424',
+    specialization: 'Major in Electronics and Computer Engineering',
+    // email: 'austinchrisiwu@gmail.com',
+    // phone: '08062439424',
   },
 ];
 
@@ -103,16 +103,6 @@ export default function Directors() {
               </div>
 
               {/* Contact strip */}
-              <div className="rounded-xl p-4 space-y-2.5" style={{ background: 'rgba(189,138,76,0.03)', border: '1px solid rgba(189,138,76,0.08)' }}>
-                <a href={`mailto:${d.email}`} className="flex items-center gap-2 text-white/35 hover:text-amber-400 text-xs transition-colors duration-200">
-                  <Mail size={12} className="text-amber-500/50 flex-shrink-0" />
-                  {d.email}
-                </a>
-                <a href={`tel:${d.phone}`} className="flex items-center gap-2 text-white/35 hover:text-amber-400 text-xs transition-colors duration-200">
-                  <Phone size={12} className="text-amber-500/50 flex-shrink-0" />
-                  {d.phone}
-                </a>
-              </div>
             </div>
           ))}
         </div>
