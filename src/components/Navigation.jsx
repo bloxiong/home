@@ -21,13 +21,13 @@ function ThemeToggle({ className = '' }) {
       title={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
       className={`relative w-10 h-10 flex items-center justify-center border border-amber-500/25 rounded-xl text-amber-500 hover:bg-amber-500/10 hover:border-amber-500/55 hover:text-amber-400 transition-all duration-300 overflow-hidden ${className}`}
     >
-      <Sun
+      <Moon
         size={17}
         className={`absolute transition-all duration-500 ${
           isDark ? 'opacity-0 -rotate-90 scale-50' : 'opacity-100 rotate-0 scale-100'
         }`}
       />
-      <Moon
+      <Sun
         size={17}
         className={`absolute transition-all duration-500 ${
           isDark ? 'opacity-100 rotate-0 scale-100' : 'opacity-0 rotate-90 scale-50'

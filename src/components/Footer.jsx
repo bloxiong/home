@@ -33,7 +33,7 @@ export default function Footer() {
             <div className="space-y-2">
               {[
                 { icon: Mail, text: 'bloxionigerialimited@gmail.com', href: 'mailto:bloxionigerialimited@gmail.com' },
-                { icon: Phone, text: '07068919754 · 08062439424' },
+                { icon: Phone, text: '+2347068919754 · +2348062439424' },
                 { icon: MapPin, text: 'Lagos State, Nigeria' },
               ].map(({ icon: Icon, text, href }) => (
                 <div key={text} className="flex items-center gap-2">
