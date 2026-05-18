@@ -112,7 +112,7 @@ function ReviewScreen({ formData, onEdit, onSubmit, isSubmitting }) {
       title: "About You",
       step: 1,
       rows: [
-        { label: "Role", value: formData.respondentType + (formData.respondentOther ? ` — ${formData.respondentOther}` : "") },
+        { label: "Role", value: formData.respondentType + (formData.respondentOther ? `: ${formData.respondentOther}` : "") },
         { label: "Experience", value: formData.yearsExperience },
         { label: "Location", value: formData.location },
       ],
@@ -122,8 +122,8 @@ function ReviewScreen({ formData, onEdit, onSubmit, isSubmitting }) {
       step: 2,
       rows: [
         { label: "Monitoring issues", value: formData.monitoringChallenges },
-        { label: "Biggest challenges", value: formData.biggestChallenges.join(", ") + (formData.biggestChallengesOther ? ` — ${formData.biggestChallengesOther}` : "") },
-        { label: "Detection methods", value: formData.detectionMethods.join(", ") + (formData.detectionMethodsOther ? ` — ${formData.detectionMethodsOther}` : "") },
+        { label: "Biggest challenges", value: formData.biggestChallenges.join(", ") + (formData.biggestChallengesOther ? `, ${formData.biggestChallengesOther}` : "") },
+        { label: "Detection methods", value: formData.detectionMethods.join(", ") + (formData.detectionMethodsOther ? `, ${formData.detectionMethodsOther}` : "") },
       ],
     },
     {
@@ -154,7 +154,7 @@ function ReviewScreen({ formData, onEdit, onSubmit, isSubmitting }) {
     {
       title: "Investment",
       step: 6,
-      rows: [{ label: "Investment interest", value: formData.investmentInterest + (formData.knowMore ? ` — ${formData.knowMore}` : "")}],
+      rows: [{ label: "Investment interest", value: formData.investmentInterest + (formData.knowMore ? `: ${formData.knowMore}` : "")}],
     },
     {
       title: "Early Access",
@@ -496,7 +496,7 @@ export default function AgroSense360_Survey() {
 
                         <div className="bg-amber-500/8 border border-amber-500/20 rounded-2xl p-4 mb-6">
                           <p className="text-amber-300/80 text-sm leading-relaxed">
-                            <span className="font-semibold text-amber-300">About AgroSense360:</span> A smart system that combines AI, cameras, and sensors to monitor crop health, soil conditions, and farm environment in real time — providing alerts and recommendations.
+                            <span className="font-semibold text-amber-300">About AgroSense360:</span> A smart system that combines AI, cameras, and sensors to monitor crop health, soil conditions, and farm environment in real time, providing alerts and recommendations.
                           </p>
                         </div>
 
@@ -685,7 +685,7 @@ export default function AgroSense360_Survey() {
             {!submitted && (
               <div className="bg-gradient-to-r from-gray-900/60 to-black/60 border-t border-amber-500/10 px-6 sm:px-10 py-4">
                 <p className="text-center text-gray-600 text-xs">
-                  <span className="text-amber-500/70">🔒</span> All responses are confidential and used only to improve our products.
+                  All responses are confidential and used only to improve our products.
                 </p>
               </div>
             )}

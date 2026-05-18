@@ -87,7 +87,7 @@ export default function Hero() {
       <div className="absolute -bottom-32 -right-32 w-[600px] h-[600px] rounded-full pointer-events-none z-[1]"
         style={{ background: 'radial-gradient(circle,rgba(168,116,60,0.1) 0%,transparent 70%)', filter: 'blur(80px)' }} />
 
-      {/* Main content — grows to fill available space */}
+      {/* Main content: grows to fill available space */}
       <div className="relative z-10 flex flex-col items-center text-center w-full max-w-4xl mx-auto px-6 py-10 flex-1 justify-center">
 
         {/* Badge */}
@@ -139,7 +139,7 @@ export default function Hero() {
         </div>
       </div>
 
-      {/* Scroll cue — sits at the bottom, naturally centered by flex column + items-center */}
+      {/* Scroll cue: sits at the bottom, naturally centered by flex column + items-center */}
       <div className="relative z-10 pb-10">
         <button
           onClick={() => scrollToSection('about')}

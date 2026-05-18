@@ -10,7 +10,7 @@ const PILLARS = [
   {
     icon: Lightbulb,
     title: 'Our Mission',
-    body: "To become a leading force in technology innovation — delivering solutions that not only meet today's challenges but anticipate tomorrow's needs, while maintaining the highest standards of quality.",
+    body: "To become a leading force in technology innovation, delivering solutions that not only meet today's challenges but anticipate tomorrow's needs, while maintaining the highest standards of quality.",
   },
   {
     icon: Globe,
@@ -20,7 +20,7 @@ const PILLARS = [
   {
     icon: Zap,
     title: 'Our Edge',
-    body: 'We combine deep engineering expertise with startup agility — moving fast, iterating boldly, and shipping products that set new benchmarks in quality, usability, and technological sophistication.',
+    body: 'We combine deep engineering expertise with startup agility, moving fast, iterating boldly, and shipping products that set new benchmarks in quality, usability, and technological sophistication.',
   },
 ];
 
@@ -54,10 +54,10 @@ export default function About() {
           </p>
         </div>
 
-        {/* Intro quote — centered block, no side lines */}
+        {/* Intro quote: centered block, no side lines */}
         <div className="mb-16 text-center">
           <p className="text-white/50 text-sm sm:text-base italic leading-relaxed max-w-2xl mx-auto">
-            "A next-generation technology company dedicated to building hardware and software products that solve real problems — all designed and engineered with world-class standards."
+            "A next-generation technology company dedicated to building hardware and software products that solve real problems, all designed and engineered with world-class standards."
           </p>
         </div>
 

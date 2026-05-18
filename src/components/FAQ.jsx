@@ -4,11 +4,11 @@ import { ChevronDown, HelpCircle } from 'lucide-react';
 const FAQS = [
   {
     q: 'What is Bloxio Nigeria Limited?',
-    a: 'Bloxio Nigeria Limited is a next-generation technology company headquartered in Lagos, Nigeria. We research, design, manufacture, and deliver innovative hardware and software products — from smart agricultural systems to consumer electronics — all built to world-class standards.',
+    a: 'Bloxio Nigeria Limited is a next-generation technology company headquartered in Lagos, Nigeria. We research, design, manufacture, and deliver innovative hardware and software products, from smart agricultural systems to consumer electronics, all built to world-class standards.',
   },
   {
     q: 'What is AgroSense360?',
-    a: 'AgroSense360 is our flagship smart farming product. It combines AI, cameras, and IoT sensors to monitor crop health, soil conditions, and farm environment in real time — delivering actionable alerts and recommendations directly to farmers and agribusiness operators.',
+    a: 'AgroSense360 is our flagship smart farming product. It combines AI, cameras, and IoT sensors to monitor crop health, soil conditions, and farm environment in real time, delivering actionable alerts and recommendations directly to farmers and agribusiness operators.',
   },
   {
     q: 'Who are the founders of Bloxio?',
@@ -28,7 +28,7 @@ const FAQS = [
   },
   {
     q: 'How do I get early access to AgroSense360?',
-    a: "Sign up through our survey page. Leave your email and we'll notify you when our pilot programme begins — early users get exclusive benefits and direct input into the product's development.",
+    a: "Sign up through our survey page. Leave your email and we'll notify you when our pilot programme begins. Early users get exclusive benefits and direct input into the product's development.",
   },
   {
     q: 'Does Bloxio ship products internationally?',

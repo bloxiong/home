@@ -2,7 +2,7 @@
 @config "../tailwind.config.js";
 
 /* ─────────────────────────────────────────────
-   Global font system — Equinox / Deltha vibe
+   Global font system: Equinox / Deltha vibe.
    Syncopate + Orbitron approximate the squared
    geometric look when Equinox isn't loaded.
    ───────────────────────────────────────────── */
@@ -129,7 +129,7 @@ html { scroll-behavior: smooth; }
 .orbit-spin { animation: orbitSpin 32s linear infinite; }
 .orbit-spin-rev { animation: orbitSpin 24s linear infinite reverse; }
 
-/* depth fog — used on edges of pinned scenes */
+/* depth fog: used on edges of pinned scenes */
 .fog-top {
   background: linear-gradient(to bottom, #000 0%, transparent 100%);
 }
@@ -159,7 +159,7 @@ html:not(.dark) { color-scheme: light; }
 
 /* helper: shorter excluder selector */
 :where(html:not(.dark)) :where(:not([data-always-dark]):not([data-always-dark] *)) {
-  /* placeholder rule — actual overrides target specific classes below */
+  /* placeholder rule: actual overrides target specific classes below */
 }
 
 /* ── PAGE + SURFACE BACKGROUNDS ───────────────────────────────────────── */
@@ -274,7 +274,7 @@ html:not(.dark) .shadow-amber-500\/40:not([data-always-dark]):not([data-always-d
 
 /* ── ARBITRARY-OPACITY AMBER UTILITIES ───────────────────────────────── */
 /* Services + FAQ use opacities like /[0.02], /[0.025], /[0.03], /[0.06],
-   /[0.11] to draw faint amber ghosts. They vanish on cream — boost them. */
+   /[0.11] to draw faint amber ghosts. They vanish on cream, so boost. */
 html:not(.dark) .bg-amber-500\/\[0\.02\]:not([data-always-dark]):not([data-always-dark] *)   { background-color: rgba(141,92,37,0.05); }
 html:not(.dark) .bg-amber-500\/\[0\.025\]:not([data-always-dark]):not([data-always-dark] *)  { background-color: rgba(141,92,37,0.07); }
 html:not(.dark) .bg-amber-500\/\[0\.03\]:not([data-always-dark]):not([data-always-dark] *)   { background-color: rgba(141,92,37,0.08); }
@@ -292,7 +292,7 @@ html:not(.dark) .text-amber-500\/60:not([data-always-dark]):not([data-always-dar
 html:not(.dark) .text-amber-500\/70:not([data-always-dark]):not([data-always-dark] *)    { color: rgba(141,92,37,0.80); }
 
 /* ── INLINE-STYLE HOT-SPOTS ───────────────────────────────────────────── */
-/* Any element with inline rgba(5,5,5,*) — Services grid + FAQ accordion */
+/* Any element with inline rgba(5,5,5,*): Services grid + FAQ accordion */
 html:not(.dark) [style*="rgba(5,5,5"]:not([data-always-dark]):not([data-always-dark] *) {
   background: #ffffff !important;
 }
@@ -302,17 +302,17 @@ html:not(.dark) [style*="background:rgba(0,0,0"]:not([data-always-dark]):not([da
   background: #ffffff !important;
 }
 
-/* Survey RadioOption / CheckOption inner dot — when checked, the inner
+/* Survey RadioOption / CheckOption inner dot: when checked, the inner
    dot is bg-black so it pops on the gold pill. Keep that contrast. */
-/* (no change needed — rgba(0,0,0) inline isn't used; bg-black on inner
+/* (no change needed: rgba(0,0,0) inline isn't used; bg-black on inner
     dot is small enough that flipping to cream is fine actually) */
 
-/* form inputs in Contact + Survey — ensure dark text on light bg */
+/* form inputs in Contact + Survey: ensure dark text on light bg */
 html:not(.dark) input,
 html:not(.dark) textarea,
 html:not(.dark) select { color-scheme: light; }
 
-/* Navigation logo — invert slightly for legibility on cream */
+/* Navigation logo: invert slightly for legibility on cream */
 html:not(.dark) nav img[alt="Bloxio"] { filter: brightness(0.4) saturate(1.4); }
 
 /* Footer top border tone */

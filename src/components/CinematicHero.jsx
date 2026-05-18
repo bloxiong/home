@@ -5,11 +5,8 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
 gsap.registerPlugin(ScrollTrigger);
 
-/* ───────────────────────────────────────────────
-   Cinematic visuals — large hero imagery sourced
-   from Unsplash (stable photo IDs). Each layer is
-   wrapped in a div so we can parallax it on scroll.
-   ─────────────────────────────────────────────── */
+/* Hero imagery sourced from Unsplash CDN. Each layer
+   sits in its own div so we can parallax it on scroll. */
 const HERO_IMG  = 'https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=1920&q=80';
 const SKY_IMG   = 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=1920&q=80';
 const CITY_IMG  = 'https://images.unsplash.com/photo-1494522855154-9297ac14b55f?auto=format&fit=crop&w=1920&q=80';
@@ -22,7 +19,7 @@ const CHAPTERS = [
   {
     kicker: 'Chapter 01',
     headline: 'WE ENGINEER.',
-    body: 'Deep-stack research across AI, IoT and advanced electronics — frontier science forged into manufacturable products.',
+    body: 'Deep-stack research across AI, IoT and advanced electronics. Frontier science forged into manufacturable products.',
     img: LAB_IMG,
   },
   {
@@ -185,7 +182,7 @@ export default function CinematicHero() {
   useLayoutEffect(() => {
     const ctx = gsap.context(() => {
 
-      /* SCENE 1 — intro letter reveal on mount */
+      /* SCENE 1: intro letter reveal on mount */
       gsap.to('.split-char', {
         y: 0,
         opacity: 1,
@@ -204,7 +201,7 @@ export default function CinematicHero() {
         delay: 0.6,
       });
 
-      /* SCENE 1 — pinned hero parallax on scroll out */
+      /* SCENE 1: pinned hero parallax on scroll out */
       gsap.timeline({
         scrollTrigger: {
           trigger: heroRef.current,
@@ -218,7 +215,7 @@ export default function CinematicHero() {
         .to(taglineRef.current, { y: -120, opacity: 0, ease: 'none' }, 0)
         .to(ringRef.current,    { scale: 1.6, rotate: 90, opacity: 0, ease: 'none' }, 0);
 
-      /* SCENE 2 — pinned story chapters: each card unravels bottom→top
+      /* SCENE 2: pinned story chapters. Each card unravels bottom-to-top
          via animated clip-path with rounded edges. Text rises word-by-word
          from overflow-hidden masks. Scrolling up auto-reverses (scrub). */
       const story = storyRef.current;
@@ -282,7 +279,7 @@ export default function CinematicHero() {
         });
       }
 
-      /* SCENE 3 — horizontal showcase */
+      /* SCENE 3: horizontal showcase */
       const horiz = horizRef.current;
       const track = trackRef.current;
       if (horiz && track) {
@@ -336,7 +333,7 @@ export default function CinematicHero() {
         });
       }
 
-      /* SCENE 4 — stacked cards reveal */
+      /* SCENE 4: stacked cards reveal */
       const stack = stackRef.current;
       if (stack && cardsRef.current.length) {
         cardsRef.current.forEach((card, i) => {
@@ -369,7 +366,7 @@ export default function CinematicHero() {
         });
       }
 
-      /* SCENE 5 — final CTA reveal */
+      /* SCENE 5: final CTA reveal */
       gsap.from(ctaRef.current?.querySelectorAll('.cta-rise') || [], {
         y: 80,
         opacity: 0,
@@ -382,7 +379,7 @@ export default function CinematicHero() {
         },
       });
 
-      // Brand stamp — dramatic scale + glow swell
+      // Brand stamp: dramatic scale + glow swell
       const stamp = ctaRef.current?.querySelector('.brand-stamp');
       if (stamp) {
         gsap.fromTo(stamp,
@@ -437,9 +434,7 @@ export default function CinematicHero() {
         />
       </div>
 
-      {/* ═════════════════════════════════════════════════════════
-          SCENE 1 — Pinned cinematic hero
-          ═════════════════════════════════════════════════════════ */}
+      {/* SCENE 1: pinned cinematic hero */}
       <section
         id="home"
         ref={heroRef}
@@ -513,7 +508,7 @@ export default function CinematicHero() {
             ref={taglineRef}
             className="hero-fadein text-white/55 max-w-xl mx-auto text-base sm:text-lg leading-relaxed mb-10"
           >
-            Hardware, software and intelligence — engineered in Nigeria,
+            Hardware, software and intelligence, engineered in Nigeria,
             designed for the world. Bloxio builds the systems that move
             industries forward.
           </p>
@@ -546,13 +541,10 @@ export default function CinematicHero() {
         <div className="fog-bottom absolute bottom-0 left-0 right-0 h-32 z-[2] pointer-events-none" />
       </section>
 
-      {/* ═════════════════════════════════════════════════════════
-          SCENE 2 — Curved cards unravel bottom→top (Joby-style)
-          Each chapter is its own curved-edge card stacked above the
-          previous; clip-path animates from inset(100% 0 0 0) → 0,
-          revealing the image like a curtain rising. Scrolling up
-          re-clips it (auto-reverse via GSAP scrub).
-          ═════════════════════════════════════════════════════════ */}
+      {/* SCENE 2: curved cards unravel bottom-to-top. Each chapter is its
+          own curved card stacked above the previous; clip-path animates
+          from inset(100% 0 0 0) to 0, revealing the image like a curtain
+          rising. Scroll-up re-clips it via GSAP scrub. */}
       <section ref={storyRef} className="relative h-screen w-full overflow-hidden bg-black">
         {/* faint backdrop pattern visible while cards are clipped */}
         <div className="absolute inset-0 opacity-40 pointer-events-none"
@@ -587,7 +579,7 @@ export default function CinematicHero() {
               <div className="absolute inset-0"
                 style={{ background: 'radial-gradient(ellipse at 30% 80%, rgba(189,138,76,0.22) 0%, transparent 60%)' }} />
 
-              {/* Inner content — words rise from overflow-hidden masks */}
+              {/* Inner content: words rise from overflow-hidden masks */}
               <div className="relative z-10 h-full flex flex-col justify-end max-w-5xl mx-auto px-8 sm:px-14 pb-12 sm:pb-16">
 
                 {/* Kicker (single word-rise) */}
@@ -597,7 +589,7 @@ export default function CinematicHero() {
                   </span>
                 </div>
 
-                {/* Headline — split per word so each unravels in sequence */}
+                {/* Headline: split per word so each unravels in sequence */}
                 <h2 className="font-display font-black text-white leading-[0.94] mb-7 tracking-tight"
                   style={{ fontSize: 'clamp(2.8rem, 10vw, 9rem)' }}>
                   {ch.headline.split(' ').map((w, j) => (
@@ -607,10 +599,10 @@ export default function CinematicHero() {
                   ))}
                 </h2>
 
-                {/* Body — split on commas / em-dashes so it unravels in
-                    a few clean phrases rather than a noisy word storm */}
+                {/* Body: split on commas so it unravels in a few clean
+                    phrases rather than a noisy word storm */}
                 <p className="text-white/75 text-base sm:text-xl max-w-xl leading-relaxed mb-10">
-                  {ch.body.split(/\s*[,—]\s*/).filter(Boolean).map((seg, j, arr) => (
+                  {ch.body.split(/\s*,\s*/).filter(Boolean).map((seg, j, arr) => (
                     <span key={j} className="inline-block overflow-hidden align-bottom mr-[0.22em]">
                       <span className="word-rise inline-block">
                         {seg}{j < arr.length - 1 ? ',' : ''}
@@ -644,14 +636,12 @@ export default function CinematicHero() {
         <div className="fog-bottom absolute bottom-0 left-0 right-0 h-24 z-[2] pointer-events-none" />
       </section>
 
-      {/* ═════════════════════════════════════════════════════════
-          SCENE 3 — Horizontal showcase (pin + scrub)
-          ═════════════════════════════════════════════════════════ */}
+      {/* SCENE 3: horizontal showcase (pin + scrub) */}
       <section ref={horizRef} className="relative h-screen w-full overflow-hidden bg-black">
         {/* Section heading floats over the panels */}
         <div className="absolute top-8 left-0 right-0 z-20 text-center pointer-events-none">
           <span className="font-display text-[10px] tracking-[0.5em] uppercase text-amber-500/70">
-            ◆ The Bloxio Universe ◆
+            The Bloxio Universe
           </span>
         </div>
 
@@ -733,16 +723,14 @@ export default function CinematicHero() {
         <div className="fog-top absolute top-0 left-0 right-0 h-20 z-[2] pointer-events-none" />
       </section>
 
-      {/* ═════════════════════════════════════════════════════════
-          SCENE 4 — Stacked card reveal
-          ═════════════════════════════════════════════════════════ */}
+      {/* SCENE 4: stacked card reveal */}
       <section ref={stackRef} className="relative h-screen w-full overflow-hidden bg-black">
         <div className="absolute inset-0"
           style={{ background: 'radial-gradient(ellipse 60% 60% at 50% 50%, rgba(189,138,76,0.06) 0%, transparent 70%)' }} />
 
         <div className="absolute top-8 left-0 right-0 z-30 text-center pointer-events-none">
           <span className="font-display text-[10px] tracking-[0.5em] uppercase text-amber-500/70">
-            ◆ The Bloxio DNA ◆
+            The Bloxio DNA
           </span>
         </div>
 
@@ -793,9 +781,7 @@ export default function CinematicHero() {
         })}
       </section>
 
-      {/* ═════════════════════════════════════════════════════════
-          SCENE 5 — Brand stamp + final CTA
-          ═════════════════════════════════════════════════════════ */}
+      {/* SCENE 5: brand stamp + final CTA */}
       <section ref={ctaRef} className="relative py-12 w-full overflow-hidden bg-black">
         {/* warm radial wash */}
         <div className="absolute inset-0 pointer-events-none"
@@ -812,14 +798,14 @@ export default function CinematicHero() {
 
         <div className="relative z-10 max-w-4xl mx-auto text-center px-6">
           <span className="cta-rise font-display text-[10px] tracking-[0.5em] uppercase text-amber-500/70 mb-10 block">
-            ◆ The story continues ◆
+            The story continues
           </span>
 
-          {/* Brand stamp — full Bloxio logo (with built-in motto) */}
+          {/* Brand stamp: full Bloxio logo with built-in motto */}
           <div className="cta-rise mb-10 flex justify-center">
             <img
               src="/bloxiofull.png"
-              alt="Bloxio — One Step Ahead of Tech"
+              alt="Bloxio. One step ahead of tech."
               className="brand-stamp h-auto select-none pointer-events-none"
               style={{
                 width: 'clamp(280px, 52vw, 620px)',
@@ -837,6 +823,7 @@ export default function CinematicHero() {
             </span>
             <span className="block w-12 sm:w-20 h-px bg-gradient-to-l from-transparent to-amber-500/60" />
           </div>
+
           <button
             onClick={() => scrollToSection('about')}
             className="cta-rise group inline-flex items-center gap-3 bg-gradient-to-r from-gold-light via-gold to-gold-dark text-black px-9 py-4 rounded-full text-sm font-bold tracking-[0.22em] uppercase hover:shadow-2xl hover:shadow-amber-500/40 hover:-translate-y-0.5 transition-all duration-300 font-display"
