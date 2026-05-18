@@ -12,7 +12,7 @@ const getInitialTheme = () => {
   if (typeof window === 'undefined') return 'dark';
   const saved = window.localStorage.getItem(STORAGE_KEY);
   if (saved === 'light' || saved === 'dark') return saved;
-  // System preference fallback — default to dark since the brand is dark-first
+  // System preference fallback: default to dark since the brand is dark-first
   return window.matchMedia?.('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
 };
 

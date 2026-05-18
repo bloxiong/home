@@ -2,11 +2,11 @@ import React from 'react';
 import { Cpu, Layers, Wifi, MessageSquare, Lightbulb, Wrench } from 'lucide-react';
 
 const SERVICES = [
-  { icon: Cpu,          number: '01', title: 'R&D & Engineering',          tag: 'Core',     desc: 'Deep-stack research across AI, IoT, and advanced electronics — turning frontier science into manufacturable products.' },
+  { icon: Cpu,          number: '01', title: 'R&D & Engineering',          tag: 'Core',     desc: 'Deep-stack research across AI, IoT, and advanced electronics, turning frontier science into manufacturable products.' },
   { icon: Layers,       number: '02', title: 'Product Design & Manufacturing', tag: 'Hardware', desc: 'From sketch to shelf. We prototype, test, and manufacture high-quality technology products built for real-world conditions.' },
   { icon: Wifi,         number: '03', title: 'Smart Device Ecosystems',    tag: 'IoT',      desc: 'Integrated smart platforms connecting devices, sensors, and cloud intelligence into cohesive connected systems.' },
   { icon: MessageSquare,number: '04', title: 'Technical Consulting',       tag: 'Advisory', desc: 'Strategic and technical guidance on implementing, optimising, and scaling technology systems across industries.' },
-  { icon: Lightbulb,    number: '05', title: 'Innovation Solutions',       tag: 'Strategy', desc: 'We transform bold ideas into market-ready products — from concept validation through development to commercial launch.' },
+  { icon: Lightbulb,    number: '05', title: 'Innovation Solutions',       tag: 'Strategy', desc: 'We transform bold ideas into market-ready products, from concept validation through development to commercial launch.' },
   { icon: Wrench,       number: '06', title: 'Support & Maintenance',      tag: 'Support',  desc: 'Comprehensive technical support and lifecycle management ensuring peak performance long after deployment.' },
 ];
 

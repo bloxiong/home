@@ -28,7 +28,7 @@ export default function Footer() {
               <img src="/bloxio.png" alt="Bloxio" className="w-20 h-auto mb-4 object-contain" />
             </Link>
             <p className="text-white/25 text-xs leading-relaxed max-w-xs mb-6">
-              Innovating tomorrow's technology today — pioneering research, development, and delivery of cutting-edge solutions from Nigeria to the world.
+              Innovating tomorrow's technology today, pioneering research, development, and delivery of cutting-edge solutions from Nigeria to the world.
             </p>
             <div className="space-y-2">
               {[

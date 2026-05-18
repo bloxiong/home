@@ -42,7 +42,7 @@ export default function Vision() {
 
           {/* Statement */}
           <p className="relative z-10 text-white/70 text-xl sm:text-2xl leading-relaxed text-center max-w-2xl mx-auto mb-12">
-            To be recognized globally as a pioneering technology company that consistently delivers innovative solutions —
+            To be recognized globally as a pioneering technology company that consistently delivers innovative solutions,
             setting new standards in quality, sustainability, and technological advancement.
           </p>
 
