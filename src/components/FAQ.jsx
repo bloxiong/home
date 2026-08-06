@@ -12,7 +12,7 @@ const FAQS = [
   },
   {
     q: 'Who are the founders of Bloxio?',
-    a: "Bloxio was co-founded by Anyakie Owen and Austin Chris, both B.Eng holders in Electrical Electronics Engineering (major in Electronics). Their combined engineering background drives the company's strong focus on hardware innovation.",
+    a: "Bloxio was co-founded by Anyakie Owen and Austin-Chris Iwu, both B.Eng holders in Electrical Electronics Engineering (major in Electronics). Their combined engineering background drives the company's strong focus on hardware innovation.",
   },
   {
     q: 'Is Bloxio a registered company?',

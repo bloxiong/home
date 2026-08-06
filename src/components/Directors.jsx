@@ -12,7 +12,7 @@ const DIRECTORS = [
     // phone: '07068919754',
   },
   {
-    name: 'Austin Chris (GMNSE, P.COREN)',
+    name: 'Austin-Chris Iwu (GMNSE, P.COREN)',
     initials: 'AC',
     title: 'Co-Founder & Director',
     education: 'B.Eng Electrical Electronics Engineering',
