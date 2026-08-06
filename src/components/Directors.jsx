@@ -35,7 +35,7 @@ export default function Directors() {
       <div className="relative z-10 container mx-auto px-6 max-w-4xl">
         {/* Header */}
         <div className="text-center mb-16">
-          <span className="inline-block text-[11px] font-bold tracking-[0.16em] uppercase text-amber-500 border border-amber-500/25 rounded-full px-4 py-1.5 mb-5"
+          <span className="inline-block text-micro font-semibold tracking-[0.16em] uppercase text-amber-500 border border-amber-500/25 rounded-full px-4 py-1.5 mb-5"
             style={{ background: 'rgba(189,138,76,0.07)' }}>
             Meet the Team
           </span>
@@ -94,9 +94,9 @@ export default function Directors() {
                       <Icon size={13} className="text-amber-500" />
                     </div>
                     <div>
-                      <div className="text-[10px] uppercase tracking-widest text-white/25 font-bold mb-0.5">{label}</div>
-                      <div className="text-white/65 text-xs font-semibold leading-snug">{value}</div>
-                      <div className="text-white/30 text-xs">{sub}</div>
+                      <div className="text-micro uppercase tracking-[0.12em] text-white/50 font-semibold mb-0.5">{label}</div>
+                      <div className="text-white/75 text-xs font-semibold leading-snug">{value}</div>
+                      <div className="text-white/50 text-xs">{sub}</div>
                     </div>
                   </div>
                 ))}

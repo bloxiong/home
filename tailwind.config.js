@@ -9,7 +9,7 @@ module.exports = {
       extend: {
         fontFamily: {
           display: ['Equinox', 'Syncopate', 'Orbitron', 'Inter', 'system-ui', 'sans-serif'],
-          sans:    ['Equinox', 'Syncopate', 'Inter', 'system-ui', 'sans-serif'],
+          sans:    ['Inter', 'system-ui', '-apple-system', 'Segoe UI', 'Roboto', 'sans-serif'],
           mono:    ['Orbitron', 'ui-monospace', 'monospace'],
         },
         colors: {

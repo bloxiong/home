@@ -697,7 +697,7 @@ export default function AgroSense360_Survey() {
               <div className="bg-gradient-to-br from-gray-900/80 to-black/80 rounded-2xl p-5 border border-amber-500/15 hover:border-amber-500/30 transition-all backdrop-blur-sm">
                 <h4 className="text-amber-300 font-bold text-sm mb-1">Need Help?</h4>
                 <p className="text-gray-500 text-xs mb-3 leading-relaxed">If you encounter any issues, please reach out to our support team.</p>
-                <a href="mailto:bloxionigerialimited@gmail.com" className="text-amber-400 hover:text-amber-300 text-xs font-semibold inline-flex items-center gap-1 transition-colors">
+                <a href="mailto:contact@bloxio.tech" className="text-amber-400 hover:text-amber-300 text-xs font-semibold inline-flex items-center gap-1 transition-colors">
                   Contact Support <ExternalLink size={12} />
                 </a>
               </div>

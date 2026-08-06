@@ -19,7 +19,7 @@ export default function Services() {
       <div className="relative z-10 container mx-auto px-6 max-w-6xl">
         {/* Header */}
         <div className="text-center mb-16">
-          <span className="inline-block text-[11px] font-bold tracking-[0.16em] uppercase text-amber-600 dark:text-amber-500 border border-amber-500/25 rounded-full px-4 py-1.5 mb-5"
+          <span className="inline-block text-micro font-semibold tracking-[0.16em] uppercase text-amber-600 dark:text-amber-500 border border-amber-500/25 rounded-full px-4 py-1.5 mb-5"
             style={{ background: 'rgba(189,138,76,0.07)' }}>
             What We Do
           </span>
@@ -56,7 +56,7 @@ export default function Services() {
                   style={{ background: 'rgba(189,138,76,0.09)' }}>
                   <Icon size={20} className="text-amber-600 dark:text-amber-500" />
                 </div>
-                <span className="text-[10px] font-bold uppercase tracking-[0.14em] text-amber-600/70 dark:text-amber-500/50 border border-amber-500/25 dark:border-amber-500/15 rounded-full px-2.5 py-0.5">
+                <span className="text-micro font-semibold uppercase tracking-[0.12em] text-amber-700 dark:text-amber-500/80 border border-amber-500/25 dark:border-amber-500/15 rounded-full px-2.5 py-0.5">
                   {tag}
                 </span>
               </div>

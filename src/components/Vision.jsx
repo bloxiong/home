@@ -16,7 +16,7 @@ export default function Vision() {
       <div className="relative z-10 container mx-auto px-6 max-w-4xl">
         {/* Header */}
         <div className="text-center mb-14">
-          <span className="inline-block text-[11px] font-bold tracking-[0.16em] uppercase text-amber-500 border border-amber-500/25 rounded-full px-4 py-1.5 mb-5"
+          <span className="inline-block text-micro font-semibold tracking-[0.16em] uppercase text-amber-500 border border-amber-500/25 rounded-full px-4 py-1.5 mb-5"
             style={{ background: 'rgba(189,138,76,0.07)' }}>
             Where We're Headed
           </span>
