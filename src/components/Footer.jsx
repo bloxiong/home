@@ -27,21 +27,21 @@ export default function Footer() {
             <Link to="/">
               <img src="/bloxio.png" alt="Bloxio" className="w-20 h-auto mb-4 object-contain" />
             </Link>
-            <p className="text-white/25 text-xs leading-relaxed max-w-xs mb-6">
+            <p className="text-white/50 text-xs leading-relaxed max-w-xs mb-6">
               Innovating tomorrow's technology today, pioneering research, development, and delivery of cutting-edge solutions from Nigeria to the world.
             </p>
             <div className="space-y-2">
               {[
-                { icon: Mail, text: 'bloxionigerialimited@gmail.com', href: 'mailto:bloxionigerialimited@gmail.com' },
+                { icon: Mail, text: 'contact@bloxio.tech', href: 'mailto:contact@bloxio.tech' },
                 { icon: Phone, text: '+2347068919754 · +2348062439424' },
                 { icon: MapPin, text: 'Lagos State, Nigeria' },
               ].map(({ icon: Icon, text, href }) => (
                 <div key={text} className="flex items-center gap-2">
-                  <Icon size={12} className="text-amber-500/40 flex-shrink-0" />
+                  <Icon size={12} className="text-amber-500/70 flex-shrink-0" />
                   {href ? (
-                    <a href={href} className="text-white/25 hover:text-amber-400 text-xs transition-colors">{text}</a>
+                    <a href={href} className="text-white/55 hover:text-amber-400 text-xs transition-colors">{text}</a>
                   ) : (
-                    <span className="text-white/25 text-xs">{text}</span>
+                    <span className="text-white/55 text-xs">{text}</span>
                   )}
                 </div>
               ))}
@@ -50,31 +50,31 @@ export default function Footer() {
 
           {/* Quick links */}
           <div>
-            <h4 className="text-[10px] font-bold uppercase tracking-[0.15em] text-amber-500/50 mb-4">Navigate</h4>
+            <h4 className="text-micro font-semibold uppercase tracking-[0.13em] text-amber-500/80 mb-4">Navigate</h4>
             <div className="space-y-2">
               {NAV.map((s) => (
                 <button key={s} onClick={() => scrollTo(s)}
-                  className="block text-white/35 hover:text-white/70 text-xs capitalize transition-colors duration-200">
+                  className="block text-white/55 hover:text-white/80 text-xs capitalize transition-colors duration-200">
                   {s === 'faq' ? 'FAQ' : s.charAt(0).toUpperCase() + s.slice(1)}
                 </button>
               ))}
-              <Link to="/survey" className="block text-white/35 hover:text-white/70 text-xs transition-colors duration-200">Survey</Link>
+              <Link to="/survey" className="block text-white/55 hover:text-white/80 text-xs transition-colors duration-200">Survey</Link>
             </div>
           </div>
 
           {/* Products */}
           <div>
-            <h4 className="text-[10px] font-bold uppercase tracking-[0.15em] text-amber-500/50 mb-4">Products</h4>
+            <h4 className="text-micro font-semibold uppercase tracking-[0.13em] text-amber-500/80 mb-4">Products</h4>
             <div className="space-y-2.5">
-              <Link to="/survey/AgroSense360" className="flex items-center gap-2 text-white/45 hover:text-white/70 text-xs transition-colors">
+              <Link to="/survey/AgroSense360" className="flex items-center gap-2 text-white/65 hover:text-white/80 text-xs transition-colors">
                 AgroSense360
-                <span className="text-[9px] font-bold uppercase tracking-wider text-amber-500/60 border border-amber-500/20 rounded-full px-1.5 py-0.5"
+                <span className="text-micro font-semibold uppercase tracking-wider text-amber-500/90 border border-amber-500/20 rounded-full px-2 py-0.5"
                   style={{ background: 'rgba(189,138,76,0.08)' }}>Beta</span>
               </Link>
               {['Smart Electronics', 'Agricultural Drones', 'Smart Lighting'].map((p) => (
-                <div key={p} className="flex items-center gap-2 text-white/20 text-xs">
+                <div key={p} className="flex items-center gap-2 text-white/45 text-xs">
                   {p}
-                  <span className="text-[9px] font-bold uppercase tracking-wider text-white/20 border border-white/10 rounded-full px-1.5 py-0.5">Soon</span>
+                  <span className="text-micro font-semibold uppercase tracking-wider text-white/40 border border-white/10 rounded-full px-2 py-0.5">Soon</span>
                 </div>
               ))}
             </div>
@@ -83,11 +83,11 @@ export default function Footer() {
 
         {/* Bottom bar */}
         <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-8 border-t border-amber-500/8">
-          <p className="text-white/20 text-xs">
+          <p className="text-white/45 text-xs">
             © {new Date().getFullYear()} Bloxio Nigeria Limited. All rights reserved.
           </p>
-          <a href="mailto:bloxionigerialimited@gmail.com"
-            className="inline-flex items-center gap-1.5 text-amber-500/50 hover:text-amber-400 text-xs font-bold tracking-wide transition-colors">
+          <a href="mailto:contact@bloxio.tech"
+            className="inline-flex items-center gap-1.5 text-amber-500/80 hover:text-amber-400 text-xs font-bold tracking-wide transition-colors">
             Work with us <ArrowUpRight size={13} />
           </a>
         </div>

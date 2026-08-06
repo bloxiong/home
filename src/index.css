@@ -2,13 +2,27 @@
 @config "../tailwind.config.js";
 
 /* ─────────────────────────────────────────────
-   Global font system: Equinox / Deltha vibe.
-   Syncopate + Orbitron approximate the squared
-   geometric look when Equinox isn't loaded.
+   Global font system.
+   Display (headings, brand moments): Equinox /
+   Syncopate / Orbitron squared geometric look.
+   Body + UI: Inter — the squared display faces
+   are unreadable below ~14px, so everything
+   that isn't a heading uses a real text face.
    ───────────────────────────────────────────── */
 :root {
   --font-display: 'Equinox', 'Syncopate', 'Orbitron', 'Inter', system-ui, sans-serif;
-  --font-body:    'Equinox', 'Syncopate', 'Inter', system-ui, sans-serif;
+  --font-ui:      'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --font-body:    var(--font-ui);
+}
+
+/* Micro labels: eyebrows, form labels, stat captions, tags.
+   One class so tiny text is never smaller than 12px and never
+   set in the display face. Tracking stays on the element via
+   Tailwind's `tracking-*` so each label keeps its own rhythm. */
+.text-micro {
+  font-family: var(--font-ui);
+  font-size: 0.75rem;   /* 12px */
+  line-height: 1.4;
 }
 
 html, body {
@@ -217,6 +231,8 @@ html:not(.dark) .via-amber-950\/15:not([data-always-dark]):not([data-always-dark
 
 /* ── TEXT COLOURS ─────────────────────────────────────────────────────── */
 html:not(.dark) .text-white:not([data-always-dark]):not([data-always-dark] *)          { color: #18120a; }
+html:not(.dark) .text-white\/80:not([data-always-dark]):not([data-always-dark] *)      { color: rgba(24,18,10,0.86); }
+html:not(.dark) .text-white\/75:not([data-always-dark]):not([data-always-dark] *)      { color: rgba(24,18,10,0.82); }
 html:not(.dark) .text-white\/70:not([data-always-dark]):not([data-always-dark] *)      { color: rgba(24,18,10,0.78); }
 html:not(.dark) .text-white\/65:not([data-always-dark]):not([data-always-dark] *)      { color: rgba(24,18,10,0.75); }
 html:not(.dark) .text-white\/60:not([data-always-dark]):not([data-always-dark] *)      { color: rgba(24,18,10,0.72); }
@@ -290,6 +306,8 @@ html:not(.dark) .text-amber-500\/40:not([data-always-dark]):not([data-always-dar
 html:not(.dark) .text-amber-500\/50:not([data-always-dark]):not([data-always-dark] *)    { color: rgba(141,92,37,0.62); }
 html:not(.dark) .text-amber-500\/60:not([data-always-dark]):not([data-always-dark] *)    { color: rgba(141,92,37,0.72); }
 html:not(.dark) .text-amber-500\/70:not([data-always-dark]):not([data-always-dark] *)    { color: rgba(141,92,37,0.80); }
+html:not(.dark) .text-amber-500\/80:not([data-always-dark]):not([data-always-dark] *)    { color: rgba(141,92,37,0.88); }
+html:not(.dark) .text-amber-500\/90:not([data-always-dark]):not([data-always-dark] *)    { color: rgba(141,92,37,0.95); }
 
 /* ── INLINE-STYLE HOT-SPOTS ───────────────────────────────────────────── */
 /* Any element with inline rgba(5,5,5,*): Services grid + FAQ accordion */

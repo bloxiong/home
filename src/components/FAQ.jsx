@@ -24,7 +24,7 @@ const FAQS = [
   },
   {
     q: 'Can I invest in or partner with Bloxio?',
-    a: 'Absolutely. We are actively exploring partnerships and investment opportunities with individuals and organizations who share our vision. Reach out via our contact section or email bloxionigerialimited@gmail.com.',
+    a: 'Absolutely. We are actively exploring partnerships and investment opportunities with individuals and organizations who share our vision. Reach out via our contact section or email contact@bloxio.tech.',
   },
   {
     q: 'How do I get early access to AgroSense360?',
@@ -85,7 +85,7 @@ export default function FAQ() {
       <div className="relative z-10 container mx-auto px-6 max-w-5xl">
         {/* Header */}
         <div className="text-center mb-16">
-          <span className="inline-block text-[11px] font-bold tracking-[0.16em] uppercase text-amber-600 dark:text-amber-500 border border-amber-500/25 rounded-full px-4 py-1.5 mb-5"
+          <span className="inline-block text-micro font-semibold tracking-[0.16em] uppercase text-amber-600 dark:text-amber-500 border border-amber-500/25 rounded-full px-4 py-1.5 mb-5"
             style={{ background: 'rgba(189,138,76,0.07)' }}>
             Got Questions?
           </span>
@@ -111,7 +111,7 @@ export default function FAQ() {
             <div className="w-px h-16 bg-gradient-to-b from-amber-500/30 to-transparent" />
             <p className="text-stone-500 dark:text-white/30 text-xs text-center leading-relaxed">
               Still have questions?{' '}
-              <a href="mailto:bloxionigerialimited@gmail.com" className="text-amber-600 dark:text-amber-400 font-semibold hover:text-amber-700 dark:hover:text-amber-300 transition-colors">
+              <a href="mailto:contact@bloxio.tech" className="text-amber-600 dark:text-amber-400 font-semibold hover:text-amber-700 dark:hover:text-amber-300 transition-colors">
                 Email us
               </a>
             </p>

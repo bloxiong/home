@@ -38,7 +38,7 @@ export default function About() {
       <div className="relative z-10 container mx-auto px-6 max-w-6xl">
         {/* Section header */}
         <div className="text-center mb-16">
-          <span className="inline-block text-[11px] font-bold tracking-[0.16em] uppercase text-amber-500 border border-amber-500/25 rounded-full px-4 py-1.5 mb-5"
+          <span className="inline-block text-micro font-semibold tracking-[0.16em] uppercase text-amber-500 border border-amber-500/25 rounded-full px-4 py-1.5 mb-5"
             style={{ background: 'rgba(189,138,76,0.07)' }}>
             Who We Are
           </span>
@@ -84,15 +84,15 @@ export default function About() {
         {/* Registration badge */}
         <div className="flex flex-col sm:flex-row items-center gap-6 sm:gap-10 bg-black/50 border border-amber-500/12 rounded-2xl px-8 py-5 backdrop-blur-sm max-w-2xl mx-auto">
           <div className="flex flex-col gap-1 text-center sm:text-left">
-            <span className="text-[10px] uppercase tracking-widest text-white/20 font-bold">Registered Entity</span>
+            <span className="text-micro uppercase tracking-[0.12em] text-white/50 font-semibold">Registered Entity</span>
             <span className="text-amber-400 font-bold text-sm">Bloxio Nigeria Limited</span>
-            <span className="text-white/30 text-xs">Plot AV 27B, 251 Road Festac Phase II · Lagos, Nigeria</span>
+            <span className="text-white/50 text-xs">Plot AV 27B, 251 Road Festac Phase II · Lagos, Nigeria</span>
           </div>
           <div className="hidden sm:block w-px h-10 bg-amber-500/15" />
           <div className="flex flex-col gap-1 text-center sm:text-left">
-            <span className="text-[10px] uppercase tracking-widest text-white/20 font-bold">CAC Registered</span>
+            <span className="text-micro uppercase tracking-[0.12em] text-white/50 font-semibold">CAC Registered</span>
             <span className="text-amber-400 font-bold text-sm">Nigeria</span>
-            <span className="text-white/30 text-xs">Legally incorporated and operational</span>
+            <span className="text-white/50 text-xs">Legally incorporated and operational</span>
           </div>
         </div>
       </div>

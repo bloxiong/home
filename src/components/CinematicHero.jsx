@@ -452,14 +452,6 @@ export default function CinematicHero() {
           />
           <div className="absolute inset-0"
             style={{ background: 'radial-gradient(ellipse at 50% 60%, transparent 0%, rgba(0,0,0,0.55) 55%, #000 100%)' }} />
-          <div className="absolute inset-0"
-            style={{
-              backgroundImage:
-                'linear-gradient(rgba(189,138,76,0.05) 1px,transparent 1px),linear-gradient(90deg,rgba(189,138,76,0.05) 1px,transparent 1px)',
-              backgroundSize: '70px 70px',
-              maskImage: 'radial-gradient(ellipse 70% 70% at 50% 50%,black 30%,transparent 100%)',
-            }}
-          />
         </div>
 
         {/* Particle network */}
@@ -482,14 +474,6 @@ export default function CinematicHero() {
 
         {/* Foreground content (3D tilt) */}
         <div ref={heroFgRef} className="relative z-10 h-full flex flex-col items-center justify-center text-center px-6 tilt-card">
-
-          <div className="hero-fadein inline-flex items-center gap-2 border border-amber-500/30 rounded-full px-4 py-1.5 mb-8 backdrop-blur-sm"
-            style={{ background: 'rgba(189,138,76,0.07)' }}>
-            <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
-            <span className="text-amber-400 text-[11px] font-bold tracking-[0.22em] uppercase font-display">
-              Pioneering Nigerian Technology
-            </span>
-          </div>
 
           <h1
             ref={titleRef}
@@ -532,7 +516,7 @@ export default function CinematicHero() {
 
         {/* Scroll cue */}
         <div className="hero-fadein absolute bottom-8 left-1/2 -translate-x-1/2 z-10 flex flex-col items-center gap-3">
-          <span className="text-[10px] tracking-[0.4em] text-amber-500/60 font-bold uppercase font-display">Scroll</span>
+          <span className="text-micro tracking-[0.3em] text-amber-500/80 font-semibold uppercase">Scroll</span>
           <div className="w-px h-12 bg-gradient-to-b from-amber-500/60 to-transparent" />
           <ChevronDown size={16} className="text-amber-500/60 animate-bounce" />
         </div>
@@ -640,7 +624,7 @@ export default function CinematicHero() {
       <section ref={horizRef} className="relative h-screen w-full overflow-hidden bg-black">
         {/* Section heading floats over the panels */}
         <div className="absolute top-8 left-0 right-0 z-20 text-center pointer-events-none">
-          <span className="font-display text-[10px] tracking-[0.5em] uppercase text-amber-500/70">
+          <span className="text-micro font-semibold tracking-[0.32em] uppercase text-amber-500/90">
             The Bloxio Universe
           </span>
         </div>
@@ -682,7 +666,7 @@ export default function CinematicHero() {
                 <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent" />
 
                 <div className="relative z-10 h-full flex flex-col justify-end p-10">
-                  <span className="panel-rise inline-block w-fit text-[10px] font-bold tracking-[0.3em] uppercase text-amber-300 border border-amber-500/40 rounded-full px-3 py-1 mb-5 backdrop-blur-sm bg-amber-500/10">
+                  <span className="panel-rise inline-block w-fit text-micro font-semibold tracking-[0.22em] uppercase text-amber-200 border border-amber-500/40 rounded-full px-3 py-1 mb-5 backdrop-blur-sm bg-amber-500/10">
                     {p.tag}
                   </span>
                   <h4 className="panel-rise font-display font-black text-white leading-[0.95] mb-2"
@@ -729,7 +713,7 @@ export default function CinematicHero() {
           style={{ background: 'radial-gradient(ellipse 60% 60% at 50% 50%, rgba(189,138,76,0.06) 0%, transparent 70%)' }} />
 
         <div className="absolute top-8 left-0 right-0 z-30 text-center pointer-events-none">
-          <span className="font-display text-[10px] tracking-[0.5em] uppercase text-amber-500/70">
+          <span className="text-micro font-semibold tracking-[0.32em] uppercase text-amber-500/90">
             The Bloxio DNA
           </span>
         </div>
@@ -797,7 +781,7 @@ export default function CinematicHero() {
         </div>
 
         <div className="relative z-10 max-w-4xl mx-auto text-center px-6">
-          <span className="cta-rise font-display text-[10px] tracking-[0.5em] uppercase text-amber-500/70 mb-10 block">
+          <span className="cta-rise text-micro font-semibold tracking-[0.32em] uppercase text-amber-500/90 mb-10 block">
             The story continues
           </span>
 
@@ -818,7 +802,7 @@ export default function CinematicHero() {
           {/* Decorative divider */}
           <div className="cta-rise flex items-center gap-4 justify-center mb-10">
             <span className="block w-12 sm:w-20 h-px bg-gradient-to-r from-transparent to-amber-500/60" />
-            <span className="font-display text-amber-400 text-[10px] tracking-[0.45em] uppercase">
+            <span className="text-micro font-semibold text-amber-400 tracking-[0.3em] uppercase">
               Engineering Tomorrow
             </span>
             <span className="block w-12 sm:w-20 h-px bg-gradient-to-l from-transparent to-amber-500/60" />

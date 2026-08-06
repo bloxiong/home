@@ -70,17 +70,6 @@ export default function Hero() {
       {/* Canvas */}
       <canvas ref={canvasRef} className="absolute inset-0 pointer-events-none z-[1]" />
 
-      {/* Grid */}
-      <div
-        className="absolute inset-0 z-[1] pointer-events-none"
-        style={{
-          backgroundImage:
-            'linear-gradient(rgba(189,138,76,0.04) 1px,transparent 1px),linear-gradient(90deg,rgba(189,138,76,0.04) 1px,transparent 1px)',
-          backgroundSize: '60px 60px',
-          maskImage: 'radial-gradient(ellipse 80% 80% at 50% 50%,black 40%,transparent 100%)',
-        }}
-      />
-
       {/* Orbs */}
       <div className="absolute -top-24 -left-24 w-[500px] h-[500px] rounded-full pointer-events-none z-[1]"
         style={{ background: 'radial-gradient(circle,rgba(189,138,76,0.12) 0%,transparent 70%)', filter: 'blur(80px)' }} />
@@ -89,13 +78,6 @@ export default function Hero() {
 
       {/* Main content: grows to fill available space */}
       <div className="relative z-10 flex flex-col items-center text-center w-full max-w-4xl mx-auto px-6 py-10 flex-1 justify-center">
-
-        {/* Badge */}
-        <div className="inline-flex items-center gap-2 border border-amber-500/30 rounded-full px-4 py-1.5 mb-8"
-          style={{ background: 'rgba(189,138,76,0.07)', animation: 'heroUp 0.7s ease 0.1s both' }}>
-          <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
-          <span className="text-amber-400 text-[11px] font-bold tracking-[0.14em] uppercase">Pioneering Nigerian Technology</span>
-        </div>
 
         {/* Logo */}
         <div className="mb-8" style={{ animation: 'heroUp 0.7s ease 0.25s both' }}>
@@ -131,7 +113,7 @@ export default function Hero() {
               <span className="text-2xl font-black bg-gradient-to-r from-gold-light to-gold-dark bg-clip-text text-transparent leading-tight">
                 {s.value}
               </span>
-              <span className="text-[10px] font-bold uppercase tracking-widest text-white/30 mt-1">
+              <span className="text-micro font-semibold uppercase tracking-[0.12em] text-white/55 mt-1">
                 {s.label}
               </span>
             </div>
