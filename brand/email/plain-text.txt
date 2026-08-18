@@ -1,0 +1,49 @@
+BLOXIO NIGERIA LIMITED — plain-text versions
+============================================
+For the Gmail mobile app (which only accepts plain-text signatures) and
+as the text alternative when a client blocks HTML or images.
+
+
+-- SIGNATURE (mobile) ------------------------------------------------
+
+[Your Name]
+[Your Title] | Bloxio Nigeria Limited
+
+contact@bloxio.tech | bloxio.tech
++234 706 891 9754 | +234 806 243 9424
+Festac Phase II, Lagos State, Nigeria
+
+...one step ahead of tech
+
+
+-- SHORTER SIGNATURE (very small screens) ----------------------------
+
+[Your Name] — Bloxio Nigeria Limited
+contact@bloxio.tech | +234 706 891 9754
+...one step ahead of tech
+
+
+-- FULL MESSAGE (text alternative) -----------------------------------
+
+[SUBJECT OF THIS MESSAGE]
+
+Dear [Name],
+
+Replace this block with your message.
+
+Bloxio Nigeria Limited designs and builds hardware, software and
+applied intelligence - engineered in Nigeria, built to global
+standards.
+
+[Call to action]: https://bloxio.tech
+
+Kind regards,
+[Your Name]
+[Your Title] | Bloxio Nigeria Limited
+
+---------------------------------------------------------------
+BLOXIO NIGERIA LIMITED
+Plot AV 27B, 251 Road, Festac Phase II, Abule Ado, Lagos State, Nigeria
++234 706 891 9754 | +234 806 243 9424
+contact@bloxio.tech | bloxio.tech
+...one step ahead of tech

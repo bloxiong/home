@@ -23,3 +23,6 @@ dist-ssr
 *.sln
 *.sw?
 *.claude/
+
+# Brand source masters (large video/PNG originals — kept locally)
+Blox Main Props/
