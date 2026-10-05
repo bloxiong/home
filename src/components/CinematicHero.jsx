@@ -1,56 +1,46 @@
 import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
-import { ChevronDown, ArrowRight, Cpu, Wifi, Sparkles } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { ChevronDown, ArrowRight, ChevronsDown } from 'lucide-react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { IMG, PRODUCTS } from '../content/site';
+import { StatusBadge } from './ui';
 
 gsap.registerPlugin(ScrollTrigger);
 
-/* Hero imagery sourced from Unsplash CDN. Each layer
-   sits in its own div so we can parallax it on scroll. */
-const HERO_IMG  = 'https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=1920&q=80';
-const SKY_IMG   = 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=1920&q=80';
-const CITY_IMG  = 'https://images.unsplash.com/photo-1494522855154-9297ac14b55f?auto=format&fit=crop&w=1920&q=80';
-const LAB_IMG   = 'https://images.unsplash.com/photo-1581094794329-c8112a89af12?auto=format&fit=crop&w=1920&q=80';
-const FIELD_IMG = 'https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=1920&q=80';
-const DRONE_IMG = 'https://images.unsplash.com/photo-1473968512647-3e447244af8f?auto=format&fit=crop&w=1920&q=80';
-const NET_IMG   = 'https://images.unsplash.com/photo-1620712943543-bcc4688e7485?auto=format&fit=crop&w=1920&q=80';
-
 const CHAPTERS = [
   {
-    kicker: 'Chapter 01',
     headline: 'WE ENGINEER.',
-    body: 'Deep-stack research across AI, IoT and advanced electronics. Frontier science forged into manufacturable products.',
-    img: LAB_IMG,
+    body: 'Research across AI, IoT and advanced electronics, carried all the way to products that can be manufactured.',
+    img: IMG.lab,
   },
   {
-    kicker: 'Chapter 02',
     headline: 'WE INNOVATE.',
-    body: 'From sketch to shelf. Smart device ecosystems that connect sensors, software and people into one fluent system.',
-    img: NET_IMG,
+    body: 'Devices, sensors and software designed as one system, so the data turns into decisions.',
+    img: IMG.network,
   },
   {
-    kicker: 'Chapter 03',
     headline: 'WE DELIVER.',
-    body: 'Rooted in Nigeria, built for the world. Hardware and software that scale beyond borders with global standards.',
-    img: FIELD_IMG,
+    body: 'Rooted in Nigeria, built for the world. Starting on Nigerian farms with AgroSense360.',
+    img: IMG.field,
   },
 ];
 
-const SHOWCASE = [
-  { tag: 'AI · IoT',     title: 'AgroSense360',     sub: 'Smart farming intelligence',  img: FIELD_IMG },
-  { tag: 'R&D',          title: 'Adaptive Systems', sub: 'Sensors that think',          img: LAB_IMG },
-  { tag: 'Edge',         title: 'Aerial Vision',    sub: 'Drones with foresight',       img: DRONE_IMG },
-  { tag: 'Cloud',        title: 'Mesh Network',     sub: 'Devices that orchestrate',    img: NET_IMG },
-  { tag: 'Future',       title: 'Lagos · 2030',     sub: 'Engineering tomorrow',        img: CITY_IMG },
-];
+/* Where the cinematic intro ends. The skip button and the hero's
+   secondary scroll target both land here. */
+export const INTRO_END_ID = 'overview';
+
+const smoothTo = (el) => {
+  if (!el) return;
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  window.scrollTo({ top: el.getBoundingClientRect().top + window.scrollY, behavior: reduce ? 'auto' : 'smooth' });
+};
 
 /* split a string into per-character spans for staggered reveal */
-const SplitChars = ({ text, className = '' }) => (
-  <span className={`split-text ${className}`} aria-label={text}>
+const SplitChars = ({ text }) => (
+  <span className="split-text" aria-label={text}>
     {text.split('').map((c, i) => (
-      <span key={i} className="split-char" aria-hidden="true">
-        {c === ' ' ? ' ' : c}
-      </span>
+      <span key={i} className="split-char" aria-hidden="true">{c}</span>
     ))}
   </span>
 );
@@ -59,64 +49,54 @@ export default function CinematicHero() {
   const rootRef    = useRef(null);
   const canvasRef  = useRef(null);
   const heroRef    = useRef(null);
-  const titleRef   = useRef(null);
   const taglineRef = useRef(null);
   const heroBgRef  = useRef(null);
   const heroFgRef  = useRef(null);
   const ringRef    = useRef(null);
+  const storyRef   = useRef(null);
+  const horizRef   = useRef(null);
+  const trackRef   = useRef(null);
+  const ctaRef     = useRef(null);
+  const barRef     = useRef(null);
 
-  const storyRef     = useRef(null);
-  const storyImgRefs = useRef([]);
-  const storyTxtRefs = useRef([]);
+  const [showSkip, setShowSkip] = useState(true);
 
-  const horizRef  = useRef(null);
-  const trackRef  = useRef(null);
-
-  const stackRef  = useRef(null);
-  const cardsRef  = useRef([]);
-
-  const ctaRef    = useRef(null);
-
-  const [progress, setProgress] = useState(0);
-
-  /* ── Particle / network canvas (intro background) ────────── */
+  /* ── Particle network canvas. Paused whenever the hero is off-screen
+        so it never costs frames while the visitor reads further down. ── */
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
-    let raf, pts = [], mouse = { x: -9999, y: -9999 };
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    let raf = 0, running = false, pts = [];
+    const mouse = { x: -9999, y: -9999 };
+    const dpr = Math.min(window.devicePixelRatio || 1, 1.5);
 
     const resize = () => {
-      canvas.width  = window.innerWidth;
-      canvas.height = window.innerHeight;
-      const count = Math.min(140, Math.floor((canvas.width * canvas.height) / 14000));
+      const w = canvas.clientWidth, h = canvas.clientHeight;
+      canvas.width = w * dpr; canvas.height = h * dpr;
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      const count = Math.min(110, Math.floor((w * h) / 16000));
       pts = Array.from({ length: count }, () => ({
-        x: Math.random() * canvas.width,
-        y: Math.random() * canvas.height,
+        x: Math.random() * w, y: Math.random() * h,
         r: Math.random() * 1.4 + 0.4,
-        dx: (Math.random() - 0.5) * 0.35,
-        dy: (Math.random() - 0.5) * 0.35,
+        dx: (Math.random() - 0.5) * 0.35, dy: (Math.random() - 0.5) * 0.35,
         o: Math.random() * 0.55 + 0.15,
       }));
     };
 
-    const onMove = (e) => { mouse.x = e.clientX; mouse.y = e.clientY; };
-    const onLeave = () => { mouse.x = -9999; mouse.y = -9999; };
-
     const draw = () => {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      pts.forEach((p, i) => {
-        // gentle attraction toward cursor
+      const w = canvas.clientWidth, h = canvas.clientHeight;
+      ctx.clearRect(0, 0, w, h);
+      for (let i = 0; i < pts.length; i++) {
+        const p = pts[i];
         const mdx = mouse.x - p.x, mdy = mouse.y - p.y;
-        const md  = Math.hypot(mdx, mdy);
-        if (md < 200) {
-          p.dx += (mdx / md) * 0.012;
-          p.dy += (mdy / md) * 0.012;
-        }
+        const md = Math.hypot(mdx, mdy);
+        if (md < 200 && md > 0) { p.dx += (mdx / md) * 0.012; p.dy += (mdy / md) * 0.012; }
         p.dx *= 0.985; p.dy *= 0.985;
-        p.x  += p.dx;  p.y  += p.dy;
-        if (p.x < 0 || p.x > canvas.width)  p.dx *= -1;
-        if (p.y < 0 || p.y > canvas.height) p.dy *= -1;
+        p.x += p.dx; p.y += p.dy;
+        if (p.x < 0 || p.x > w) p.dx *= -1;
+        if (p.y < 0 || p.y > h) p.dy *= -1;
 
         ctx.beginPath();
         ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
@@ -125,8 +105,10 @@ export default function CinematicHero() {
 
         for (let j = i + 1; j < pts.length; j++) {
           const q = pts[j];
-          const d = Math.hypot(p.x - q.x, p.y - q.y);
-          if (d < 130) {
+          const dx = p.x - q.x, dy = p.y - q.y;
+          const d2 = dx * dx + dy * dy;
+          if (d2 < 16900) {
+            const d = Math.sqrt(d2);
             ctx.beginPath();
             ctx.moveTo(p.x, p.y);
             ctx.lineTo(q.x, q.y);
@@ -135,335 +117,273 @@ export default function CinematicHero() {
             ctx.stroke();
           }
         }
-      });
-      raf = requestAnimationFrame(draw);
+      }
+      if (running) raf = requestAnimationFrame(draw);
     };
 
+    const start = () => { if (!running && !reduce) { running = true; raf = requestAnimationFrame(draw); } };
+    const stop  = () => { running = false; cancelAnimationFrame(raf); };
+
+    const onMove  = (e) => { mouse.x = e.clientX; mouse.y = e.clientY; };
+    const onLeave = () => { mouse.x = -9999; mouse.y = -9999; };
+
     resize();
-    draw();
+    if (reduce) draw(); // one static frame
+    const io = new IntersectionObserver(([entry]) => (entry.isIntersecting ? start() : stop()));
+    io.observe(canvas);
     window.addEventListener('resize', resize);
-    window.addEventListener('mousemove', onMove);
+    window.addEventListener('mousemove', onMove, { passive: true });
     window.addEventListener('mouseleave', onLeave);
     return () => {
-      cancelAnimationFrame(raf);
+      stop(); io.disconnect();
       window.removeEventListener('resize', resize);
       window.removeEventListener('mousemove', onMove);
       window.removeEventListener('mouseleave', onLeave);
     };
   }, []);
 
-  /* ── Mouse-driven 3D tilt on the hero foreground ─────────── */
+  /* ── Mouse-driven tilt on the hero foreground (fine pointers only) ── */
   useEffect(() => {
     const fg = heroFgRef.current;
-    if (!fg) return;
-    let rect = fg.getBoundingClientRect();
-    const onResize = () => { rect = fg.getBoundingClientRect(); };
+    if (!fg || !window.matchMedia('(pointer: fine) and (prefers-reduced-motion: no-preference)').matches) return;
+    const rx = gsap.quickTo(fg, 'rotationX', { duration: 0.9, ease: 'power3.out' });
+    const ry = gsap.quickTo(fg, 'rotationY', { duration: 0.9, ease: 'power3.out' });
     const onMove = (e) => {
-      const x = (e.clientX / window.innerWidth - 0.5);
-      const y = (e.clientY / window.innerHeight - 0.5);
-      gsap.to(fg, {
-        rotationY: x * 6,
-        rotationX: -y * 6,
-        x: x * 14,
-        y: y * 14,
-        duration: 0.9,
-        ease: 'power3.out',
-      });
+      const x = e.clientX / window.innerWidth - 0.5;
+      const y = e.clientY / window.innerHeight - 0.5;
+      ry(x * 6); rx(-y * 6);
     };
-    window.addEventListener('mousemove', onMove);
-    window.addEventListener('resize', onResize);
-    return () => {
-      window.removeEventListener('mousemove', onMove);
-      window.removeEventListener('resize', onResize);
-    };
+    window.addEventListener('mousemove', onMove, { passive: true });
+    return () => window.removeEventListener('mousemove', onMove);
   }, []);
 
-  /* ── Master scroll-driven timeline ───────────────────────── */
+  /* ── Scroll choreography ──────────────────────────────────────────
+        Desktop: short pinned scenes (≈5 screens total, was ≈17).
+        Phones:  no pinning at all; the same content scrolls normally
+                 with one-shot reveals and a native swipe row.
+        Reduced motion: everything static and visible. */
   useLayoutEffect(() => {
-    const ctx = gsap.context(() => {
+    const mm = gsap.matchMedia(rootRef);
 
-      /* SCENE 1: intro letter reveal on mount */
-      gsap.to('.split-char', {
-        y: 0,
-        opacity: 1,
-        duration: 1,
-        ease: 'expo.out',
-        stagger: 0.025,
-        delay: 0.1,
-      });
+    mm.add(
+      {
+        desktop: '(min-width: 768px) and (prefers-reduced-motion: no-preference)',
+        mobile:  '(max-width: 767px) and (prefers-reduced-motion: no-preference)',
+      },
+      (context) => {
+        const { desktop } = context.conditions;
 
-      gsap.from('.hero-fadein', {
-        opacity: 0,
-        y: 30,
-        duration: 1.1,
-        ease: 'power3.out',
-        stagger: 0.12,
-        delay: 0.6,
-      });
+        /* SCENE 1: intro letter reveal + hero fade-in */
+        // Drop the transform afterwards: a transformed child breaks the gold
+        // background-clip:text shimmer on its parent line.
+        gsap.to('.split-char', {
+          y: 0, opacity: 1, duration: 0.9, ease: 'expo.out', stagger: 0.022, delay: 0.1,
+          onComplete() {
+            this.targets().forEach((el) => { el.style.transform = 'none'; el.style.opacity = '1'; el.style.willChange = 'auto'; });
+          },
+        });
+        gsap.from('.hero-fadein', { opacity: 0, y: 24, duration: 0.9, ease: 'power3.out', stagger: 0.1, delay: 0.45 });
 
-      /* SCENE 1: pinned hero parallax on scroll out */
-      gsap.timeline({
-        scrollTrigger: {
-          trigger: heroRef.current,
-          start: 'top top',
-          end: 'bottom top',
-          scrub: 0.6,
-        },
-      })
-        .to(heroBgRef.current, { scale: 1.25, y: -80, ease: 'none' }, 0)
-        .to(heroFgRef.current, { y: -180, opacity: 0, ease: 'none' }, 0)
-        .to(taglineRef.current, { y: -120, opacity: 0, ease: 'none' }, 0)
-        .to(ringRef.current,    { scale: 1.6, rotate: 90, opacity: 0, ease: 'none' }, 0);
+        /* SCENE 1: parallax on scroll-out (not pinned) */
+        gsap.timeline({
+          scrollTrigger: { trigger: heroRef.current, start: 'top top', end: 'bottom top', scrub: 0.3 },
+        })
+          .to(heroBgRef.current,  { scale: 1.2, y: -80, ease: 'none' }, 0)
+          .to(heroFgRef.current,  { y: -160, opacity: 0, ease: 'none' }, 0)
+          .to(taglineRef.current, { y: -100, opacity: 0, ease: 'none' }, 0)
+          .to(ringRef.current,    { scale: 1.5, rotate: 90, opacity: 0, ease: 'none' }, 0);
 
-      /* SCENE 2: pinned story chapters. Each card unravels bottom-to-top
-         via animated clip-path with rounded edges. Text rises word-by-word
-         from overflow-hidden masks. Scrolling up auto-reverses (scrub). */
-      const story = storyRef.current;
-      if (story) {
-        const chapters = story.querySelectorAll('.chapter');
-        const HIDDEN_CLIP = 'inset(100% 0% 0% 0% round 32px)';
-        const FULL_CLIP   = 'inset(0% 0% 0% 0% round 32px)';
+        /* SCENE 2: chapters unravel bottom-to-top */
+        const story = storyRef.current;
+        const chapters = story ? gsap.utils.toArray(story.querySelectorAll('.chapter')) : [];
+        const HIDDEN_CLIP = 'inset(100% 0% 0% 0% round 28px)';
+        const FULL_CLIP   = 'inset(0% 0% 0% 0% round 28px)';
 
-        // Pre-pin: chapter 0 unravels in as the section scrolls into view,
-        // so when the pin engages it's already on screen.
-        const ch0 = chapters[0];
-        if (ch0) {
-          const card0  = ch0.querySelector('.chapter-card');
-          const img0   = ch0.querySelector('.chapter-img');
-          const words0 = ch0.querySelectorAll('.word-rise');
-          gsap.set(card0,  { clipPath: HIDDEN_CLIP, willChange: 'clip-path' });
-          gsap.set(img0,   { scale: 1.35 });
-          gsap.set(words0, { yPercent: 110, opacity: 0 });
+        if (desktop && chapters.length) {
+          const parts = chapters.map((ch) => ({
+            card:  ch.querySelector('.chapter-card'),
+            img:   ch.querySelector('.chapter-img'),
+            words: ch.querySelectorAll('.word-rise'),
+          }));
+          parts.forEach(({ card, img, words }) => {
+            gsap.set(card,  { clipPath: HIDDEN_CLIP });
+            gsap.set(img,   { scale: 1.3 });
+            gsap.set(words, { yPercent: 110, opacity: 0 });
+          });
 
-          gsap.timeline({
+          // Chapter 1 unravels while the section scrolls into view.
+          gsap.timeline({ scrollTrigger: { trigger: story, start: 'top bottom', end: 'top top', scrub: 0.4 } })
+            .to(parts[0].card,  { clipPath: FULL_CLIP, ease: 'power3.inOut' }, 0)
+            .to(parts[0].img,   { scale: 1.05, ease: 'none' }, 0)
+            .to(parts[0].words, { yPercent: 0, opacity: 1, stagger: 0.04, ease: 'power3.out' }, 0.2);
+
+          // The rest unravel over it during a short pin (0.6 screens each).
+          const tl = gsap.timeline({
             scrollTrigger: {
               trigger: story,
-              start: 'top bottom',
-              end: 'top top',
-              scrub: 0.8,
+              start: 'top top',
+              end: () => `+=${(chapters.length - 1) * window.innerHeight * 0.6 + window.innerHeight * 0.15}`,
+              pin: true,
+              scrub: 0.4,
+              anticipatePin: 1,
+              invalidateOnRefresh: true,
             },
-          })
-            .to(card0,  { clipPath: FULL_CLIP, ease: 'power3.inOut' }, 0)
-            .to(img0,   { scale: 1.05, ease: 'none' }, 0)
-            .to(words0, { yPercent: 0, opacity: 1, stagger: 0.04, ease: 'power3.out' }, 0.2);
+          });
+          parts.slice(1).forEach(({ card, img, words }) => {
+            tl.to(card,  { clipPath: FULL_CLIP, duration: 1, ease: 'power3.inOut' })
+              .to(img,   { scale: 1.05, duration: 1.1, ease: 'none' }, '<')
+              .to(words, { yPercent: 0, opacity: 1, duration: 0.7, stagger: 0.04, ease: 'power3.out' }, '<+=0.2')
+              .to({}, { duration: 0.25 });
+          });
+        } else {
+          // Phones: each card unravels once as it enters. No scrub, no pin.
+          chapters.forEach((ch) => {
+            const card  = ch.querySelector('.chapter-card');
+            const words = ch.querySelectorAll('.word-rise');
+            gsap.timeline({ scrollTrigger: { trigger: ch, start: 'top 82%', once: true } })
+              .fromTo(card, { clipPath: HIDDEN_CLIP }, { clipPath: FULL_CLIP, duration: 0.9, ease: 'power3.inOut' })
+              .from(words, { yPercent: 110, opacity: 0, duration: 0.6, stagger: 0.05, ease: 'power3.out' }, '-=0.45');
+          });
         }
 
-        // Pinned timeline for chapters 1..n unraveling over the previous one.
-        const tl = gsap.timeline({
-          scrollTrigger: {
-            trigger: story,
-            start: 'top top',
-            end: () => `+=${(chapters.length - 1) * window.innerHeight * 1.25 + window.innerHeight * 0.4}`,
-            pin: true,
-            scrub: 0.8,
-            anticipatePin: 1,
-            invalidateOnRefresh: true,
-          },
-        });
-
-        chapters.forEach((ch, i) => {
-          if (i === 0) return; // chapter 0 handled by pre-pin trigger above
-          const card  = ch.querySelector('.chapter-card');
-          const img   = ch.querySelector('.chapter-img');
-          const words = ch.querySelectorAll('.word-rise');
-
-          gsap.set(card,  { clipPath: HIDDEN_CLIP, willChange: 'clip-path' });
-          gsap.set(img,   { scale: 1.35 });
-          gsap.set(words, { yPercent: 110, opacity: 0 });
-
-          // Unravel the curved card bottom→top + image settles + words rise
-          tl.to(card,  { clipPath: FULL_CLIP, duration: 1.2, ease: 'power3.inOut' }, '>+=0.05')
-            .to(img,   { scale: 1.05, duration: 1.4, ease: 'none' }, '<')
-            .to(words, { yPercent: 0, opacity: 1, duration: 0.9, stagger: 0.045, ease: 'power3.out' }, '<+=0.25')
-            .to({},    { duration: 0.6 }); // hold
-        });
-      }
-
-      /* SCENE 3: horizontal showcase */
-      const horiz = horizRef.current;
-      const track = trackRef.current;
-      if (horiz && track) {
-        const distance = () => track.scrollWidth - window.innerWidth;
-        const horizTween = gsap.to(track, {
-          x: () => -distance(),
-          ease: 'none',
-          scrollTrigger: {
-            trigger: horiz,
-            start: 'top top',
-            end: () => `+=${distance()}`,
-            pin: true,
-            scrub: 0.9,
-            invalidateOnRefresh: true,
-            anticipatePin: 1,
-          },
-        });
-
-        // panel-level reveals (image scale & headline rise) tied to horiz scrub
-        track.querySelectorAll('.panel').forEach((panel) => {
-          const img = panel.querySelector('.panel-img');
-          if (img) {
-            gsap.fromTo(img, { scale: 1.25 }, {
-              scale: 1,
-              ease: 'none',
-              scrollTrigger: {
-                trigger: panel,
-                containerAnimation: horizTween,
-                start: 'left right',
-                end:   'right left',
-                scrub: true,
-              },
-            });
-          }
-          const rises = panel.querySelectorAll('.panel-rise');
-          if (rises.length) {
-            gsap.fromTo(rises, { y: 60, opacity: 0 }, {
-              y: 0,
-              opacity: 1,
-              stagger: 0.08,
-              ease: 'power2.out',
-              scrollTrigger: {
-                trigger: panel,
-                containerAnimation: horizTween,
-                start: 'left 85%',
-                end:   'left 40%',
-                scrub: true,
-              },
-            });
-          }
-        });
-      }
-
-      /* SCENE 4: stacked cards reveal */
-      const stack = stackRef.current;
-      if (stack && cardsRef.current.length) {
-        cardsRef.current.forEach((card, i) => {
-          if (!card) return;
-          if (i === 0) return; // first card already in place
-          gsap.fromTo(card,
-            { yPercent: 100, scale: 0.92, opacity: 0.6 },
-            {
-              yPercent: 0,
-              scale: 1,
-              opacity: 1,
-              ease: 'none',
-              scrollTrigger: {
-                trigger: stack,
-                start: () => `top+=${(i - 0.7) * window.innerHeight * 0.7} top`,
-                end:   () => `top+=${(i + 0.3) * window.innerHeight * 0.7} top`,
-                scrub: 0.6,
-              },
-            },
-          );
-        });
-
-        // pin the stack while cards animate
-        ScrollTrigger.create({
-          trigger: stack,
-          start: 'top top',
-          end:   () => `+=${cardsRef.current.length * window.innerHeight * 0.7}`,
-          pin: true,
-          anticipatePin: 1,
-        });
-      }
-
-      /* SCENE 5: final CTA reveal */
-      gsap.from(ctaRef.current?.querySelectorAll('.cta-rise') || [], {
-        y: 80,
-        opacity: 0,
-        duration: 1,
-        ease: 'power3.out',
-        stagger: 0.1,
-        scrollTrigger: {
-          trigger: ctaRef.current,
-          start: 'top 75%',
-        },
-      });
-
-      // Brand stamp: dramatic scale + glow swell
-      const stamp = ctaRef.current?.querySelector('.brand-stamp');
-      if (stamp) {
-        gsap.fromTo(stamp,
-          { scale: 0.7, opacity: 0, filter: 'drop-shadow(0 0 0 rgba(189,138,76,0)) blur(8px)' },
-          {
-            scale: 1,
-            opacity: 1,
-            filter: 'drop-shadow(0 0 80px rgba(189,138,76,0.45)) drop-shadow(0 0 24px rgba(189,138,76,0.25)) blur(0px)',
-            duration: 1.6,
-            ease: 'expo.out',
+        /* SCENE 3: product line. Desktop: pinned horizontal track that moves
+           ~1.8px sideways per 1px scrolled, so it is over in under two screens.
+           Phones: a native swipe row, no JS needed. */
+        const horiz = horizRef.current;
+        const track = trackRef.current;
+        if (desktop && horiz && track) {
+          const distance = () => Math.max(0, track.scrollWidth - window.innerWidth);
+          const horizTween = gsap.to(track, {
+            x: () => -distance(),
+            ease: 'none',
             scrollTrigger: {
-              trigger: ctaRef.current,
-              start: 'top 70%',
+              trigger: horiz,
+              start: 'top top',
+              end: () => `+=${distance() * 0.55}`,
+              pin: true,
+              scrub: 0.4,
+              invalidateOnRefresh: true,
+              anticipatePin: 1,
             },
-          },
-        );
-      }
+          });
 
-      /* Global progress bar */
-      ScrollTrigger.create({
-        trigger: rootRef.current,
-        start: 'top top',
-        end:   'bottom bottom',
-        onUpdate: (self) => setProgress(self.progress),
-      });
+          track.querySelectorAll('.panel').forEach((panel) => {
+            const img = panel.querySelector('.panel-img');
+            if (img) {
+              gsap.fromTo(img, { scale: 1.2 }, {
+                scale: 1, ease: 'none',
+                scrollTrigger: { trigger: panel, containerAnimation: horizTween, start: 'left right', end: 'right left', scrub: true },
+              });
+            }
+            const rises = panel.querySelectorAll('.panel-rise');
+            if (rises.length) {
+              gsap.fromTo(rises, { y: 40, opacity: 0 }, {
+                y: 0, opacity: 1, stagger: 0.06, ease: 'power2.out',
+                scrollTrigger: { trigger: panel, containerAnimation: horizTween, start: 'left 90%', end: 'left 55%', scrub: true },
+              });
+            }
+          });
+        }
 
-    }, rootRef);
+        /* SCENE 4: brand stamp */
+        const cta = ctaRef.current;
+        if (cta) {
+          gsap.from(cta.querySelectorAll('.cta-rise'), {
+            y: 50, opacity: 0, duration: 0.9, ease: 'power3.out', stagger: 0.08,
+            scrollTrigger: { trigger: cta, start: 'top 75%', once: true },
+          });
+          const stamp = cta.querySelector('.brand-stamp');
+          if (stamp) {
+            gsap.from(stamp, {
+              scale: 0.75, opacity: 0, filter: 'blur(8px)', duration: 1.3, ease: 'expo.out',
+              scrollTrigger: { trigger: cta, start: 'top 70%', once: true },
+            });
+          }
+        }
+      },
+    );
 
-    // refresh after fonts/images load to keep pin math accurate
+    /* Progress bar + skip button, all motion modes. Written straight to
+       the DOM so scrolling never re-renders this component. */
+    const progressST = ScrollTrigger.create({
+      trigger: rootRef.current,
+      start: 'top top',
+      end: 'bottom bottom',
+      onUpdate: (self) => {
+        if (barRef.current) barRef.current.style.transform = `scaleX(${self.progress})`;
+        // Phones scroll the intro natively, so the pill only helps on the
+        // first screen there; on desktop it stays until the pins are done.
+        const show = window.innerWidth < 768
+          ? window.scrollY < window.innerHeight * 0.8
+          : self.progress < 0.9;
+        setShowSkip((prev) => (prev === show ? prev : show));
+      },
+    });
+
+    // Re-measure pins once fonts and images settle.
     const refresh = () => ScrollTrigger.refresh();
     window.addEventListener('load', refresh);
-    const t = setTimeout(refresh, 800);
+    document.fonts?.ready.then(refresh);
 
     return () => {
-      ctx.revert();
+      mm.revert();
+      progressST.kill();
       window.removeEventListener('load', refresh);
-      clearTimeout(t);
     };
   }, []);
 
-  const scrollToSection = (id) =>
-    document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
+  const skipIntro = () => smoothTo(document.getElementById(INTRO_END_ID));
 
   return (
-    <div ref={rootRef} className="relative" data-cinematic>
+    <div ref={rootRef} className="relative bg-black" data-cinematic data-always-dark>
 
-      {/* ─────────── Scroll progress bar (fixed, top) ─────────── */}
-      <div className="fixed top-0 left-0 right-0 z-[60] h-[2px] bg-amber-500/10 pointer-events-none">
+      {/* Progress bar */}
+      <div className="fixed top-0 left-0 right-0 z-[60] h-[2px] bg-amber-500/10 pointer-events-none" aria-hidden="true">
         <div
-          className="h-full bg-gradient-to-r from-amber-500 via-amber-300 to-amber-500"
-          style={{ width: `${progress * 100}%`, transition: 'width 0.06s linear', boxShadow: '0 0 14px rgba(201,150,85,0.7)' }}
+          ref={barRef}
+          className="h-full origin-left bg-gradient-to-r from-amber-500 via-amber-300 to-amber-500"
+          style={{ transform: 'scaleX(0)', boxShadow: '0 0 14px rgba(201,150,85,0.7)' }}
         />
       </div>
 
-      {/* SCENE 1: pinned cinematic hero */}
+      {/* Skip intro */}
+      <button
+        type="button"
+        onClick={skipIntro}
+        tabIndex={showSkip ? 0 : -1}
+        aria-hidden={!showSkip}
+        className={`fixed z-[55] bottom-6 left-6 sm:bottom-8 sm:left-8 inline-flex items-center gap-2 rounded-full border border-amber-500/40 bg-black/75 backdrop-blur-md px-4 py-2.5 text-sm font-semibold text-amber-200 shadow-lg shadow-black/40 hover:border-amber-400 hover:text-amber-100 transition-all duration-300 ${
+          showSkip ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-3 pointer-events-none'
+        }`}
+      >
+        Skip intro <ChevronsDown size={16} />
+      </button>
+
+      {/* SCENE 1: hero */}
       <section
         id="home"
         ref={heroRef}
-        data-always-dark
-        className="relative h-screen w-full overflow-hidden bg-black film-grain pin-stage"
+        className="relative h-[100svh] w-full overflow-hidden bg-black film-grain pin-stage"
       >
-        {/* Background image layer (parallax + zoom) */}
         <div ref={heroBgRef} className="absolute inset-0 will-change-transform">
           <img
-            src={HERO_IMG}
+            src={IMG.circuit}
             alt=""
             className="w-full h-full object-cover opacity-40"
             style={{ filter: 'saturate(1.1) contrast(1.05)' }}
-            loading="eager"
+            fetchPriority="high"
           />
           <div className="absolute inset-0"
             style={{ background: 'radial-gradient(ellipse at 50% 60%, transparent 0%, rgba(0,0,0,0.55) 55%, #000 100%)' }} />
         </div>
 
-        {/* Particle network */}
-        <canvas ref={canvasRef} className="absolute inset-0 z-[1] pointer-events-none" />
+        <canvas ref={canvasRef} className="absolute inset-0 w-full h-full z-[1] pointer-events-none" aria-hidden="true" />
 
-        {/* Soft orbs */}
         <div className="absolute -top-32 -left-32 w-[600px] h-[600px] rounded-full pointer-events-none z-[1]"
           style={{ background: 'radial-gradient(circle,rgba(189,138,76,0.18) 0%,transparent 70%)', filter: 'blur(90px)' }} />
         <div className="absolute -bottom-40 -right-40 w-[700px] h-[700px] rounded-full pointer-events-none z-[1]"
           style={{ background: 'radial-gradient(circle,rgba(168,116,60,0.14) 0%,transparent 70%)', filter: 'blur(100px)' }} />
 
-        {/* Rotating ambient ring */}
         <div ref={ringRef}
           className="orbit-spin absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[110vmin] h-[110vmin] pointer-events-none z-[2]">
           <div className="absolute inset-0 rounded-full border border-amber-500/15" />
@@ -472,66 +392,54 @@ export default function CinematicHero() {
           <div className="absolute top-0 left-1/2 -translate-x-1/2 w-2 h-2 rounded-full bg-amber-400 shadow-[0_0_18px_4px_rgba(201,150,85,0.8)]" />
         </div>
 
-        {/* Foreground content (3D tilt) */}
         <div ref={heroFgRef} className="relative z-10 h-full flex flex-col items-center justify-center text-center px-6 tilt-card">
-
           <h1
-            ref={titleRef}
             className="font-display font-black text-white leading-[0.92] tracking-tight mb-6"
-            style={{ fontSize: 'clamp(2.6rem, 9vw, 8.5rem)' }}
+            style={{ fontSize: 'clamp(2.4rem, 9vw, 6rem)' }}
           >
-            <span className="block overflow-hidden">
-              <SplitChars text="ENGINEERING" />
-            </span>
-            <span className="block overflow-hidden text-shimmer">
-              <SplitChars text="TOMORROW." />
-            </span>
+            <span className="block overflow-hidden"><SplitChars text="ENGINEERING" /></span>
+            <span className="block overflow-hidden text-shimmer"><SplitChars text="TOMORROW." /></span>
           </h1>
 
-          <p
-            ref={taglineRef}
-            className="hero-fadein text-white/55 max-w-xl mx-auto text-base sm:text-lg leading-relaxed mb-10"
-          >
-            Hardware, software and intelligence, engineered in Nigeria,
-            designed for the world. Bloxio builds the systems that move
-            industries forward.
+          <p ref={taglineRef} className="hero-fadein text-white/70 max-w-xl mx-auto text-base sm:text-lg leading-relaxed mb-10">
+            Bloxio is a Lagos engineering company building hardware, software and AI products,
+            starting with AgroSense360 for Nigerian farms.
           </p>
 
           <div className="hero-fadein flex flex-wrap gap-3 justify-center">
-            <button
-              onClick={() => scrollToSection('about')}
-              className="group inline-flex items-center gap-2 bg-gradient-to-r from-gold-light via-gold to-gold-dark text-black px-8 py-3.5 rounded-full font-bold text-sm tracking-[0.18em] uppercase hover:shadow-2xl hover:shadow-amber-500/40 hover:-translate-y-0.5 transition-all duration-300 font-display"
+            <Link
+              to="/products/agrosense360"
+              className="group inline-flex items-center gap-2 bg-gradient-to-r from-gold-light via-gold to-gold-dark text-black px-7 py-3.5 rounded-full font-bold text-sm tracking-[0.14em] uppercase hover:shadow-2xl hover:shadow-amber-500/40 hover:-translate-y-0.5 transition-all duration-300 font-display"
             >
-              Begin the journey
+              See AgroSense360
               <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
-            </button>
-            <button
-              onClick={() => scrollToSection('contact')}
-              className="inline-flex items-center gap-2 border border-amber-500/40 text-amber-300 px-8 py-3.5 rounded-full font-bold text-sm tracking-[0.18em] uppercase hover:bg-amber-500/5 hover:border-amber-500/70 hover:-translate-y-0.5 transition-all duration-300 font-display"
+            </Link>
+            <Link
+              to="/contact"
+              className="inline-flex items-center gap-2 border border-amber-500/40 text-amber-200 px-7 py-3.5 rounded-full font-bold text-sm tracking-[0.14em] uppercase hover:bg-amber-500/10 hover:border-amber-500/70 hover:-translate-y-0.5 transition-all duration-300 font-display"
             >
-              Start a conversation
-            </button>
+              Work with us
+            </Link>
           </div>
         </div>
 
-        {/* Scroll cue */}
-        <div className="hero-fadein absolute bottom-8 left-1/2 -translate-x-1/2 z-10 flex flex-col items-center gap-3">
-          <span className="text-micro tracking-[0.3em] text-amber-500/80 font-semibold uppercase">Scroll</span>
-          <div className="w-px h-12 bg-gradient-to-b from-amber-500/60 to-transparent" />
-          <ChevronDown size={16} className="text-amber-500/60 animate-bounce" />
-        </div>
+        <button
+          type="button"
+          onClick={() => smoothTo(storyRef.current)}
+          className="hero-fadein absolute bottom-8 left-1/2 -translate-x-1/2 z-10 flex flex-col items-center gap-3 text-amber-500/80 hover:text-amber-300 transition-colors"
+          aria-label="Scroll to the story"
+        >
+          <span className="text-micro tracking-[0.3em] font-semibold uppercase">Scroll</span>
+          <span className="w-px h-10 bg-gradient-to-b from-amber-500/60 to-transparent" />
+          <ChevronDown size={16} className="animate-bounce" />
+        </button>
 
-        {/* Bottom fog */}
         <div className="fog-bottom absolute bottom-0 left-0 right-0 h-32 z-[2] pointer-events-none" />
       </section>
 
-      {/* SCENE 2: curved cards unravel bottom-to-top. Each chapter is its
-          own curved card stacked above the previous; clip-path animates
-          from inset(100% 0 0 0) to 0, revealing the image like a curtain
-          rising. Scroll-up re-clips it via GSAP scrub. */}
-      <section ref={storyRef} className="relative h-screen w-full overflow-hidden bg-black">
-        {/* faint backdrop pattern visible while cards are clipped */}
-        <div className="absolute inset-0 opacity-40 pointer-events-none"
+      {/* SCENE 2: chapters. Pinned stack on desktop, normal cards on phones. */}
+      <section ref={storyRef} className="relative w-full bg-black md:motion-safe:h-screen md:motion-safe:overflow-hidden py-6 md:motion-safe:py-0">
+        <div className="hidden md:motion-safe:block absolute inset-0 opacity-40 pointer-events-none"
           style={{
             backgroundImage:
               'linear-gradient(rgba(189,138,76,0.05) 1px,transparent 1px),linear-gradient(90deg,rgba(189,138,76,0.05) 1px,transparent 1px)',
@@ -541,20 +449,17 @@ export default function CinematicHero() {
 
         {CHAPTERS.map((ch, i) => (
           <div
-            key={i}
-            className="chapter absolute inset-0 px-4 sm:px-8 pt-16 pb-12 flex items-center justify-center"
+            key={ch.headline}
+            className="chapter relative md:motion-safe:absolute md:motion-safe:inset-0 px-4 sm:px-8 py-3 md:motion-safe:pt-20 md:motion-safe:pb-10 flex items-center justify-center"
             style={{ zIndex: 10 + i }}
           >
-            {/* Curved card whose clip-path animates */}
             <div
-              data-always-dark
-              className="chapter-card relative w-full max-w-7xl h-full rounded-4xl overflow-hidden border border-amber-500/15 shadow-2xl shadow-black/70"
+              className="chapter-card relative w-full max-w-7xl h-[72svh] md:motion-safe:h-full rounded-[28px] overflow-hidden border border-amber-500/15 shadow-2xl shadow-black/70"
               style={{ willChange: 'clip-path' }}
             >
-              {/* Background image (gently zooms while card unravels) */}
               <img
                 src={ch.img}
-                alt={ch.headline}
+                alt=""
                 className="chapter-img absolute inset-0 w-full h-full object-cover will-change-transform"
                 style={{ filter: 'brightness(0.55) saturate(0.95)' }}
                 loading="lazy"
@@ -563,19 +468,9 @@ export default function CinematicHero() {
               <div className="absolute inset-0"
                 style={{ background: 'radial-gradient(ellipse at 30% 80%, rgba(189,138,76,0.22) 0%, transparent 60%)' }} />
 
-              {/* Inner content: words rise from overflow-hidden masks */}
-              <div className="relative z-10 h-full flex flex-col justify-end max-w-5xl mx-auto px-8 sm:px-14 pb-12 sm:pb-16">
-
-                {/* Kicker (single word-rise) */}
-                <div className="overflow-hidden mb-5">
-                  <span className="word-rise inline-block text-amber-400/90 font-display text-xs sm:text-sm tracking-[0.42em] uppercase">
-                    {ch.kicker}
-                  </span>
-                </div>
-
-                {/* Headline: split per word so each unravels in sequence */}
-                <h2 className="font-display font-black text-white leading-[0.94] mb-7 tracking-tight"
-                  style={{ fontSize: 'clamp(2.8rem, 10vw, 9rem)' }}>
+              <div className="relative z-10 h-full flex flex-col justify-end max-w-5xl mx-auto px-6 sm:px-14 pb-10 sm:pb-16">
+                <h2 className="font-display font-black text-white leading-[0.94] mb-6 tracking-tight"
+                  style={{ fontSize: 'clamp(2.2rem, 8vw, 6rem)' }}>
                   {ch.headline.split(' ').map((w, j) => (
                     <span key={j} className="inline-block overflow-hidden align-bottom mr-[0.18em]">
                       <span className="word-rise inline-block">{w}</span>
@@ -583,241 +478,137 @@ export default function CinematicHero() {
                   ))}
                 </h2>
 
-                {/* Body: split on commas so it unravels in a few clean
-                    phrases rather than a noisy word storm */}
-                <p className="text-white/75 text-base sm:text-xl max-w-xl leading-relaxed mb-10">
-                  {ch.body.split(/\s*,\s*/).filter(Boolean).map((seg, j, arr) => (
-                    <span key={j} className="inline-block overflow-hidden align-bottom mr-[0.22em]">
-                      <span className="word-rise inline-block">
-                        {seg}{j < arr.length - 1 ? ',' : ''}
-                      </span>
-                    </span>
-                  ))}
+                <p className="text-white/80 text-base sm:text-xl max-w-xl leading-relaxed mb-8">
+                  <span className="inline-block overflow-hidden align-bottom">
+                    <span className="word-rise inline-block">{ch.body}</span>
+                  </span>
                 </p>
 
-                {/* Progress dots */}
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-3" aria-hidden="true">
                   {CHAPTERS.map((_, j) => (
-                    <div key={j} className={`h-px transition-all duration-500 ${
-                      j === i ? 'w-16 bg-amber-400' : 'w-8 bg-amber-500/20'
-                    }`} />
+                    <div key={j} className={`h-px ${j === i ? 'w-16 bg-amber-400' : 'w-8 bg-amber-500/25'}`} />
                   ))}
-                  <span className="text-white/40 text-xs font-display tracking-[0.3em] ml-3">
+                  <span className="text-white/50 text-xs font-display tracking-[0.3em] ml-3">
                     0{i + 1} / 0{CHAPTERS.length}
                   </span>
                 </div>
               </div>
-
-              {/* corner glow inside the card */}
-              <div className="absolute -top-24 -right-24 w-80 h-80 rounded-full pointer-events-none"
-                style={{ background: 'radial-gradient(circle,rgba(201,150,85,0.25) 0%,transparent 70%)', filter: 'blur(70px)' }} />
             </div>
           </div>
         ))}
 
-        {/* Edge fog */}
-        <div className="fog-top absolute top-0 left-0 right-0 h-24 z-[2] pointer-events-none" />
-        <div className="fog-bottom absolute bottom-0 left-0 right-0 h-24 z-[2] pointer-events-none" />
+        <div className="hidden md:motion-safe:block fog-top absolute top-0 left-0 right-0 h-24 z-[2] pointer-events-none" />
+        <div className="hidden md:motion-safe:block fog-bottom absolute bottom-0 left-0 right-0 h-24 z-[2] pointer-events-none" />
       </section>
 
-      {/* SCENE 3: horizontal showcase (pin + scrub) */}
-      <section ref={horizRef} className="relative h-screen w-full overflow-hidden bg-black">
-        {/* Section heading floats over the panels */}
-        <div className="absolute top-8 left-0 right-0 z-20 text-center pointer-events-none">
-          <span className="text-micro font-semibold tracking-[0.32em] uppercase text-amber-500/90">
-            The Bloxio Universe
-          </span>
+      {/* SCENE 3: the product line. Pinned horizontal on desktop, swipe row on phones. */}
+      <section ref={horizRef} className="relative w-full bg-black md:motion-safe:h-screen md:motion-safe:overflow-hidden py-16 md:motion-safe:py-0">
+        <div className="md:motion-safe:hidden px-6 mb-8 md:max-w-2xl md:mx-auto md:text-center">
+          <h2 className="font-display font-black text-white text-3xl leading-tight mb-3">What we’re building</h2>
+          <p className="text-white/65 text-base leading-relaxed">
+            One product in active development, five more lines we are exploring. Swipe to see them.
+          </p>
         </div>
 
-        <div ref={trackRef} className="h-track flex h-full" style={{ width: 'max-content' }}>
-          {/* Intro panel */}
-          <div className="panel relative h-screen flex items-center justify-center px-12"
-               style={{ width: '70vw', minWidth: '420px' }}>
+        <div
+          ref={trackRef}
+          className="h-track flex gap-4 md:motion-safe:gap-0 md:motion-safe:h-full overflow-x-auto md:motion-safe:overflow-visible snap-x snap-mandatory md:motion-safe:snap-none no-scrollbar px-6 md:motion-safe:px-0 md:motion-safe:w-max"
+        >
+          {/* Intro panel (desktop) */}
+          <div className="panel hidden md:motion-safe:flex relative h-screen items-center px-16 shrink-0 w-[40vw] min-w-[440px]">
             <div className="max-w-md">
-              <span className="panel-rise font-display text-amber-400 text-xs tracking-[0.4em] uppercase mb-4 block">
-                What we build
-              </span>
-              <h3 className="panel-rise font-display font-black text-white leading-[0.95] mb-5"
-                style={{ fontSize: 'clamp(2.4rem, 5vw, 4.5rem)' }}>
-                A universe of <span className="text-shimmer">connected</span> intelligence.
-              </h3>
-              <p className="panel-rise text-white/50 text-base leading-relaxed">
-                Scroll →&nbsp; through the products, platforms and ideas
-                that define how we engineer the future.
+              <h2 className="panel-rise font-display font-black text-white leading-[0.98] mb-6"
+                style={{ fontSize: 'clamp(2.2rem, 4vw, 3.75rem)' }}>
+                What we’re <span className="text-shimmer">building.</span>
+              </h2>
+              <p className="panel-rise text-white/65 text-lg leading-relaxed">
+                One product in active development, and five product lines we are exploring next.
               </p>
             </div>
           </div>
 
-          {/* Showcase panels */}
-          {SHOWCASE.map((p, i) => (
-            <div
-              key={i}
-              className="panel relative h-screen flex items-end px-10 pb-24"
-              style={{ width: '85vw', minWidth: '560px' }}
+          {PRODUCTS.map((p) => (
+            <Link
+              key={p.slug}
+              to={p.live ? `/products/${p.slug}` : `/products#${p.slug}`}
+              className="panel group relative shrink-0 snap-center w-[82vw] h-[64svh] md:w-[36vw] md:min-w-[420px] md:motion-safe:h-screen md:motion-safe:py-16 md:motion-safe:px-3"
             >
-              <div data-always-dark className="absolute inset-6 rounded-3xl overflow-hidden border border-amber-500/15 group">
+              <div className="relative h-full rounded-3xl overflow-hidden border border-amber-500/15 group-hover:border-amber-500/45 transition-colors duration-300">
                 <img
                   src={p.img}
-                  alt={p.title}
+                  alt=""
                   className="panel-img absolute inset-0 w-full h-full object-cover will-change-transform"
-                  style={{ filter: 'brightness(0.7) saturate(1.05)' }}
+                  style={{ filter: 'brightness(0.62) saturate(1.05)' }}
                   loading="lazy"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black via-black/45 to-transparent" />
 
-                <div className="relative z-10 h-full flex flex-col justify-end p-10">
-                  <span className="panel-rise inline-block w-fit text-micro font-semibold tracking-[0.22em] uppercase text-amber-200 border border-amber-500/40 rounded-full px-3 py-1 mb-5 backdrop-blur-sm bg-amber-500/10">
-                    {p.tag}
-                  </span>
-                  <h4 className="panel-rise font-display font-black text-white leading-[0.95] mb-2"
-                    style={{ fontSize: 'clamp(2rem, 4.6vw, 4rem)' }}>
-                    {p.title}
-                  </h4>
-                  <p className="panel-rise text-white/65 text-sm sm:text-base max-w-md">
-                    {p.sub}
-                  </p>
-
-                  {/* index */}
-                  <span className="panel-rise absolute top-8 right-8 font-display text-amber-500/40 text-sm tracking-widest tabular-nums">
-                    {String(i + 1).padStart(2, '0')} / {String(SHOWCASE.length).padStart(2, '0')}
+                <div className="relative z-10 h-full flex flex-col justify-end p-7 sm:p-9">
+                  <div className="panel-rise mb-4"><StatusBadge status={p.status} live={p.live} onDark /></div>
+                  <h3 className="panel-rise font-display font-black text-white leading-[1.02] mb-3 text-2xl sm:text-3xl">
+                    {p.name}
+                  </h3>
+                  <p className="panel-rise text-white/75 text-sm sm:text-base leading-relaxed max-w-sm mb-5">{p.blurb}</p>
+                  <span className="panel-rise inline-flex items-center gap-2 text-amber-300 text-sm font-semibold">
+                    {p.live ? 'See the product' : 'Learn more'}
+                    <ArrowRight size={15} className="group-hover:translate-x-1 transition-transform" />
                   </span>
                 </div>
               </div>
-            </div>
+            </Link>
           ))}
 
-          {/* Outro panel */}
-          <div className="panel relative h-screen flex items-center justify-center px-12"
-               style={{ width: '60vw', minWidth: '380px' }}>
-            <div className="text-center">
-              <span className="panel-rise font-display text-xs tracking-[0.4em] uppercase text-amber-400 mb-6 block">
-                And much more
-              </span>
-              <button
-                onClick={() => scrollToSection('services')}
-                className="panel-rise inline-flex items-center gap-3 border border-amber-500/40 text-amber-300 px-6 py-3 rounded-full text-xs font-bold tracking-[0.25em] uppercase hover:bg-amber-500/10 hover:border-amber-500/70 transition-all font-display"
-              >
-                Explore everything
-                <ArrowRight size={14} />
-              </button>
-            </div>
+          {/* Outro panel (desktop) */}
+          <div className="panel hidden md:motion-safe:flex relative h-screen items-center justify-center px-16 shrink-0 w-[28vw] min-w-[340px]">
+            <Link
+              to="/products"
+              className="panel-rise inline-flex items-center gap-3 border border-amber-500/40 text-amber-200 px-6 py-3 rounded-full text-xs font-bold tracking-[0.22em] uppercase hover:bg-amber-500/10 hover:border-amber-500/70 transition-all font-display"
+            >
+              All products <ArrowRight size={14} />
+            </Link>
           </div>
         </div>
 
-        <div className="fog-top absolute top-0 left-0 right-0 h-20 z-[2] pointer-events-none" />
-      </section>
-
-      {/* SCENE 4: stacked card reveal */}
-      <section ref={stackRef} className="relative h-screen w-full overflow-hidden bg-black">
-        <div className="absolute inset-0"
-          style={{ background: 'radial-gradient(ellipse 60% 60% at 50% 50%, rgba(189,138,76,0.06) 0%, transparent 70%)' }} />
-
-        <div className="absolute top-8 left-0 right-0 z-30 text-center pointer-events-none">
-          <span className="text-micro font-semibold tracking-[0.32em] uppercase text-amber-500/90">
-            The Bloxio DNA
-          </span>
+        <div className="md:motion-safe:hidden px-6 mt-8 md:text-center">
+          <Link to="/products" className="inline-flex items-center gap-2 text-amber-300 font-semibold">
+            All products <ArrowRight size={15} />
+          </Link>
         </div>
-
-        {[
-          { icon: Cpu,       title: 'Engineered',  copy: 'World-class hardware, manufactured to global standards.', img: LAB_IMG },
-          { icon: Wifi,      title: 'Connected',   copy: 'Mesh networks of devices, sensors and intelligence.',     img: NET_IMG },
-          { icon: Sparkles,  title: 'Intelligent', copy: 'AI that learns from the field and acts in real time.',    img: FIELD_IMG },
-          { icon: ArrowRight,title: 'Unstoppable', copy: 'Built in Nigeria. Designed for everywhere.',              img: CITY_IMG },
-        ].map((c, i) => {
-          const Icon = c.icon;
-          return (
-            <div
-              key={i}
-              ref={el => (cardsRef.current[i] = el)}
-              className="absolute inset-0 flex items-center justify-center px-6"
-              style={{ zIndex: 10 + i }}
-            >
-              <div data-always-dark className="relative w-full max-w-5xl h-[78vh] rounded-3xl overflow-hidden border border-amber-500/15 shadow-2xl shadow-black/60">
-                <img src={c.img} alt={c.title} className="absolute inset-0 w-full h-full object-cover" loading="lazy"
-                  style={{ filter: 'brightness(0.5) saturate(1.05)' }} />
-                <div className="absolute inset-0 bg-gradient-to-br from-black/60 via-black/30 to-amber-950/40" />
-
-                <div className="relative z-10 h-full flex flex-col justify-end p-10 sm:p-14">
-                  <div className="flex items-center gap-4 mb-6">
-                    <div className="w-14 h-14 rounded-2xl flex items-center justify-center border border-amber-500/30 backdrop-blur-md"
-                      style={{ background: 'rgba(189,138,76,0.15)' }}>
-                      <Icon size={22} className="text-amber-300" />
-                    </div>
-                    <span className="font-display text-amber-400/80 text-xs tracking-[0.4em] uppercase">
-                      0{i + 1} of 04
-                    </span>
-                  </div>
-                  <h3 className="font-display font-black text-white leading-[0.95] mb-4"
-                    style={{ fontSize: 'clamp(2.4rem, 6vw, 5.5rem)' }}>
-                    {c.title}
-                  </h3>
-                  <p className="text-white/70 text-base sm:text-lg max-w-xl leading-relaxed">
-                    {c.copy}
-                  </p>
-                </div>
-
-                {/* corner glow */}
-                <div className="absolute -top-20 -right-20 w-72 h-72 rounded-full pointer-events-none"
-                  style={{ background: 'radial-gradient(circle,rgba(201,150,85,0.25) 0%,transparent 70%)', filter: 'blur(60px)' }} />
-              </div>
-            </div>
-          );
-        })}
       </section>
 
-      {/* SCENE 5: brand stamp + final CTA */}
-      <section ref={ctaRef} className="relative py-12 w-full overflow-hidden bg-black">
-        {/* warm radial wash */}
+      {/* SCENE 4: brand stamp */}
+      <section ref={ctaRef} className="relative py-20 md:py-24 w-full overflow-hidden bg-black">
         <div className="absolute inset-0 pointer-events-none"
           style={{ background: 'radial-gradient(ellipse 70% 60% at 50% 50%, rgba(189,138,76,0.10) 0%, transparent 70%)' }} />
-
-        {/* concentric rings around the logo */}
         <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[80vmin] h-[80vmin] pointer-events-none orbit-spin">
           <div className="absolute inset-0 rounded-full border border-amber-500/10" />
           <div className="absolute inset-[8%] rounded-full border border-amber-500/8 border-dashed" />
         </div>
-        <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[55vmin] h-[55vmin] pointer-events-none orbit-spin-rev">
-          <div className="absolute inset-0 rounded-full border border-amber-500/12" />
-        </div>
 
         <div className="relative z-10 max-w-4xl mx-auto text-center px-6">
-          <span className="cta-rise text-micro font-semibold tracking-[0.32em] uppercase text-amber-500/90 mb-10 block">
-            The story continues
-          </span>
-
-          {/* Brand stamp: full Bloxio logo with built-in motto */}
           <div className="cta-rise mb-10 flex justify-center">
             <img
-              src="/bloxiofull.png"
+              src="/bloxio-lockup.webp"
               alt="Bloxio. One step ahead of tech."
+              width="1400"
+              height="948"
               className="brand-stamp h-auto select-none pointer-events-none"
               style={{
-                width: 'clamp(280px, 52vw, 620px)',
-                filter: 'drop-shadow(0 0 80px rgba(189,138,76,0.45)) drop-shadow(0 0 24px rgba(189,138,76,0.25))',
+                width: 'clamp(240px, 40vw, 520px)',
+                filter: 'drop-shadow(0 0 60px rgba(189,138,76,0.4))',
               }}
+              loading="lazy"
               draggable="false"
             />
           </div>
 
-          {/* Decorative divider */}
-          <div className="cta-rise flex items-center gap-4 justify-center mb-10">
+          <div className="cta-rise flex items-center gap-4 justify-center">
             <span className="block w-12 sm:w-20 h-px bg-gradient-to-r from-transparent to-amber-500/60" />
-            <span className="text-micro font-semibold text-amber-400 tracking-[0.3em] uppercase">
-              Engineering Tomorrow
-            </span>
+            <span className="text-micro font-semibold text-amber-400 tracking-[0.3em] uppercase">Engineering Tomorrow</span>
             <span className="block w-12 sm:w-20 h-px bg-gradient-to-l from-transparent to-amber-500/60" />
           </div>
-
-          <button
-            onClick={() => scrollToSection('about')}
-            className="cta-rise group inline-flex items-center gap-3 bg-gradient-to-r from-gold-light via-gold to-gold-dark text-black px-9 py-4 rounded-full text-sm font-bold tracking-[0.22em] uppercase hover:shadow-2xl hover:shadow-amber-500/40 hover:-translate-y-0.5 transition-all duration-300 font-display"
-          >
-            Continue exploring
-            <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
-          </button>
         </div>
       </section>
-
     </div>
   );
 }

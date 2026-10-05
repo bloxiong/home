@@ -1,17 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { Menu, X, Sun, Moon } from 'lucide-react';
+import { Link, NavLink, useLocation } from 'react-router-dom';
+import { Menu, X, Sun, Moon, ArrowRight } from 'lucide-react';
 import { useTheme } from '../contexts/ThemeContext';
 
 const NAV_LINKS = [
-  { label: 'About',      section: 'about' },
-  { label: 'Services',   section: 'services' },
-  { label: 'Vision',     section: 'vision' },
-  { label: 'Leadership', section: 'directors' },
-  { label: 'FAQ',        section: 'faq' },
+  { label: 'Products', to: '/products' },
+  { label: 'Services', to: '/services' },
+  { label: 'About',    to: '/about' },
+  { label: 'Careers',  to: '/careers' },
 ];
 
-function ThemeToggle({ className = '' }) {
+function ThemeToggle({ overDark }) {
   const { theme, toggleTheme } = useTheme();
   const isDark = theme === 'dark';
   return (
@@ -19,111 +18,105 @@ function ThemeToggle({ className = '' }) {
       onClick={toggleTheme}
       aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
       title={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
-      className={`relative w-10 h-10 flex items-center justify-center border border-amber-500/25 rounded-xl text-amber-500 hover:bg-amber-500/10 hover:border-amber-500/55 hover:text-amber-400 transition-all duration-300 overflow-hidden ${className}`}
+      className={`relative w-10 h-10 flex items-center justify-center border rounded-xl transition-colors duration-200 overflow-hidden ${
+        overDark
+          ? 'border-amber-500/30 text-amber-400 hover:bg-amber-500/10'
+          : 'border-line text-accent hover:bg-accent/10'
+      }`}
     >
-      <Moon
-        size={17}
-        className={`absolute transition-all duration-500 ${
-          isDark ? 'opacity-0 -rotate-90 scale-50' : 'opacity-100 rotate-0 scale-100'
-        }`}
-      />
-      <Sun
-        size={17}
-        className={`absolute transition-all duration-500 ${
-          isDark ? 'opacity-100 rotate-0 scale-100' : 'opacity-0 rotate-90 scale-50'
-        }`}
-      />
+      <Moon size={17} className={`absolute transition-all duration-500 ${isDark ? 'opacity-0 -rotate-90 scale-50' : 'opacity-100 rotate-0 scale-100'}`} />
+      <Sun  size={17} className={`absolute transition-all duration-500 ${isDark ? 'opacity-100 rotate-0 scale-100' : 'opacity-0 rotate-90 scale-50'}`} />
     </button>
   );
 }
 
 export default function Navigation() {
-  const [isOpen, setIsOpen]   = useState(false);
+  const [isOpen, setIsOpen]     = useState(false);
   const [scrolled, setScrolled] = useState(false);
-  const navigate  = useNavigate();
-  const location  = useLocation();
+  const location = useLocation();
 
   useEffect(() => {
     const handler = () => setScrolled(window.scrollY > 40);
+    handler();
     window.addEventListener('scroll', handler, { passive: true });
     return () => window.removeEventListener('scroll', handler);
   }, []);
 
-  useEffect(() => { setIsOpen(false); }, [location]);
+  // Close the mobile menu on navigation (adjust state during render,
+  // not in an effect).
+  const [menuPath, setMenuPath] = useState(location.pathname);
+  if (menuPath !== location.pathname) {
+    setMenuPath(location.pathname);
+    setIsOpen(false);
+  }
 
   useEffect(() => {
     document.body.style.overflow = isOpen ? 'hidden' : '';
     return () => { document.body.style.overflow = ''; };
   }, [isOpen]);
 
-  const scrollTo = (id) => {
-    setIsOpen(false);
-    if (location.pathname !== '/') {
-      navigate('/');
-      setTimeout(() => document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 120);
-    } else {
-      document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }
-  };
+  // The home page opens on the always-dark cinematic hero.
+  const overDark = location.pathname === '/' && !scrolled && !isOpen;
 
-  const overDarkHero = location.pathname === '/' && !scrolled;
+  const linkCls = ({ isActive }) =>
+    `relative px-4 py-2 text-sm font-semibold rounded-lg transition-colors duration-200 ${
+      overDark
+        ? isActive ? 'text-white' : 'text-white/70 hover:text-white'
+        : isActive ? 'text-accent' : 'text-muted hover:text-ink'
+    }`;
 
   return (
     <>
-      <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-400 ${
-        scrolled
-          ? 'bg-white/85 dark:bg-black/90 backdrop-blur-xl border-b border-amber-500/20 dark:border-amber-500/10 shadow-lg shadow-stone-900/10 dark:shadow-black/40'
-          : 'bg-transparent'
-      }`}>
-        <div className="container mx-auto px-4 sm:px-6 max-w-7xl">
+      <nav
+        {...(overDark ? { 'data-always-dark': '' } : {})}
+        className={`fixed top-0 left-0 right-0 z-50 transition-[background-color,border-color,box-shadow] duration-300 ${
+          scrolled || isOpen
+            ? 'bg-canvas/90 backdrop-blur-xl border-b border-line shadow-[0_8px_24px_-16px_rgba(0,0,0,0.4)]'
+            : 'bg-transparent border-b border-transparent'
+        }`}
+        aria-label="Main"
+      >
+        <div className="mx-auto max-w-7xl px-4 sm:px-6">
           <div className="flex items-center justify-between h-[68px] gap-6">
-            {/* Logo */}
-            <Link to="/" className="flex items-center flex-shrink-0">
-              <img src="/bloxio.png" alt="Bloxio" className="w-[85px] h-auto object-contain" />
+            <Link to="/" className="flex items-center flex-shrink-0" aria-label="Bloxio home">
+              <img
+                src="/bloxio-logo.png"
+                alt="Bloxio"
+                width="400"
+                height="75"
+                className={`w-[92px] h-auto object-contain ${overDark ? '' : 'logo-adapt'}`}
+              />
             </Link>
 
-            {/* Desktop links */}
             <div className="hidden lg:flex items-center gap-1">
               {NAV_LINKS.map((l) => (
-                <button
-                  key={l.label}
-                  onClick={() => scrollTo(l.section)}
-                  className={`relative px-4 py-2 text-sm font-semibold rounded-lg hover:bg-amber-500/8 transition-all duration-200 group cursor-pointer ${
-                    overDarkHero
-                      ? 'text-white/60 hover:text-white'
-                      : 'text-stone-600 hover:text-stone-900 dark:text-white/55 dark:hover:text-white'
-                  }`}
-                >
-                  {l.label}
-                  <span className="absolute bottom-1.5 left-4 right-4 h-px bg-amber-500 scale-x-0 group-hover:scale-x-100 origin-left transition-transform duration-300 rounded-full" />
-                </button>
+                <NavLink key={l.to} to={l.to} className={linkCls}>
+                  {({ isActive }) => (
+                    <>
+                      {l.label}
+                      <span className={`absolute bottom-1 left-4 right-4 h-px bg-amber-500 origin-left transition-transform duration-300 ${isActive ? 'scale-x-100' : 'scale-x-0'}`} />
+                    </>
+                  )}
+                </NavLink>
               ))}
-              <Link
-                to="/survey"
-                className={`relative px-4 py-2 text-sm font-semibold rounded-lg hover:bg-amber-500/8 transition-all duration-200 group ${
-                  overDarkHero
-                    ? 'text-white/60 hover:text-white'
-                    : 'text-stone-600 hover:text-stone-900 dark:text-white/55 dark:hover:text-white'
-                }`}
-              >
-                Survey
-                <span className="absolute bottom-1.5 left-4 right-4 h-px bg-amber-500 scale-x-0 group-hover:scale-x-100 origin-left transition-transform duration-300 rounded-full" />
-              </Link>
             </div>
 
-            {/* Theme toggle + CTA + hamburger */}
             <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
-              <ThemeToggle />
-              <button
-                onClick={() => scrollTo('contact')}
-                className="hidden lg:inline-flex items-center bg-gradient-to-r from-gold-light via-gold to-gold-dark text-black px-5 py-2 rounded-full text-sm font-bold tracking-wide hover:shadow-md hover:shadow-amber-500/30 hover:-translate-y-px transition-all duration-300 cursor-pointer"
+              <ThemeToggle overDark={overDark} />
+              <Link
+                to="/contact"
+                className="hidden lg:inline-flex items-center gap-2 bg-gradient-to-r from-gold-light via-gold to-gold-dark text-black px-5 py-2.5 rounded-full text-sm font-semibold hover:-translate-y-px hover:shadow-[0_8px_20px_-8px_rgba(189,138,76,0.8)] transition-all duration-200"
               >
-                Contact Us
-              </button>
+                Contact us
+              </Link>
               <button
                 onClick={() => setIsOpen(!isOpen)}
-                className="lg:hidden w-10 h-10 flex items-center justify-center border border-amber-500/25 rounded-xl text-amber-500 hover:bg-amber-500/10 hover:border-amber-500/55 transition-all duration-200"
-                aria-label="Toggle menu"
+                className={`lg:hidden w-10 h-10 flex items-center justify-center border rounded-xl transition-colors duration-200 ${
+                  overDark ? 'border-amber-500/30 text-amber-400' : 'border-line text-accent'
+                }`}
+                aria-label={isOpen ? 'Close menu' : 'Open menu'}
+                aria-expanded={isOpen}
+                aria-controls="mobile-menu"
               >
                 {isOpen ? <X size={20} /> : <Menu size={20} />}
               </button>
@@ -132,42 +125,43 @@ export default function Navigation() {
         </div>
       </nav>
 
-      {/* Mobile full-screen overlay */}
-      <div className={`fixed inset-0 z-40 bg-stone-50/97 dark:bg-black/97 backdrop-blur-2xl flex items-center justify-center transition-opacity duration-300 ${
-        isOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
-      }`}>
-        <div className="flex flex-col items-center gap-2 w-full px-8 pt-20 pb-10">
-          {NAV_LINKS.map((l, i) => (
-            <button
-              key={l.label}
-              onClick={() => scrollTo(l.section)}
-              className="text-3xl font-black text-stone-700 hover:text-stone-900 dark:text-white/40 dark:hover:text-white py-1.5 transition-colors duration-200"
-              style={{
-                animation: isOpen ? `heroUp 0.4s ease ${i * 0.06}s both` : 'none',
-              }}
-            >
-              {l.label}
-            </button>
-          ))}
-          <Link
-            to="/survey"
-            className="text-3xl font-black text-stone-700 hover:text-stone-900 dark:text-white/40 dark:hover:text-white py-1.5 transition-colors duration-200"
-            style={{ animation: isOpen ? `heroUp 0.4s ease ${NAV_LINKS.length * 0.06}s both` : 'none' }}
-          >
-            Survey
-          </Link>
-          <button
-            onClick={() => scrollTo('contact')}
-            className="mt-6 bg-gradient-to-r from-gold-light via-gold to-gold-dark text-black px-10 py-4 rounded-full text-base font-bold tracking-wide hover:shadow-xl hover:shadow-amber-500/30 transition-all duration-300 cursor-pointer"
-            style={{ animation: isOpen ? `heroUp 0.4s ease ${(NAV_LINKS.length + 1) * 0.06}s both` : 'none' }}
-          >
-            Contact Us
-          </button>
+      {/* Mobile menu */}
+      <div
+        id="mobile-menu"
+        className={`lg:hidden fixed inset-0 z-40 bg-canvas transition-opacity duration-300 ${
+          isOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
+        }`}
+        aria-hidden={!isOpen}
+      >
+        <div className="flex h-full flex-col px-6 pt-28 pb-10">
+          <nav className="flex flex-col border-t border-line" aria-label="Mobile">
+            {[{ label: 'Home', to: '/' }, ...NAV_LINKS, { label: 'Contact', to: '/contact' }].map((l, i) => (
+              <NavLink
+                key={l.to}
+                to={l.to}
+                end={l.to === '/'}
+                tabIndex={isOpen ? 0 : -1}
+                className={({ isActive }) =>
+                  `flex items-center justify-between border-b border-line py-4 font-display text-2xl font-black transition-colors ${
+                    isActive ? 'text-accent' : 'text-ink'
+                  }`
+                }
+                style={{ animation: isOpen ? `menuIn 0.4s cubic-bezier(0.16,1,0.3,1) ${i * 0.04}s both` : 'none' }}
+              >
+                {l.label}
+                <ArrowRight size={20} className="text-muted" />
+              </NavLink>
+            ))}
+          </nav>
+          <div className="mt-auto space-y-1 text-sm text-muted">
+            <a href="mailto:contact@bloxio.tech" className="block text-accent font-semibold" tabIndex={isOpen ? 0 : -1}>contact@bloxio.tech</a>
+            <p>Festac, Lagos, Nigeria</p>
+          </div>
         </div>
       </div>
 
       <style>{`
-        @keyframes heroUp { from { opacity:0; transform:translateY(18px); } to { opacity:1; transform:translateY(0); } }
+        @keyframes menuIn { from { opacity:0; transform:translateY(14px); } to { opacity:1; transform:none; } }
       `}</style>
     </>
   );

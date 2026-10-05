@@ -24,6 +24,7 @@
   font-size: 0.75rem;   /* 12px */
   line-height: 1.4;
 }
+.font-ui { font-family: var(--font-ui); letter-spacing: -0.01em; }
 
 html, body {
   overflow-x: hidden;
@@ -42,7 +43,10 @@ html.dark, html.dark body {
 
 * { box-sizing: border-box; }
 
-h1, h2, h3, h4, h5, h6,
+/* Display face for page and section titles only. Smaller headings
+   (h3 and down, or any heading with .font-ui) use Inter: Equinox's
+   lowercase is unreadable at card-title sizes. */
+h1, h2,
 .font-display {
   font-family: var(--font-display);
   letter-spacing: 0.02em;
@@ -54,19 +58,103 @@ button, input, textarea, select {
 
 .container { max-width: 100%; }
 
-/* Smooth-feeling scroll on supported browsers */
-html { scroll-behavior: smooth; }
+/* No global `scroll-behavior: smooth`: it fights GSAP ScrollTrigger's
+   pin measurements and makes every route change crawl through the page.
+   Smooth scrolling is requested per call instead. */
+
+/* ─────────────────────────────────────────────
+   Semantic tokens for content pages. Each flips
+   with the theme, so page components never need
+   the light-mode override list further down.
+   ───────────────────────────────────────────── */
+:root {
+  --bx-canvas:  #faf6ed;
+  --bx-surface: #ffffff;
+  --bx-sunken:  #f1e9d8;
+  --bx-ink:     #18120a;
+  --bx-muted:   #5c5040;
+  --bx-line:    rgba(120, 88, 40, 0.22);
+  --bx-accent:  #8d5c25;
+  --bx-gold:    #bd8a4c;
+}
+html.dark {
+  --bx-canvas:  #000000;
+  --bx-surface: #0d0b08;
+  --bx-sunken:  #14110c;
+  --bx-ink:     #f6f1e7;
+  --bx-muted:   #a89e8e;
+  --bx-line:    rgba(189, 138, 76, 0.18);
+  --bx-accent:  #d4a465;
+  --bx-gold:    #bd8a4c;
+}
+
+@theme inline {
+  --color-canvas:  var(--bx-canvas);
+  --color-surface: var(--bx-surface);
+  --color-sunken:  var(--bx-sunken);
+  --color-ink:     var(--bx-ink);
+  --color-muted:   var(--bx-muted);
+  --color-line:    var(--bx-line);
+  --color-accent:  var(--bx-accent);
+}
+
+::selection { background: rgba(189, 138, 76, 0.35); color: inherit; }
+
+:focus-visible {
+  outline: 2px solid var(--bx-gold);
+  outline-offset: 3px;
+  border-radius: 6px;
+}
+
+html { scrollbar-color: rgba(189, 138, 76, 0.45) transparent; }
+
+/* Long-form copy on content pages */
+.prose-bx p + p { margin-top: 1.1em; }
+.prose-bx { max-width: 68ch; }
+
+.link-underline {
+  text-decoration: underline;
+  text-decoration-color: rgba(189, 138, 76, 0.5);
+  text-underline-offset: 0.25em;
+  text-decoration-thickness: 1px;
+  transition: text-decoration-color 0.2s ease;
+}
+.link-underline:hover { text-decoration-color: currentColor; }
+
+/* Page-header entrance: one authored moment per content page.
+   Content is visible by default; the animation only runs when
+   motion is allowed. */
+@media (prefers-reduced-motion: no-preference) {
+  .rise-in {
+    animation: riseIn 0.9s cubic-bezier(0.16, 1, 0.3, 1) both;
+    animation-delay: calc(var(--i, 0) * 80ms);
+  }
+  @keyframes riseIn {
+    from { opacity: 0; transform: translateY(24px); filter: blur(6px); }
+    to   { opacity: 1; transform: none; filter: blur(0); }
+  }
+  .reveal-img {
+    clip-path: inset(0 0 100% 0 round 16px);
+    transition: clip-path 1.1s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .reveal-img.is-in { clip-path: inset(0 0 0% 0 round 16px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .orbit-spin, .orbit-spin-rev, .text-shimmer, .film-grain::before { animation: none !important; }
+}
 
 /* ─────────────────────────────────────────────
    Cinematic helpers
    ───────────────────────────────────────────── */
 
 /* per-character split for text reveals */
-.split-char {
-  display: inline-block;
-  transform: translateY(110%);
-  opacity: 0;
-  will-change: transform, opacity;
+.split-char { display: inline-block; }
+@media (prefers-reduced-motion: no-preference) {
+  .split-char {
+    transform: translateY(110%);
+    opacity: 0;
+  }
 }
 
 .split-word {
@@ -331,7 +419,7 @@ html:not(.dark) textarea,
 html:not(.dark) select { color-scheme: light; }
 
 /* Navigation logo: invert slightly for legibility on cream */
-html:not(.dark) nav img[alt="Bloxio"] { filter: brightness(0.4) saturate(1.4); }
+html:not(.dark) img.logo-adapt { filter: brightness(0.4) saturate(1.4); }
 
 /* Footer top border tone */
 html:not(.dark) footer { border-top-color: rgba(141,92,37,0.20); }
