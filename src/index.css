@@ -329,14 +329,14 @@ html:not(.dark) .hero {
   --rim-glow: rgba(246, 214, 158, 0.6);
   --haze-gold: rgba(95, 190, 140, 0.32);
   --haze-green: rgba(15, 110, 64, 0.2);
-  --lit: color-mix(in oklab, #D2D7CA 40%, #FDF1D8);
-  --lit-soft: color-mix(in oklab, #D2D7CA 55%, #FBEBCB);
+  --lit: color-mix(in oklab, var(--bx-canvas) 40%, #FDF1D8);
+  --lit-soft: color-mix(in oklab, var(--bx-canvas) 55%, #FBEBCB);
 }
 html:not(.dark) .hero-planet {
   background:
     radial-gradient(ellipse 640px 180px at 50% 0%, var(--lit), transparent 100%),
     radial-gradient(ellipse 900px 260px at 50% 0%, rgba(255, 255, 255, 0.55), transparent 100%),
-    #D2D7CA;
+    color-mix(in oklab, var(--bx-canvas) 72%, #FFFFFF);
   box-shadow:
     inset 0 4px 10px -4px rgba(255, 255, 255, 0.95),
     inset 0 26px 60px -22px var(--lit-soft),
@@ -951,26 +951,3 @@ body { overflow-wrap: break-word; }
   0%, 100% { box-shadow: 0 0 0 1px rgba(111, 211, 157, 0.5), 0 0 12px rgba(111, 211, 157, 0.35); }
   50% { box-shadow: 0 0 0 1px rgba(111, 211, 157, 0.8), 0 0 26px rgba(111, 211, 157, 0.65); }
 }
-
-/* ── Light mode: the hero stays night ─────────────────────────────────
-   In light mode the hero keeps the dark night sky (dark palette, gold
-   stars, light text); the planet's surface is the light page colour, so
-   the page turns light from "…who we are" down. */
-html:not(.dark) .hero {
-  --bx-canvas: #0B0D0C; --bx-surface: #131615; --bx-sunken: #0F1211;
-  --bx-ink: #EEF1EF; --bx-muted: #9BA39E; --bx-line: #232826;
-  --bx-accent: #5FCB93; --bx-on-accent: #0B0D0C;
-  background: #0B0D0C;
-  color: #EEF1EF;
-}
-html:not(.dark) .hero .hero-vignette { display: block; }
-html:not(.dark) .hero .bx-art { filter: none; }
-html:not(.dark) .hero .bx-wordmark { filter: drop-shadow(0 4px 14px rgba(0, 0, 0, 0.6)); }
-html:not(.dark) .hero .bx-tagline img { filter: none; }
-html:not(.dark) .hero .bx-label { color: #F3E3C4; text-shadow: 0 0 12px rgba(229, 192, 138, 0.6); }
-html:not(.dark) .hero .bx-label::before { background: linear-gradient(90deg, rgba(229, 192, 138, 0.9), rgba(229, 192, 138, 0)); }
-html:not(.dark) .hero .bx-label.is-left::before { background: linear-gradient(270deg, rgba(229, 192, 138, 0.9), rgba(229, 192, 138, 0)); }
-html:not(.dark) .hero .text-shimmer { background-image: linear-gradient(90deg, #8FD3A8 0%, #E9EDE4 30%, #E5C08A 50%, #E9EDE4 70%, #8FD3A8 100%); }
-html:not(.dark) .hero .star-bullet { color: #D9A55B; }
-/* the planet itself stays solid to the hero's foot so it meets the light page exactly */
-html:not(.dark) .hero .hero-ground { -webkit-mask-image: none; mask-image: none; }

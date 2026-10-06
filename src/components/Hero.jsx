@@ -33,7 +33,7 @@ function useParticles(canvasRef) {
 
     const draw = () => {
       const w = canvas.clientWidth, h = canvas.clientHeight;
-      const dark = true; // the hero is always night, in light mode too
+      const dark = document.documentElement.classList.contains('dark');
       const dot = dark ? '143,211,168' : '27,122,75';
       const line = dark ? '93,187,132' : '27,122,75';
       ctx.clearRect(0, 0, w, h);
