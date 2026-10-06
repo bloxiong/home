@@ -1,28 +1,145 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
+import { STATUS } from '../content/site';
+import { useInView, useScrollVars, prefersReducedMotion, photo, photoSrcSet, photoPreview } from '../lib/ui-utils';
 
-/* Per-page <title> and description. React 19 hoists these into <head>. */
-export function PageMeta({ title, description }) {
-  const full = title ? `${title} · Bloxio` : 'Bloxio · One step ahead of tech';
+const DEFAULT_DESCRIPTION =
+  'BLOXio Nigeria Limited builds intelligent hardware and software for the physical world: electronics, embedded systems, cloud and AI, starting with the AgroSense360 field rover.';
+const SITE = 'https://bloxio.tech';
+
+/* Per-page <title>, description, canonical and social tags. React 19
+   hoists these into <head>; index.html deliberately has no description,
+   og:title or og:description, so these are the only copies. */
+export function PageMeta({ title, description = DEFAULT_DESCRIPTION, path, type = 'website' }) {
+  const full = title ? `${title} · BLOXio` : 'BLOXio · Engineering tomorrow';
+  const url = path != null ? `${SITE}${path}` : null;
   return (
     <>
       <title>{full}</title>
-      {description && <meta name="description" content={description} />}
+      <meta name="description" content={description} />
       <meta property="og:title" content={full} />
-      {description && <meta property="og:description" content={description} />}
+      <meta property="og:description" content={description} />
+      <meta property="og:type" content={type} />
+      {url && <meta property="og:url" content={url} />}
+      {url && <link rel="canonical" href={url} />}
+      <meta name="twitter:title" content={full} />
+      <meta name="twitter:description" content={description} />
     </>
   );
 }
 
+/* ── Motion primitives ─────────────────────────────────────────── */
+
+/* Fades and lifts its child in on scroll. `i` staggers siblings. */
+export function Reveal({ as = 'div', i = 0, className = '', style, children, ...rest }) {
+  const Tag = as;
+  const [ref, inView] = useInView();
+  return (
+    <Tag
+      ref={ref}
+      className={`reveal ${inView ? 'is-in' : ''} ${className}`}
+      style={{ '--i': i, ...style }}
+      {...rest}
+    >
+      {children}
+    </Tag>
+  );
+}
+
+/* Counts up to `value` when it scrolls into view. */
+export function CountUp({ value, decimals = 0, prefix = '', suffix = '', duration = 1400, className = '' }) {
+  const [ref, inView] = useInView();
+  const [n, setN] = useState(0);
+  useEffect(() => {
+    if (!inView || prefersReducedMotion()) return;
+    let raf = 0;
+    const start = performance.now();
+    const tick = (t) => {
+      const p = Math.min((t - start) / duration, 1);
+      const eased = 1 - Math.pow(1 - p, 3);
+      setN(value * eased);
+      if (p < 1) raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [inView, value, duration]);
+  const shown = prefersReducedMotion() ? value : inView ? n : 0;
+  return (
+    <span ref={ref} className={`tabular-nums ${className}`}>
+      <span aria-hidden="true">{prefix}{shown.toFixed(decimals)}{suffix}</span>
+      <span className="sr-only">{prefix}{value.toFixed(decimals)}{suffix}</span>
+    </span>
+  );
+}
+
+/* The flat BLOXio wordmark as inline text. Sized to the surrounding font
+   (cap height), in brand gold by default; `gold` adds a slow shine for
+   headings. Screen readers hear "BLOXio". */
+export function Brand({ gold = false, className = '' }) {
+  return <span role="img" aria-label="BLOXio" className={`brand ${gold ? 'brand-gold' : ''} ${className}`} />;
+}
+
+/* Renders a string with every "BLOXio" swapped for the wordmark. The
+   sentence that carries the logo is set in the display face (the one
+   used for "Engineering tomorrow") so the logo reads as part of it;
+   the rest of the text keeps its own font. */
+export function BrandText({ children, gold = false }) {
+  if (typeof children !== 'string' || !children.includes('BLOXio')) return children;
+  const withLogo = (text) =>
+    text.split(/(BLOXio)/).map((part, i) =>
+      part === 'BLOXio' ? <Brand key={i} gold={gold} /> : <React.Fragment key={i}>{part}</React.Fragment>,
+    );
+  return children.split(/(?<=[.!?])(\s+)/).map((chunk, i) =>
+    chunk.includes('BLOXio')
+      ? <span key={i} className="brand-line">{withLogo(chunk)}</span>
+      : <React.Fragment key={i}>{chunk}</React.Fragment>,
+  );
+}
+
+/* Wraps hand-written JSX that contains <Brand /> in the display face. */
+export function BrandLine({ children }) {
+  return <span className="brand-line">{children}</span>;
+}
+
+/* Splits a string into masked words that rise in one after another: on
+   load inside `.split-load`, or when a parent `.reveal` gets `.is-in`. */
+export function SplitWords({ text }) {
+  if (typeof text !== 'string') return text;
+  return text.split(' ').map((w, i) => (
+    <React.Fragment key={i}>
+      <span className="sw"><span className="sw-i" style={{ '--w': i }}>{w === 'BLOXio' ? <Brand gold /> : <BrandText>{w}</BrandText>}</span></span>{' '}
+    </React.Fragment>
+  ));
+}
+
+/* Paragraph whose words light up one by one as it scrolls into view. */
+export function ScrollWords({ text, as = 'p', className = '', style }) {
+  const Tag = as;
+  const ref = useScrollVars();
+  const words = text.split(' ');
+  return (
+    <Tag ref={ref} className={`scroll-words ${className}`} style={style}>
+      {words.map((w, i) => (
+        <React.Fragment key={i}>
+          <span style={{ '--w': (i / words.length).toFixed(3) }}>{w}</span>{' '}
+        </React.Fragment>
+      ))}
+    </Tag>
+  );
+}
+
+/* ── Building blocks ───────────────────────────────────────────── */
+
 const BTN_BASE =
-  'group inline-flex items-center justify-center gap-2 rounded-full px-6 py-3 text-sm font-semibold transition-all duration-200 active:scale-[0.98]';
+  'group inline-flex min-h-12 items-center justify-center gap-2 rounded-full px-6 text-sm font-semibold transition-all duration-200 active:translate-y-px';
 const BTN = {
-  primary: `${BTN_BASE} bg-gradient-to-r from-gold-light via-gold to-gold-dark text-black shadow-[0_6px_20px_-8px_rgba(189,138,76,0.7)] hover:shadow-[0_10px_28px_-8px_rgba(189,138,76,0.8)] hover:-translate-y-0.5`,
-  secondary: `${BTN_BASE} border border-line text-ink hover:border-accent hover:text-accent`,
-  /* for always-dark surfaces such as CTABand */
-  ghost: `${BTN_BASE} border border-white/25 text-white hover:border-amber-400 hover:text-amber-200`,
-  text: 'group inline-flex items-center gap-2 text-sm font-semibold text-accent hover:gap-3 transition-all duration-200',
+  primary:   `${BTN_BASE} btn-pop bg-accent text-on-accent`,
+  secondary: `${BTN_BASE} border border-ink/25 text-ink hover:-translate-y-0.5 hover:border-accent hover:bg-accent/6 hover:text-accent`,
+  /* for always-dark field sections */
+  light:     `${BTN_BASE} btn-pop-light bg-on-forest text-forest`,
+  ghost:     `${BTN_BASE} border border-forest-muted/40 text-on-forest hover:-translate-y-0.5 hover:border-signal hover:bg-signal/8 hover:text-signal`,
+  text:      'group inline-flex items-center gap-2 text-sm font-semibold text-accent hover:gap-3 transition-all duration-200',
 };
 
 /* Internal routes use <Link>; anything with a scheme uses <a>. */
@@ -30,7 +147,7 @@ export function Button({ to, href, variant = 'primary', arrow = false, children,
   const cls = `${BTN[variant]} ${className}`;
   const content = (
     <>
-      {children}
+      <BrandText>{children}</BrandText>
       {arrow && <ArrowRight size={16} className="transition-transform duration-200 group-hover:translate-x-0.5" />}
     </>
   );
@@ -39,52 +156,129 @@ export function Button({ to, href, variant = 'primary', arrow = false, children,
   return <button type="button" className={cls} {...rest}>{content}</button>;
 }
 
-/* Honest stage label. `live` means actively being built. */
-export function StatusBadge({ status, live = false, onDark = false }) {
-  const tone = live
-    ? onDark
-      ? 'border-amber-400/50 bg-amber-500/15 text-amber-200'
-      : 'border-accent/40 bg-accent/10 text-accent'
-    : onDark
-      ? 'border-white/20 bg-black/30 text-white/75'
-      : 'border-line text-muted';
+/* Honest stage label. `status` is a STATUS key (prototype, rnd, concept…). */
+export function StatusBadge({ status, onForest = false, className = '' }) {
+  const s = STATUS[status] ?? { label: status, tone: 'outline' };
+  const live = s.tone === 'solid';
+  const dashed = s.tone === 'dashed';
+  const tone = onForest
+    ? live
+      ? 'border-signal/50 bg-black/45 text-signal'
+      : `${dashed ? 'border-dashed text-forest-muted' : 'text-on-forest'} border-white/30 bg-black/45`
+    : live
+      ? 'border-accent/40 bg-accent/10 text-accent'
+      : `${dashed ? 'border-dashed text-muted' : 'text-ink'} border-ink/25 bg-transparent`;
   return (
-    <span className={`inline-flex items-center gap-2 rounded-full border px-3 py-1 text-xs font-semibold backdrop-blur-sm ${tone}`}>
-      <span className="relative flex h-1.5 w-1.5">
-        {live && <span className="absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-60 motion-safe:animate-ping" />}
-        <span className={`relative inline-flex h-1.5 w-1.5 rounded-full ${live ? 'bg-amber-400' : onDark ? 'bg-white/50' : 'bg-muted'}`} />
+    <span
+      className={`badge inline-flex h-6 shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full border px-2.5 font-mono text-[11px] font-medium uppercase leading-none tracking-[0.08em] backdrop-blur-sm ${tone} ${className}`}
+    >
+      <span className={`relative inline-flex h-1.5 w-1.5 shrink-0 rounded-full ${live ? 'bg-current' : 'border border-current'}`}>
+        {live && <span className="badge-ping absolute inset-0 rounded-full bg-current" />}
       </span>
-      {status}
+      {s.label}
     </span>
   );
 }
 
-/* Content-page header. The title carries the page. No eyebrow labels. */
-export function PageHeader({ title, lead, children, aside }) {
+/* Tiny mono metadata label, e.g. "01 / FLAGSHIP TECHNOLOGY" */
+export function TechLabel({ children, className = '' }) {
+  return <p className={`label-rule text-label text-muted ${className}`}>{children}</p>;
+}
+
+/* Photo with responsive sources. `fill` makes the image cover its box
+   instead of setting its height (for cards beside text). `parallax` drifts
+   the image against the scroll; `reveal` unrolls it when it enters; `zoom` scales on hover of a
+   parent `.group`. Off when motion is reduced. */
+export function Photo({ id, alt = '', className = '', imgClassName = '', parallax = false, reveal = false, zoom = false, fill = false, priority = false, sizes = '100vw', caption }) {
+  const wrap = useRef(null);
+  const img = useRef(null);
+  const [revealRef, inView] = useInView();
+
+  // Loaded state lives on the DOM (data-loaded), not in React state, so a
+  // cached image that finished before hydration is caught without a
+  // re-render: the ref callback marks it straight away.
+  const markLoaded = (el) => { if (el && wrap.current) wrap.current.dataset.loaded = 'true'; };
+  const imgRef = (el) => {
+    img.current = el;
+    if (el?.complete && el.naturalWidth) markLoaded(el);
+  };
+
+  useEffect(() => {
+    if (!parallax || prefersReducedMotion()) return;
+    const el = wrap.current;
+    let raf = 0;
+    const update = () => {
+      raf = 0;
+      const r = el.getBoundingClientRect();
+      const vh = window.innerHeight;
+      if (r.bottom < 0 || r.top > vh) return;
+      const p = (r.top + r.height / 2 - vh / 2) / (vh / 2 + r.height / 2); // -1..1
+      if (img.current) img.current.style.transform = `translate3d(0, ${(p * 8).toFixed(2)}%, 0) scale(1.18)`;
+    };
+    const onScroll = () => { if (!raf) raf = requestAnimationFrame(update); };
+    update();
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll);
+    return () => {
+      cancelAnimationFrame(raf);
+      window.removeEventListener('scroll', onScroll);
+      window.removeEventListener('resize', onScroll);
+    };
+  }, [parallax]);
+
+  const setRefs = (el) => { wrap.current = el; revealRef.current = el; };
+
   return (
-    <header className="relative overflow-hidden border-b border-line">
-      <div
-        className="pointer-events-none absolute -top-40 right-[-10%] h-[520px] w-[520px] rounded-full opacity-70"
-        style={{ background: 'radial-gradient(circle, rgba(189,138,76,0.16) 0%, transparent 65%)', filter: 'blur(40px)' }}
-        aria-hidden="true"
+    <figure ref={setRefs} data-loaded="false" style={photoPreview(id) ? { '--lqip': `url(${photoPreview(id)})` } : undefined} className={`photo ${className.includes('absolute') ? '' : 'relative'} overflow-hidden ${reveal ? `reveal-img ${inView ? 'is-in' : ''}` : ''} ${className}`}>
+      <img
+        ref={imgRef}
+        src={photo(id, 1600)}
+        srcSet={photoSrcSet(id)}
+        sizes={sizes}
+        alt={alt}
+        loading={priority ? 'eager' : 'lazy'}
+        fetchPriority={priority ? 'high' : undefined}
+        decoding="async"
+        onLoad={(e) => markLoaded(e.currentTarget)}
+        className={`${fill ? 'absolute inset-0' : ''} h-full w-full object-cover ${parallax ? 'scale-[1.18] will-change-transform' : ''} ${
+          zoom ? 'transition-transform duration-700 ease-out group-hover:scale-[1.06]' : ''
+        } ${imgClassName}`}
       />
-      <div className="relative mx-auto max-w-6xl px-6 pt-36 pb-16 md:pt-44 md:pb-24">
+      {caption && <figcaption className="absolute bottom-3 left-3 rounded-full bg-black/55 px-2 py-1 text-label text-white/80 backdrop-blur-sm">{caption}</figcaption>}
+    </figure>
+  );
+}
+
+/* Content-page header on a dark field with an engineering grid. */
+export function PageHeader({ label, title, lead, children, aside, image }) {
+  return (
+    <header className="on-forest relative overflow-hidden bg-forest text-on-forest">
+      {image && (
+        <>
+          <Photo id={image} parallax priority className="absolute inset-0" imgClassName="opacity-45" />
+          <div className="absolute inset-0 bg-gradient-to-r from-forest via-forest/85 to-forest/40" aria-hidden="true" />
+          <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-forest to-transparent" aria-hidden="true" />
+        </>
+      )}
+      <div className="field-glow pointer-events-none absolute inset-0" aria-hidden="true" />
+      <div className="relative mx-auto max-w-6xl px-5 pt-28 pb-12 sm:px-6 md:pt-36 md:pb-16">
         <div className={aside ? 'grid gap-12 lg:grid-cols-[1.4fr_1fr] lg:items-end' : ''}>
           <div>
+            {label && <p className="label-rule rise-in text-label text-forest-muted">{label}</p>}
             <h1
-              className="rise-in font-display font-black text-ink leading-[1.02] tracking-tight text-balance"
-              style={{ fontSize: 'clamp(2.25rem, 5.5vw, 4.5rem)' }}
+              className="split-load font-display mt-5 uppercase leading-[0.95] text-balance"
+              style={{ fontSize: 'clamp(2.25rem, 6vw, 4.75rem)' }}
             >
-              {title}
+              <SplitWords text={title} />
             </h1>
             {lead && (
-              <p className="rise-in mt-6 max-w-[60ch] text-lg leading-relaxed text-muted md:text-xl" style={{ '--i': 1 }}>
-                {lead}
+              <p className="rise-in mt-6 max-w-[60ch] text-lg leading-relaxed text-forest-muted md:text-xl" style={{ '--i': 2 }}>
+                <BrandText>{lead}</BrandText>
               </p>
             )}
-            {children && <div className="rise-in mt-9 flex flex-wrap gap-3" style={{ '--i': 2 }}>{children}</div>}
+            {children && <div className="rise-in mt-9 flex flex-wrap gap-3" style={{ '--i': 3 }}>{children}</div>}
           </div>
-          {aside && <div className="rise-in" style={{ '--i': 2 }}>{aside}</div>}
+          {aside && <div className="rise-in" style={{ '--i': 3 }}>{aside}</div>}
         </div>
       </div>
     </header>
@@ -92,79 +286,54 @@ export function PageHeader({ title, lead, children, aside }) {
 }
 
 export function Section({ id, children, className = '', tone = 'canvas' }) {
-  const bg = tone === 'sunken' ? 'bg-sunken' : 'bg-canvas';
+  const bg = tone === 'sunken' ? 'bg-sunken' : tone === 'surface' ? 'bg-surface' : 'bg-canvas';
   return (
     <section id={id} className={`${bg} scroll-mt-24 ${className}`}>
-      <div className="mx-auto max-w-6xl px-6 py-20 md:py-28">{children}</div>
+      <div className="mx-auto max-w-6xl px-5 py-16 sm:px-6 md:py-20">{children}</div>
     </section>
   );
 }
 
-export function SectionHeading({ title, lead, className = '' }) {
+/* Section heading with an optional mono index label. */
+export function SectionHeading({ label, title, lead, className = '', as = 'h2' }) {
+  const H = as;
   return (
-    <div className={`mb-12 md:mb-16 ${className}`}>
-      <h2
-        className="font-display font-black text-ink leading-[1.08] tracking-tight text-balance"
-        style={{ fontSize: 'clamp(1.75rem, 3.4vw, 2.75rem)' }}
+    <Reveal className={`mb-8 md:mb-12 ${className}`}>
+      {label && <TechLabel className="mb-4">{label}</TechLabel>}
+      <H
+        className="font-display uppercase leading-[0.98] text-ink text-balance"
+        style={{ fontSize: 'clamp(1.75rem, 3.6vw, 2.9rem)' }}
       >
-        {title}
-      </h2>
-      {lead && <p className="mt-4 max-w-[62ch] text-base leading-relaxed text-muted md:text-lg">{lead}</p>}
-    </div>
+        <SplitWords text={title} />
+      </H>
+      {lead && <p className="mt-5 max-w-[62ch] text-base leading-relaxed text-muted md:text-lg"><BrandText>{lead}</BrandText></p>}
+    </Reveal>
   );
 }
 
-/* Image that unrolls top-to-bottom when it scrolls into view. Visible
-   immediately when reduced motion is on (the CSS only arms it otherwise). */
-export function RevealImage({ src, alt = '', className = '', imgClassName = '', style }) {
-  const ref = useRef(null);
-  useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-    const io = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) { el.classList.add('is-in'); io.disconnect(); }
-      },
-      { rootMargin: '0px 0px -10% 0px' },
-    );
-    io.observe(el);
-    return () => io.disconnect();
-  }, []);
+/* Closing call-to-action on a dark field. */
+export function CTABand({ label, title, body, children, image }) {
   return (
-    <div ref={ref} className={`reveal-img overflow-hidden rounded-2xl ${className}`} style={style}>
-      <img src={src} alt={alt} loading="lazy" className={`h-full w-full object-cover ${imgClassName}`} />
-    </div>
-  );
-}
-
-/* Closing call-to-action used at the foot of content pages. */
-export function CTABand({ title, body, children }) {
-  return (
-    <section className="bg-canvas">
-      <div className="mx-auto max-w-6xl px-6 pb-24 md:pb-32">
-        <div data-always-dark className="relative overflow-hidden rounded-3xl border border-amber-500/20 bg-[#0e0b07] px-8 py-14 md:px-16 md:py-20">
-          <img
-            src="/brand/star-cluster.png"
-            alt=""
-            aria-hidden="true"
-            className="pointer-events-none absolute -right-10 -top-6 w-56 opacity-25 md:w-80"
-          />
-          <div
-            className="pointer-events-none absolute inset-0"
-            style={{ background: 'radial-gradient(ellipse 60% 80% at 15% 100%, rgba(189,138,76,0.22) 0%, transparent 60%)' }}
-            aria-hidden="true"
-          />
-          <div className="relative max-w-2xl">
-            <h2
-              className="font-display font-black leading-[1.08] tracking-tight text-white text-balance"
-              style={{ fontSize: 'clamp(1.75rem, 3.6vw, 2.75rem)' }}
-            >
-              {title}
-            </h2>
-            {body && <p className="mt-5 text-lg leading-relaxed text-white/70">{body}</p>}
-            {children && <div className="mt-9 flex flex-wrap gap-3">{children}</div>}
-          </div>
-        </div>
+    <section className="on-forest relative overflow-hidden bg-forest text-on-forest">
+      {image && (
+        <>
+          <Photo id={image} parallax className="absolute inset-0" imgClassName="opacity-40" />
+          <div className="absolute inset-0 bg-gradient-to-r from-forest via-forest/80 to-forest/30" aria-hidden="true" />
+        </>
+      )}
+      <div className="field-glow pointer-events-none absolute inset-0" aria-hidden="true" />
+      <div className="relative mx-auto max-w-6xl px-5 py-16 sm:px-6 md:py-24">
+        <Reveal className="max-w-3xl">
+          {label && <p className="text-label text-forest-muted">{label}</p>}
+          <h2
+            className="font-display mt-5 uppercase leading-[0.95] text-balance"
+            style={{ fontSize: 'clamp(2rem, 5vw, 4rem)' }}
+          >
+            <SplitWords text={title} />
+          </h2>
+          {body && <p className="mt-6 max-w-[56ch] text-lg leading-relaxed text-forest-muted"><BrandText>{body}</BrandText></p>}
+          {children && <div className="mt-10 flex flex-wrap gap-3">{children}</div>}
+        </Reveal>
       </div>
     </section>
   );

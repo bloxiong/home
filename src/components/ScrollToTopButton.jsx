@@ -2,8 +2,6 @@ import { useEffect, useState, useCallback } from 'react';
 import { ChevronUp } from 'lucide-react';
 
 const SHOW_AFTER = 320;
-const RADIUS = 20;
-const CIRCUMFERENCE = 2 * Math.PI * RADIUS;
 
 const scrollToTop = () => {
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -15,16 +13,12 @@ const scrollToTop = () => {
 
 export default function ScrollToTopButton() {
   const [visible, setVisible] = useState(false);
-  const [progress, setProgress] = useState(0);
 
   useEffect(() => {
     const update = () => {
       const scrollY =
         window.scrollY || document.documentElement.scrollTop || document.body.scrollTop || 0;
-      const max =
-        (document.documentElement.scrollHeight || document.body.scrollHeight) - window.innerHeight;
       setVisible(scrollY > SHOW_AFTER);
-      setProgress(max > 0 ? Math.min(scrollY / max, 1) : 0);
     };
     update();
     window.addEventListener('scroll', update, { passive: true });
@@ -48,44 +42,13 @@ export default function ScrollToTopButton() {
       aria-label="Scroll to top"
       title="Scroll to top"
       tabIndex={visible ? 0 : -1}
-      className={`group fixed z-60 bottom-6 right-6 sm:bottom-8 sm:right-8 w-12 h-12 rounded-full
-        flex items-center justify-center
-        bg-white/80 dark:bg-black/70 backdrop-blur-md
-        border border-amber-500/30 hover:border-amber-500/70
-        shadow-lg shadow-amber-500/10 hover:shadow-amber-500/25
-        text-amber-600 dark:text-amber-400 hover:text-amber-500
-        transition-all duration-300 ease-out cursor-pointer
+      className={`group fixed bottom-6 right-5 z-[45] flex h-12 w-12 cursor-pointer items-center justify-center rounded-full
+        border border-line bg-surface/90 text-accent backdrop-blur-md transition-all duration-300 ease-out
+        hover:border-accent sm:bottom-8 sm:right-8
         ${visible
-          ? 'opacity-100 translate-y-0 pointer-events-auto'
-          : 'opacity-0 translate-y-3 pointer-events-none'}`}
+          ? 'pointer-events-auto translate-y-0 opacity-100'
+          : 'pointer-events-none translate-y-3 opacity-0'}`}
     >
-      <svg
-        className="absolute inset-0 w-full h-full -rotate-90 pointer-events-none"
-        viewBox="0 0 48 48"
-        aria-hidden="true"
-      >
-        <circle
-          cx="24"
-          cy="24"
-          r={RADIUS}
-          fill="none"
-          stroke="currentColor"
-          strokeOpacity="0.15"
-          strokeWidth="2"
-        />
-        <circle
-          cx="24"
-          cy="24"
-          r={RADIUS}
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeDasharray={CIRCUMFERENCE}
-          strokeDashoffset={CIRCUMFERENCE * (1 - progress)}
-          style={{ transition: 'stroke-dashoffset 120ms linear' }}
-        />
-      </svg>
       <ChevronUp
         size={20}
         strokeWidth={2.5}

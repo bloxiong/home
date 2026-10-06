@@ -1,7 +1,8 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Mail, Phone, MapPin, ArrowUpRight } from 'lucide-react';
+import { ArrowUpRight } from 'lucide-react';
 import { COMPANY } from '../content/site';
+import { BrandText } from './ui';
 
 const COLUMNS = [
   {
@@ -9,21 +10,24 @@ const COLUMNS = [
     links: [
       { label: 'AgroSense360', to: '/products/agrosense360' },
       { label: 'All products', to: '/products' },
-      { label: 'Join the pilot list', to: '/survey' },
+      { label: 'Research', to: '/research' },
+      { label: 'Join the pilot list', to: '/products/agrosense360/survey' },
     ],
   },
   {
     title: 'Company',
     links: [
+      { label: 'Engineering', to: '/engineering' },
       { label: 'About', to: '/about' },
-      { label: 'Services', to: '/services' },
+      { label: 'Journal', to: '/journal' },
       { label: 'Careers', to: '/careers' },
-      { label: 'Contact', to: '/contact' },
     ],
   },
   {
-    title: 'Legal',
+    title: 'Contact',
     links: [
+      { label: 'Start a project', to: '/contact?topic=project' },
+      { label: 'Investment and partnerships', to: '/contact?topic=invest' },
       { label: 'Privacy', to: '/privacy' },
     ],
   },
@@ -31,43 +35,31 @@ const COLUMNS = [
 
 export default function Footer() {
   return (
-    <footer className="bg-canvas border-t border-line">
-      <div className="mx-auto max-w-6xl px-6 py-16">
-        <div className="grid gap-12 md:grid-cols-[1.6fr_1fr_1fr_0.8fr]">
+    <footer className="on-forest relative overflow-hidden bg-forest text-on-forest">
+      <div className="field-glow pointer-events-none absolute inset-0" aria-hidden="true" />
+      <div className="relative mx-auto max-w-6xl px-5 pt-20 pb-10 sm:px-6">
+        <div className="grid gap-12 md:grid-cols-[1.5fr_1fr_1fr_1fr]">
           <div>
-            <Link to="/" aria-label="Bloxio home">
-              <img src="/bloxio-logo.png" alt="Bloxio" width="400" height="75" className="logo-adapt w-24 h-auto mb-5" />
+            <Link to="/" aria-label="BLOXio home" className="inline-block">
+              <img src="/bloxio-logo.png" alt="BLOXio" width="400" height="75" className="mb-6 h-auto w-28" />
             </Link>
-            <p className="text-muted text-sm leading-relaxed max-w-xs mb-6">
-              A Lagos engineering company building hardware, software and AI products, from Nigeria to the world.
-            </p>
-            <ul className="space-y-2.5 text-sm">
-              <li className="flex items-center gap-2.5">
-                <Mail size={14} className="text-accent shrink-0" />
-                <a href={`mailto:${COMPANY.email}`} className="text-ink hover:text-accent transition-colors">{COMPANY.email}</a>
-              </li>
-              <li className="flex items-start gap-2.5">
-                <Phone size={14} className="text-accent shrink-0 mt-1" />
-                <span className="flex flex-col">
-                  {COMPANY.phones.map((p) => (
-                    <a key={p.tel} href={`tel:${p.tel}`} className="text-ink hover:text-accent transition-colors tabular-nums">{p.display}</a>
-                  ))}
-                </span>
-              </li>
-              <li className="flex items-start gap-2.5">
-                <MapPin size={14} className="text-accent shrink-0 mt-1" />
-                <span className="text-muted">{COMPANY.address.join(', ')}</span>
-              </li>
+            <p className="max-w-xs text-sm leading-relaxed text-forest-muted">{COMPANY.positioning} Designed and engineered in Nigeria.</p>
+            <ul className="mt-6 space-y-1.5 text-sm">
+              <li><a href={`mailto:${COMPANY.email}`} className="text-on-forest transition-colors hover:text-signal">{COMPANY.email}</a></li>
+              {COMPANY.phones.map((p) => (
+                <li key={p.tel}><a href={`tel:${p.tel}`} className="tabular-nums text-on-forest transition-colors hover:text-signal">{p.display}</a></li>
+              ))}
+              <li className="pt-1.5 text-forest-muted">{COMPANY.address.join(', ')}</li>
             </ul>
           </div>
 
           {COLUMNS.map((col) => (
             <div key={col.title}>
-              <h2 className="text-micro font-semibold uppercase tracking-[0.14em] text-accent mb-4">{col.title}</h2>
-              <ul className="space-y-2.5">
+              <h2 className="text-label mb-5 text-forest-muted">{col.title}</h2>
+              <ul className="space-y-3">
                 {col.links.map((l) => (
                   <li key={l.to}>
-                    <Link to={l.to} className="text-sm text-muted hover:text-ink transition-colors">{l.label}</Link>
+                    <Link to={l.to} className="text-sm text-on-forest transition-colors hover:text-signal">{l.label}</Link>
                   </li>
                 ))}
               </ul>
@@ -75,12 +67,20 @@ export default function Footer() {
           ))}
         </div>
 
-        <div className="mt-14 flex flex-col gap-4 border-t border-line pt-8 sm:flex-row sm:items-center sm:justify-between">
-          <p className="text-muted text-xs">
-            © {new Date().getFullYear()} {COMPANY.legalName}. CAC-registered in Nigeria.
+        <p
+          className="font-display mt-20 select-none uppercase leading-none text-forest-line"
+          style={{ fontSize: 'clamp(3rem, 14vw, 11rem)' }}
+          aria-hidden="true"
+        >
+          One step ahead of tech
+        </p>
+
+        <div className="mt-10 flex flex-col gap-4 border-t border-forest-line pt-8 sm:flex-row sm:items-center sm:justify-between sm:pr-20">
+          <p className="text-label text-forest-muted">
+            © {new Date().getFullYear()} <BrandText>{COMPANY.legalName}</BrandText>
           </p>
-          <Link to="/contact" className="inline-flex items-center gap-1.5 text-accent text-sm font-semibold hover:gap-2.5 transition-all">
-            Work with us <ArrowUpRight size={14} />
+          <Link to="/contact" className="group inline-flex items-center gap-1.5 text-sm font-semibold text-signal">
+            Work with us <ArrowUpRight size={14} className="transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
           </Link>
         </div>
       </div>

@@ -3,7 +3,8 @@ import { useSearchParams } from 'react-router-dom';
 import { Mail, Phone, MapPin, Clock, Send, CheckCircle2, ExternalLink } from 'lucide-react';
 import { PageMeta, PageHeader, Section, SectionHeading } from '../components/ui';
 import FAQList from '../components/FAQList';
-import { COMPANY, INQUIRY_TOPICS, FAQS } from '../content/site';
+import { inputCls } from '../lib/ui-utils';
+import { COMPANY, INQUIRY_TOPICS, FAQS, IMG } from '../content/site';
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const MAP_URL = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(COMPANY.address.join(', '))}`;
@@ -21,10 +22,6 @@ function Field({ label, optional, error, children, id }) {
   );
 }
 
-const inputCls = (err) =>
-  `w-full rounded-xl border bg-surface px-4 py-3 text-ink placeholder:text-muted/70 transition-colors duration-150 focus:outline-none focus:border-accent focus:ring-2 focus:ring-accent/20 ${
-    err ? 'border-red-500/70' : 'border-line'
-  }`;
 
 export default function Contact() {
   const [params] = useSearchParams();
@@ -74,17 +71,20 @@ export default function Contact() {
     <>
       <PageMeta
         title="Contact"
-        description="Contact Bloxio Nigeria Limited in Festac, Lagos: start a project, join the AgroSense360 pilot, discuss investment or partnerships, or ask about careers."
+        path="/contact"
+        description="Contact BLOXio Nigeria Limited in Festac, Lagos: start a project, join the AgroSense360 pilot, discuss investment or partnerships, or ask about careers."
       />
 
       <PageHeader
+        image={IMG.lab}
+        label="Contact"
         title="Let’s talk"
-        lead="Projects, the AgroSense360 pilot, investment, partnerships or careers. Messages go straight to the founders, and we aim to reply within 24 hours."
+        lead="Projects, pilots, investment or careers. The founders reply within 24 hours."
       />
 
       <Section>
         <div className="grid gap-12 lg:grid-cols-[1.5fr_1fr] lg:gap-16 items-start">
-          <div className="rounded-2xl border border-line bg-surface p-6 sm:p-10">
+          <div className="above-stars rounded-2xl border border-line bg-surface p-6 sm:p-10">
             {sent ? (
               <div className="py-8" role="status">
                 <CheckCircle2 size={40} className="text-accent" />
@@ -112,7 +112,7 @@ export default function Contact() {
                         key={t.value}
                         className={`cursor-pointer rounded-full border px-4 py-2 text-sm font-medium transition-colors duration-150 has-focus-visible:ring-2 has-focus-visible:ring-accent ${
                           form.topic === t.value
-                            ? 'border-accent bg-accent text-canvas'
+                            ? 'border-accent bg-accent text-on-accent'
                             : 'border-line text-ink hover:border-accent'
                         }`}
                       >
@@ -163,7 +163,7 @@ export default function Contact() {
                   </p>
                   <button
                     type="submit"
-                    className="inline-flex items-center justify-center gap-2 rounded-full bg-gradient-to-r from-gold-light via-gold to-gold-dark px-7 py-3.5 text-sm font-semibold text-black shadow-[0_6px_20px_-8px_rgba(189,138,76,0.7)] transition-all duration-200 hover:-translate-y-0.5 active:scale-[0.98]"
+                    className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-accent px-7 text-sm font-semibold text-on-accent transition-all duration-200 hover:brightness-110 active:translate-y-px"
                   >
                     <Send size={15} /> Send message
                   </button>

@@ -1,5 +1,5 @@
 import React from 'react';
-import { PageMeta, PageHeader, Section } from '../components/ui';
+import { PageMeta, PageHeader, Section, BrandText } from '../components/ui';
 import { COMPANY } from '../content/site';
 
 const UPDATED = '5 October 2026';
@@ -15,14 +15,14 @@ const SECTIONS = [
     h: 'What we collect, and why',
     list: [
       ['Contact form', 'The form does not send anything to our servers. It opens your own email app with your message filled in. We receive what you choose to send, and use it only to reply to you.'],
-      ['AgroSense360 survey', 'Your answers, and your email address if you give it, are stored in a Google Sheet that only Bloxio can access. We use them to design AgroSense360 and, if you asked, to contact you about early access and launch updates.'],
+      ['AgroSense360 survey', 'Your answers, and your email address if you give it, are stored in a Google Sheet that only BLOXio can access. We use them to design AgroSense360 and, if you asked, to contact you about early access and launch updates.'],
       ['Theme preference', 'Your light or dark mode choice is saved in your own browser (local storage). It never leaves your device.'],
     ],
   },
   {
     h: 'What we do not do',
     p: [
-      'We do not sell your data, use advertising trackers, or run analytics on this site. We do not share your information with anyone outside Bloxio, except the service providers below that make the site work.',
+      'We do not sell your data, use advertising trackers, or run analytics on this site. We do not share your information with anyone outside BLOXio, except the service providers below that make the site work.',
     ],
   },
   {
@@ -52,22 +52,22 @@ const SECTIONS = [
 export default function Privacy() {
   return (
     <>
-      <PageMeta title="Privacy" description="How Bloxio Nigeria Limited handles information from its website, contact form and AgroSense360 survey." />
-      <PageHeader title="Privacy notice" lead={`Plain-language summary of what this website collects and why. Last updated ${UPDATED}.`} />
+      <PageMeta title="Privacy" path="/privacy" description="How BLOXio Nigeria Limited handles information from its website, contact form and AgroSense360 survey." />
+      <PageHeader label="Legal" title="Privacy notice" lead={`Plain-language summary of what this website collects and why. Last updated ${UPDATED}.`} />
       <Section>
         <div className="max-w-[68ch] space-y-12">
           {SECTIONS.map((s) => (
             <section key={s.h}>
               <h2 className="font-ui text-xl font-bold tracking-tight text-ink">{s.h}</h2>
               {s.p?.map((t) => (
-                <p key={t} className="mt-4 leading-relaxed text-muted">{t}</p>
+                <p key={t} className="mt-4 leading-relaxed text-muted"><BrandText>{t}</BrandText></p>
               ))}
               {s.list && (
                 <dl className="mt-4 space-y-4">
                   {s.list.map(([k, v]) => (
                     <div key={k}>
                       <dt className="font-semibold text-ink">{k}</dt>
-                      <dd className="mt-1 leading-relaxed text-muted">{v}</dd>
+                      <dd className="mt-1 leading-relaxed text-muted"><BrandText>{v}</BrandText></dd>
                     </div>
                   ))}
                 </dl>
