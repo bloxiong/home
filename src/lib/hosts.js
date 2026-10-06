@@ -16,3 +16,21 @@ export function publicUrl(path) {
   if (path === '/products/agrosense360/survey') return `${AGRO_URL}/survey`;
   return `${MAIN_URL}${path}`;
 }
+
+/* On bloxio.tech, start fetching the AgroSense360 page the moment a link to
+   it is pointed at or touched, so the hop to the subdomain is near instant. */
+if (isMainLiveHost && typeof document !== 'undefined') {
+  let done = false;
+  const warm = (e) => {
+    if (done) return;
+    const a = e.target.closest?.('a[href*="agrosense360"]');
+    if (!a) return;
+    done = true;
+    const l = document.createElement('link');
+    l.rel = 'prefetch';
+    l.href = `${AGRO_URL}/`;
+    document.head.appendChild(l);
+  };
+  document.addEventListener('pointerover', warm, { passive: true });
+  document.addEventListener('touchstart', warm, { passive: true });
+}

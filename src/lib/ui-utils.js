@@ -44,10 +44,10 @@ export const photo = (id, w = 1600) => {
   const stem = IMG_FILE[id];
   if (!stem) return `https://images.unsplash.com/photo-${id}?auto=format&fit=crop&w=${w}&q=70`;
   const best = WIDTHS.find((x) => x >= w) ?? WIDTHS[WIDTHS.length - 1];
-  return `/img/${stem}-${best}.webp`;
+  return `${import.meta.env.BASE_URL}img/${stem}-${best}.webp`;
 };
 export const photoSrcSet = (id) =>
-  IMG_FILE[id] ? WIDTHS.map((w) => `/img/${IMG_FILE[id]}-${w}.webp ${w}w`).join(', ') : undefined;
+  IMG_FILE[id] ? WIDTHS.map((w) => `${import.meta.env.BASE_URL}img/${IMG_FILE[id]}-${w}.webp ${w}w`).join(', ') : undefined;
 export const photoPreview = (id) => LQIP[id];
 
 /* Form field style shared by the contact form and the survey */

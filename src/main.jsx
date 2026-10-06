@@ -12,15 +12,16 @@ createRoot(document.getElementById('root')).render(
   </StrictMode>,
 )
 
-/* Lift the loader once the page, its fonts and its first images are in,
-   held for at least 0.9s so the star has time to glint, and never longer
-   than 3.5s on a slow connection. */
+/* Lift the loader as soon as the app has rendered and the fonts are in
+   (not every image), showing it at least 0.35s so it doesn't flash, and
+   never longer than 1.5s. Coming from bloxio.tech ↔ agrosense360 it is
+   skipped (see index.html). */
 const boot = document.getElementById('boot');
 if (boot) {
-  const shown = new Promise((r) => setTimeout(r, 900));
-  const loaded = new Promise((r) => (document.readyState === 'complete' ? r() : window.addEventListener('load', r, { once: true })));
-  const ready = Promise.all([shown, loaded, document.fonts?.ready]);
-  Promise.race([ready, new Promise((r) => setTimeout(r, 3500))]).then(() => {
+  const shown = new Promise((r) => setTimeout(r, 350));
+  const painted = new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
+  const ready = Promise.all([shown, painted, document.fonts?.ready]);
+  Promise.race([ready, new Promise((r) => setTimeout(r, 1500))]).then(() => {
     boot.classList.add('boot-done');
     setTimeout(() => boot.remove(), 1100);
   });
