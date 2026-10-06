@@ -72,7 +72,7 @@ export default function BrandOrbit({ className = '' }) {
       const bt = Math.min((now - burst.current) / 1300, 1);
       const grow = reduce ? 1 : 1 + 2.2 * Math.pow(bt - 1, 3) + 1.2 * Math.pow(bt - 1, 2);
       const cx = W / 2, cy = H / 2;
-      const G = document.documentElement.classList.contains('dark') ? '229,192,138' : '150,98,24';
+      const G = '229,192,138'; // the hero is always night, so always bright gold
 
       ctx.clearRect(0, 0, W, H);
 
