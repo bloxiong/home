@@ -105,22 +105,27 @@ export default function AgroSense360() {
         title="AgroSense360"
         lead={AGROSENSE.oneLiner}
         aside={
-          <div className="border border-forest-line bg-forest-2 p-6">
-            <StatusBadge status={AGROSENSE.status} onForest />
-            <dl className="mt-4 space-y-4 text-sm">
-              <div>
-                <dt className="text-label text-forest-muted">Where it stands</dt>
-                <dd className="mt-1 font-semibold">Integrated prototype, worked end to end</dd>
-              </div>
-              <div>
-                <dt className="text-label text-forest-muted">Next step</dt>
-                <dd className="mt-1 font-semibold">Field-ready units and design-partner pilots</dd>
-              </div>
-              <div>
-                <dt className="text-label text-forest-muted">Availability</dt>
-                <dd className="mt-1 font-semibold">Pilot programme</dd>
-              </div>
-            </dl>
+          /* where AgroSense360 is: done → now → next, on a gold-star path */
+          <div className="stage-card rounded-2xl border border-white/10 bg-white/[0.05] p-6 backdrop-blur-md md:p-7">
+            <div className="flex items-center justify-between gap-3">
+              <p className="script-label text-forest-muted">where it stands</p>
+              <StatusBadge status={AGROSENSE.status} onForest />
+            </div>
+            <ol className="stage-path mt-5">
+              {[
+                { state: 'done', label: 'Built', text: 'Integrated prototype, worked end to end' },
+                { state: 'now', label: 'Now', text: 'Field-ready units and design-partner pilots' },
+                { state: 'next', label: 'Join', text: 'Pilot programme: register your farm' },
+              ].map((s) => (
+                <li key={s.label} className={`stage-step is-${s.state}`}>
+                  <span className="stage-node" aria-hidden="true">
+                    <img src="/brand/star.png" alt="" width="160" height="159" draggable="false" />
+                  </span>
+                  <span className="text-label text-signal">{s.label}</span>
+                  <span className="mt-0.5 block font-semibold leading-snug text-on-forest">{s.text}</span>
+                </li>
+              ))}
+            </ol>
           </div>
         }
       >

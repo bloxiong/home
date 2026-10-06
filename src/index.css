@@ -925,3 +925,29 @@ html.dark .founder-card .founder-bio { color: #A3ABA6; }
 .grid > *, .flex-1 { min-width: 0; }
 body { overflow-wrap: break-word; }
 @media (max-width: 300px) { main, footer { overflow-wrap: anywhere; } }
+
+/* AgroSense360 header: "where it stands" path. A thin rail joins three star
+   markers; the done step is lit, the current one glows, the next is quiet. */
+.stage-path { position: relative; display: grid; gap: 1.1rem; }
+.stage-path::before {
+  content: ''; position: absolute; left: 0.8rem; top: 0.9rem; bottom: 0.9rem; width: 2px; translate: -50% 0;
+  background: linear-gradient(to bottom, #6FD39D 0%, #6FD39D 45%, rgba(255, 255, 255, 0.12) 75%);
+  border-radius: 2px;
+}
+.stage-step { position: relative; padding-left: 2.4rem; }
+.stage-node {
+  position: absolute; left: 0; top: 0.05rem; width: 1.6rem; height: 1.6rem;
+  display: grid; place-items: center; border-radius: 9999px; background: #0E1211;
+}
+.stage-node img { width: 1.3rem; height: 1.3rem; max-width: none; }
+.stage-step.is-done .stage-node img { filter: drop-shadow(0 0 6px rgba(242, 208, 150, 0.7)); }
+.stage-step.is-now .stage-node { box-shadow: 0 0 0 1px rgba(111, 211, 157, 0.5), 0 0 18px rgba(111, 211, 157, 0.45); }
+.stage-step.is-next .stage-node img { filter: grayscale(1); opacity: 0.45; }
+.stage-step.is-next > span:not(.stage-node) { opacity: 0.75; }
+@media (prefers-reduced-motion: no-preference) {
+  .stage-step.is-now .stage-node { animation: stagePulse 2.6s ease-in-out infinite; }
+}
+@keyframes stagePulse {
+  0%, 100% { box-shadow: 0 0 0 1px rgba(111, 211, 157, 0.5), 0 0 12px rgba(111, 211, 157, 0.35); }
+  50% { box-shadow: 0 0 0 1px rgba(111, 211, 157, 0.8), 0 0 26px rgba(111, 211, 157, 0.65); }
+}
