@@ -24,6 +24,13 @@ const Survey       = lazy(() => import('./pages/Survey'));
 
 /* Each page change remounts its content so it rises in (see .page-enter).
    Hash links within a page don't trigger it. */
+/* Mounts only once the route's (lazy) page has rendered: tells the
+   loading screen the real page is on screen (see main.jsx). */
+function PageReady() {
+  React.useEffect(() => { window.dispatchEvent(new Event('bx:page-ready')); }, []);
+  return null;
+}
+
 /* One page view per route change (live site only) */
 function PageViews() {
   const { pathname } = useLocation();
@@ -50,7 +57,7 @@ function PageTransition({ children }) {
         </div>
       )}
       <PageErrorBoundary key={pathname}>
-        <div className="page-enter">{children}</div>
+        <div className="page-enter">{children}<PageReady /></div>
       </PageErrorBoundary>
     </>
   );
