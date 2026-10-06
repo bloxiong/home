@@ -114,11 +114,11 @@ export default function Surveys() {
                     {data.items.map((r) => (
                       <tr key={r.id} onClick={() => nav(`/surveys/${r.id}`)} className="cursor-pointer transition hover:bg-sunken">
                         <td className="px-4 py-3 font-mono text-xs text-muted sm:px-5">{r.id}</td>
-                        <td className="max-w-64 px-3 py-3">
+                        <td className="w-full max-w-0 px-3 py-3">
                           <Link to={`/surveys/${r.id}`} onClick={(e) => e.stopPropagation()} className="block truncate font-bold">{r.respondent_type || 'Respondent'}</Link>
                           <span className="block truncate text-xs text-muted">{r.location || 'No location'}<span className="md:hidden">{r.email ? ` · ${r.email}` : ''}</span></span>
                         </td>
-                        <td className="hidden max-w-56 px-3 py-3 md:table-cell">
+                        <td className="hidden max-w-56 px-3 py-3 md:table-cell md:max-w-56">
                           <span className="block truncate">{r.email || <span className="text-muted">—</span>}</span>
                           {r.wants_updates && <Badge tone="accent" className="mt-1">wants updates</Badge>}
                         </td>

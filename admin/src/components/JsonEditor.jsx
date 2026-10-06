@@ -112,10 +112,10 @@ function ArrayField({ name, value, onChange, images, path }) {
 
   const controls = (i) => (
     <div className="flex shrink-0 items-center">
-      <IconButton icon={ArrowUp} label="Move up" disabled={i === 0} onClick={() => move(i, -1)} />
-      <IconButton icon={ArrowDown} label="Move down" disabled={i === value.length - 1} onClick={() => move(i, 1)} />
-      <IconButton icon={Copy} label="Duplicate" onClick={() => duplicate(i)} />
-      <IconButton icon={Trash2} label="Remove" onClick={() => remove(i)} className="hover:!text-danger" />
+      <IconButton icon={ArrowUp} label="Move up" disabled={i === 0} onClick={() => move(i, -1)} compact />
+      <IconButton icon={ArrowDown} label="Move down" disabled={i === value.length - 1} onClick={() => move(i, 1)} compact />
+      <IconButton icon={Copy} label="Duplicate" onClick={() => duplicate(i)} compact />
+      <IconButton icon={Trash2} label="Remove" onClick={() => remove(i)} compact className="hover:text-danger" />
     </div>
   )
 
@@ -126,7 +126,7 @@ function ArrayField({ name, value, onChange, images, path }) {
         objects || (item && typeof item === 'object') ? (
           <div key={i} className="rounded-xl border border-line bg-canvas/40">
             <div className="flex items-center gap-1 py-1 pl-2 pr-1">
-              <button type="button" onClick={() => setOpen(value.map((_, k) => (k === i ? !isOpen(k) : isOpen(k))))} aria-expanded={isOpen(i)}
+              <button type="button" onClick={() => setOpen(value.map((_, k) => (k === i ? !isOpen(k) : isOpen(k))))} aria-expanded={isOpen(i)} aria-label={`${singular} ${i + 1}: ${itemTitle(item) || 'untitled'}`}
                 className="flex min-w-0 flex-1 items-center gap-2 rounded-lg px-1 py-1.5 text-left">
                 <ChevronRight className={cx('h-4 w-4 shrink-0 text-muted transition', isOpen(i) && 'rotate-90')} aria-hidden />
                 <span className="font-mono text-[11px] text-muted">{String(i + 1).padStart(2, '0')}</span>

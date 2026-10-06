@@ -111,7 +111,7 @@ export default function Layout() {
       {/* phone / tablet top bar */}
       <header className="sticky top-0 z-30 flex h-14 items-center justify-between border-b border-line bg-surface/95 px-4 backdrop-blur lg:hidden">
         <Brand />
-        <IconButton icon={Menu} label="Open menu" onClick={() => setOpen(true)} className="h-10 w-10" />
+        <button type="button" aria-label="Open menu" onClick={() => setOpen(true)} className="inline-flex h-10 w-10 items-center justify-center rounded-lg text-muted hover:bg-sunken hover:text-ink"><Menu className="h-5 w-5" aria-hidden /></button>
       </header>
 
       {open && (
