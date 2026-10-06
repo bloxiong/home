@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { NavLink, Outlet, useLocation } from 'react-router-dom'
 import {
-  Activity, ClipboardList, FileText, Inbox, LayoutDashboard, LogOut, Mail, Menu, Moon, Sun, UserCircle, Users, X,
+  Activity, ClipboardList, Globe2, FileText, Inbox, LayoutDashboard, LogOut, Mail, Menu, Moon, Sun, UserCircle, Users, X,
 } from 'lucide-react'
 import { useAuth, useCounts, useTheme } from '../lib/contexts'
 import { cx } from '../lib/cx'
@@ -10,6 +10,7 @@ import ErrorBoundary from './ErrorBoundary'
 
 const NAV = [
   { to: '/', label: 'Dashboard', icon: LayoutDashboard, end: true },
+  { to: '/traffic', label: 'Traffic', icon: Globe2 },
   { to: '/surveys', label: 'Surveys', icon: ClipboardList, count: 'surveys_new' },
   { to: '/enquiries', label: 'Enquiries', icon: Inbox, count: 'enquiries_new' },
   { to: '/email', label: 'Email', icon: Mail },

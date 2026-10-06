@@ -32,7 +32,7 @@ export default defineConfig([
   },
   {
     // build tooling config runs in Node
-    files: ['*.config.js'],
+    files: ['*.config.js', 'api/**/*.js', 'scripts/**/*.mjs'],
     languageOptions: { globals: globals.node },
   },
 ])

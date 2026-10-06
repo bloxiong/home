@@ -75,3 +75,20 @@ def test_password_reset_and_change(client):
     ok = client.post("/auth/change-password", json={"current_password": "TestPassword1", "new_password": "NewPassword22"}, headers=h)
     assert ok.status_code == 200
     assert client.get("/auth/me", headers=h).status_code == 401  # old session signed out
+
+
+def test_visits_need_secret_and_skip_bots(client, monkeypatch):
+    from app.config import settings
+    monkeypatch.setattr(settings(), "visit_secret", "s3cret")
+    ua = "Mozilla/5.0 (iPhone; CPU iPhone OS 17_0) AppleWebKit Safari Mobile"
+    assert client.post("/public/visit", json={"path": "/", "ua": ua}).status_code == 403
+    h = {"x-visit-secret": "s3cret"}
+    for path in ["/", "/products", "/"]:
+        client.post("/public/visit", headers=h, json={"host": "bloxio.tech", "path": path, "ua": ua, "ip": "1.2.3.4",
+                                                     "country": "ng", "region": "LA", "city": "Lagos",
+                                                     "ref": "https://www.google.com/search?q=bloxio"})
+    client.post("/public/visit", headers=h, json={"path": "/", "ua": "Googlebot/2.1", "ip": "9.9.9.9"})
+    a = client.get("/admin/analytics?days=7", headers=login(client, CONTACT)).json()
+    assert a["current"] == {"views": 3, "visitors": 1}
+    assert a["countries"] == [["NG", 3]] and a["cities"][0]["city"] == "Lagos"
+    assert ["google.com", 3] in a["referrers"] and ["mobile", 3] in a["devices"]

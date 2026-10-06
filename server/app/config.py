@@ -28,6 +28,9 @@ class Settings(BaseSettings):
         "http://agrosense360.localhost:5173"
     )
 
+    # Shared with the site's /api/visit function so only it can record visits
+    visit_secret: str = ""
+
     # Public form submissions allowed per visitor per 10 minutes
     rate_limit: int = 6
 

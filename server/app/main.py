@@ -1,5 +1,7 @@
 import json
 import logging
+import time
+from datetime import timedelta
 from contextlib import asynccontextmanager
 from pathlib import Path
 
@@ -9,8 +11,8 @@ from sqlalchemy import select
 
 from .config import settings
 from .db import Base, SessionLocal, engine
-from .models import Admin, ContentDoc
-from .routers import admin, auth, public
+from .models import Admin, ContentDoc, PasswordToken, now
+from .routers import admin, analytics, auth, public
 from .routers.auth import send_password_link
 
 logging.basicConfig(level=logging.INFO)
@@ -34,8 +36,20 @@ def seed() -> None:
             a = Admin(email=email, name=name.strip(), is_super=role.strip() == "super", created_by="system")
             db.add(a)
             db.flush()
+            log.info("Seeded admin %s (super=%s)", email, a.is_super)
+        db.flush()
+        # Every admin who hasn't chosen a password yet gets a fresh link on
+        # start, unless one went out in the last 30 minutes (so a burst of
+        # restarts doesn't flood their inbox).
+        recent = now() - timedelta(minutes=30)
+        for a in db.scalars(select(Admin).where(Admin.active.is_(True), Admin.password_hash.is_(None))):
+            if db.scalar(select(PasswordToken).where(PasswordToken.admin_id == a.id,
+                                                     PasswordToken.purpose == "invite",
+                                                     PasswordToken.expires_at > recent + timedelta(hours=72))):
+                continue
             send_password_link(db, a, "invite", invited_by="BLOXio")
-            log.info("Seeded admin %s (super=%s); set-password link emailed", email, a.is_super)
+            log.info("Set-password link emailed to %s", a.email)
+            time.sleep(0.6)  # Resend allows 2 emails a second
         if DEFAULTS.exists():
             defaults = json.loads(DEFAULTS.read_text())
             have = set(db.scalars(select(ContentDoc.key)))
@@ -57,6 +71,8 @@ app.add_middleware(CORSMiddleware, allow_origins=settings().origins, allow_crede
 app.include_router(public.router)
 app.include_router(auth.router)
 app.include_router(admin.router)
+app.include_router(analytics.public)
+app.include_router(analytics.admin)
 
 
 @app.get("/health")

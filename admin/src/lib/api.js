@@ -1,4 +1,7 @@
-export const API_URL = (import.meta.env.VITE_API_URL || 'http://localhost:8000').replace(/\/$/, '')
+/* The backend: VITE_API_URL if set, otherwise the live API on any real
+   domain and the local one in development. Never localhost in production. */
+const isLocal = typeof window !== 'undefined' && /^(localhost|127\.0\.0\.1)$/.test(window.location.hostname)
+export const API_URL = (import.meta.env.VITE_API_URL || (isLocal ? 'http://localhost:8000' : 'https://api.bloxio.tech')).replace(/\/$/, '')
 
 const TOKEN_KEY = 'bx-admin-token'
 
