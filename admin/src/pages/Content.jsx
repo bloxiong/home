@@ -22,7 +22,7 @@ export default function Content() {
         ) : (
           <ul className="divide-y divide-line">
             {sections.map((s) => (
-              <li key={s.key} onClick={() => nav(`/content/${s.key}`)} className="flex cursor-pointer items-center gap-3 px-4 py-3.5 transition hover:bg-sunken sm:px-5">
+              <li key={s.key} onClick={() => nav(`/content/${s.key}`)} className="flex cursor-pointer items-center gap-3 px-5 py-4 transition hover:bg-ink/[0.035] sm:px-6">
                 <div className="min-w-0 flex-1">
                   <div className="flex flex-wrap items-center gap-2">
                     <Link to={`/content/${s.key}`} onClick={(e) => e.stopPropagation()} className="font-bold">{humanize(s.key)}</Link>

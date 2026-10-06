@@ -39,7 +39,7 @@ function Reply({ enquiry, onSent }) {
   return (
     <Card>
       <CardHeader title="Reply" sub={`From the no-reply address; replies to it go to the BLOXio inbox. Sending marks this enquiry replied.`} />
-      <div className="space-y-3 p-4 sm:p-5">
+      <div className="space-y-5 p-5 sm:p-6">
         <Field label="To"><Input value={`${enquiry.name} <${enquiry.email}>`} readOnly className="opacity-80" /></Field>
         <Field label="Subject" htmlFor="rs"><Input id="rs" value={subject} onChange={(e) => setSubject(e.target.value)} maxLength={300} /></Field>
         <Field label="Message" htmlFor="rb" hint="Plain text. Leave a blank line to start a new paragraph.">
@@ -58,7 +58,7 @@ function EmailItem({ m }) {
   return (
     <li>
       <button type="button" onClick={() => setOpen((o) => !o)} aria-expanded={open}
-        className="flex w-full items-center gap-3 px-4 py-3 text-left transition hover:bg-sunken sm:px-5">
+        className="flex w-full items-center gap-3 px-5 py-4 text-left transition hover:bg-ink/[0.035] sm:px-6">
         <div className="min-w-0 flex-1">
           <p className="truncate text-sm font-bold">{m.subject}</p>
           <p className="truncate text-xs text-muted">{m.kind} · {m.sent_by || 'system'} · <span title={fmtDate(m.created_at)}>{fmtRelative(m.created_at)}</span></p>
@@ -66,7 +66,7 @@ function EmailItem({ m }) {
         <StatusBadge status={m.status} />
         <ChevronDown className={`h-4 w-4 shrink-0 text-muted transition ${open ? 'rotate-180' : ''}`} aria-hidden />
       </button>
-      {open && <div className="px-4 pb-4 sm:px-5"><EmailPreview html={m.body} /></div>}
+      {open && <div className="px-5 pb-5 sm:px-6"><EmailPreview html={m.body} /></div>}
     </li>
   )
 }
@@ -104,8 +104,8 @@ export default function EnquiryDetail() {
       <PageHeader title={e.name} back={back}
         sub={<>{topicLabel(e.topic)} · received <span title={fmtDate(e.created_at)}>{fmtRelative(e.created_at)}</span></>}
         actions={<StatusBadge status={e.status} />} />
-      <div className="grid items-start gap-4 lg:grid-cols-[1fr_20rem]">
-        <div className="min-w-0 space-y-4">
+      <div className="grid items-start gap-5 lg:grid-cols-[1fr_20rem]">
+        <div className="min-w-0 space-y-5">
           <Card>
             <CardHeader title="Message" sub={fmtDate(e.created_at)} />
             <p className="whitespace-pre-wrap break-words p-4 text-[15px] leading-relaxed sm:p-5">{e.message}</p>
@@ -118,7 +118,7 @@ export default function EnquiryDetail() {
             ) : <p className="p-5 text-sm text-muted">No emails yet.</p>}
           </Card>
         </div>
-        <div className="space-y-4 lg:sticky lg:top-6">
+        <div className="space-y-5 lg:sticky lg:top-6">
           <Card>
             <CardHeader title="Contact" />
             <ul className="space-y-2.5 p-4 text-sm sm:p-5">

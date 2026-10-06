@@ -40,12 +40,12 @@ export default function Forgot() {
 
   return (
     <AuthShell title="Reset password" sub="We will email you a link to choose a new password.">
-      <form onSubmit={submit} className="space-y-4">
+      <form onSubmit={submit} className="space-y-5">
         <Field label="Email" htmlFor="email">
           <Input id="email" type="email" autoComplete="username" required autoFocus value={email} onChange={(e) => setEmail(e.target.value)} />
         </Field>
         {error && <p role="alert" className="text-sm text-danger">{error}</p>}
-        <Button type="submit" variant="primary" className="w-full" loading={busy} disabled={!email}>Send reset link</Button>
+        <Button type="submit" variant="primary" className="h-12 w-full" loading={busy} disabled={!email}>Send reset link</Button>
         <p className="text-center text-sm">
           <Link to="/login" className="text-muted underline-offset-4 hover:text-ink hover:underline">Back to sign in</Link>
         </p>

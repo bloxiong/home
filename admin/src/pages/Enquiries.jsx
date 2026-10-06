@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'
-import { Inbox, Search, X } from 'lucide-react'
-import { Button, Card, Empty, ErrorNote, Input, PageHeader, Pagination, Select, SkeletonRows, StatusBadge } from '../components/ui'
+import { Inbox, X } from 'lucide-react'
+import { Button, Card, Empty, ErrorNote, PageHeader, SearchInput, Pagination, Select, SkeletonRows, StatusBadge } from '../components/ui'
 import { ENQUIRY_STATUSES, TOPICS, topicLabel } from '../lib/constants'
 import { fmtDate, fmtRelative } from '../lib/format'
 import { useApi, useDebounced } from '../lib/hooks'
@@ -43,11 +43,8 @@ export default function Enquiries() {
     <>
       <PageHeader title="Enquiries" sub="Messages sent through the contact form." />
       <Card>
-        <div className="grid gap-2 border-b border-line p-3 sm:grid-cols-2 sm:p-4 lg:grid-cols-[1fr_auto_auto_auto]">
-          <div className="relative sm:col-span-2 lg:col-span-1">
-            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted" aria-hidden />
-            <Input type="search" placeholder="Search name, email, organisation, message…" aria-label="Search enquiries" value={q} onChange={(e) => setQ(e.target.value)} className="pl-9" />
-          </div>
+        <div className="grid grid-cols-2 gap-3 border-b border-line p-4 sm:p-5 lg:grid-cols-[1fr_auto_auto_auto]">
+          <SearchInput className="col-span-2 lg:col-span-1" placeholder="Search name, email, organisation, message…" aria-label="Search enquiries" value={q} onChange={(e) => setQ(e.target.value)} />
           <Select aria-label="Status" value={status} onChange={(e) => set('status', e.target.value)}>
             <option value="">All statuses</option>
             {ENQUIRY_STATUSES.map((s) => <option key={s} value={s}>{s[0].toUpperCase() + s.slice(1)}</option>)}
@@ -69,7 +66,7 @@ export default function Enquiries() {
             <div className={loading ? 'opacity-60 transition' : 'transition'}>
               <ul className="divide-y divide-line">
                 {data.items.map((e) => (
-                  <li key={e.id} onClick={() => nav(`/enquiries/${e.id}`)} className="flex cursor-pointer items-start gap-3 px-4 py-3 transition hover:bg-sunken sm:px-5">
+                  <li key={e.id} onClick={() => nav(`/enquiries/${e.id}`)} className="flex cursor-pointer items-start gap-3 px-5 py-4 transition hover:bg-ink/[0.035] sm:px-6">
                     <span className={`mt-1.5 h-2 w-2 shrink-0 rounded-full ${e.status === 'new' ? 'bg-accent' : 'bg-transparent'}`} aria-hidden />
                     <div className="min-w-0 flex-1">
                       <div className="flex flex-wrap items-baseline gap-x-2">

@@ -80,9 +80,9 @@ export default function Admins() {
   return (
     <>
       <PageHeader title="Admins" sub="Everyone who can sign in to this portal." />
-      <div className="space-y-4">
+      <div className="space-y-5">
         {isSuper ? <AddAdmin onAdded={reload} /> : (
-          <div className="flex items-center gap-3 rounded-2xl border border-line bg-surface px-4 py-3 text-sm text-muted">
+          <div className="flex items-center gap-3 bx-card px-5 py-4 text-sm text-muted">
             <Info className="h-4 w-4 shrink-0" aria-hidden /> Only Owen and Austin can add or remove admins.
           </div>
         )}
@@ -92,7 +92,7 @@ export default function Admins() {
           {!data && !error ? <SkeletonRows rows={4} /> : admins.length === 0 ? <Empty icon={Users} title="No admins" /> : (
             <ul className="divide-y divide-line">
               {admins.map((a) => (
-                <li key={a.id} className="flex flex-col gap-3 px-4 py-3.5 sm:flex-row sm:items-center sm:px-5">
+                <li key={a.id} className="flex flex-col gap-3 px-5 py-4 sm:flex-row sm:items-center sm:px-6">
                   <div className="min-w-0 flex-1">
                     <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
                       <span className="font-bold">{a.name || a.email}</span>

@@ -19,7 +19,7 @@ export default function TriagePanel({ item, statuses, onSave }) {
   return (
     <Card>
       <CardHeader title="Triage" />
-      <div className="space-y-4 p-4 sm:p-5">
+      <div className="space-y-5 p-5 sm:p-6">
         <Field label="Status" htmlFor="status">
           <Select id="status" value={item.status} disabled={saving === 'status'} onChange={(e) => save({ status: e.target.value }, 'status')}>
             {statuses.map((s) => <option key={s} value={s}>{s[0].toUpperCase() + s.slice(1)}</option>)}

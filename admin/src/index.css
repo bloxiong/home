@@ -2,11 +2,19 @@
 
 @custom-variant dark (&:where(.dark, .dark *));
 
+/* The tagline's script, self-hosted (same file as the public site). */
+@font-face {
+  font-family: 'Lucida Handwriting';
+  src: url('/fonts/lucida-handwriting.woff2') format('woff2');
+  font-weight: 400; font-style: normal; font-display: swap;
+}
+
 /* Same tokens as the public site (src/index.css), dark by default. */
 :root {
   --font-display: 'Archivo', 'Helvetica Neue', Arial, sans-serif;
   --font-ui:      'Satoshi', 'Helvetica Neue', Arial, sans-serif;
   --font-mono:    'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+  --font-script:  'Lucida Handwriting', 'Lucida Handwriting Std', cursive;
 
   --bx-canvas:    #D2D7CA;
   --bx-surface:   #DCE0D5;
@@ -20,6 +28,26 @@
   --bx-danger:    #A3271C;
   --bx-warn:      #8A5A00;
   --bx-gold-ink:  #7A5418;
+
+  /* form fields: a soft filled well, lifted a touch on hover */
+  --bx-field:       #E6E9E0;
+  --bx-field-hover: #ECEEE7;
+  --bx-field-line:  #BFC6B5;
+  --bx-ring:        rgba(15, 85, 51, 0.22);
+
+  /* page atmosphere */
+  --bx-glow-a: rgba(15, 85, 51, 0.10);
+  --bx-glow-b: rgba(229, 192, 138, 0.16);
+  --bx-star:   rgba(17, 20, 19, 0.16);
+  --bx-card-shadow: 0 1px 0 rgba(255, 255, 255, 0.45) inset, 0 18px 40px -30px rgba(30, 40, 30, 0.45);
+
+  /* charts — validated with the dataviz palette checker against each surface.
+     viz-1..4: categorical (green, blue, orange, violet), "other" is neutral.
+     yes / maybe / no: semantic answers, always shown with their labels. */
+  --viz-1: #1E7A4A; --viz-2: #2A78D6; --viz-3: #C4501C; --viz-4: #4A3AA7; --viz-other: #A3A99E;
+  --viz-yes: #1E7A4A; --viz-maybe: #D9982A; --viz-no: #878E88;
+  --viz-grid: rgba(17, 20, 19, 0.09);
+  --viz-track: rgba(17, 20, 19, 0.07);
 }
 html.dark {
   --bx-canvas:    #0B0D0C;
@@ -34,6 +62,21 @@ html.dark {
   --bx-danger:    #F08A7E;
   --bx-warn:      #E5C08A;
   --bx-gold-ink:  #E5C08A;
+
+  --bx-field:       #181C1A;
+  --bx-field-hover: #1C211F;
+  --bx-field-line:  #262C29;
+  --bx-ring:        rgba(95, 203, 147, 0.22);
+
+  --bx-glow-a: rgba(95, 203, 147, 0.09);
+  --bx-glow-b: rgba(229, 192, 138, 0.05);
+  --bx-star:   rgba(238, 241, 239, 0.5);
+  --bx-card-shadow: 0 1px 0 rgba(255, 255, 255, 0.035) inset, 0 24px 48px -32px rgba(0, 0, 0, 0.9);
+
+  --viz-1: #2E9E68; --viz-2: #3987E5; --viz-3: #D95926; --viz-4: #9085E9; --viz-other: #4D5450;
+  --viz-yes: #3FAE76; --viz-maybe: #D69A2D; --viz-no: #565D59;
+  --viz-grid: rgba(238, 241, 239, 0.07);
+  --viz-track: rgba(238, 241, 239, 0.045);
 }
 
 @theme inline {
@@ -52,6 +95,7 @@ html.dark {
   --color-warn:      var(--bx-warn);
   --color-gold:      #E5C08A;
   --color-gold-ink:  var(--bx-gold-ink);
+  --color-field:     var(--bx-field);
 }
 
 html, body {
@@ -66,6 +110,34 @@ html.dark { color-scheme: dark; }
 * { box-sizing: border-box; }
 button, input, textarea, select { font-family: inherit; }
 
+/* ── atmosphere: a fixed, CSS-only starfield and two soft light sources ── */
+.bx-sky { position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
+.bx-sky::before {
+  content: ''; position: absolute; inset: 0;
+  background:
+    radial-gradient(ellipse 60% 45% at 88% -5%, var(--bx-glow-a), transparent 70%),
+    radial-gradient(ellipse 45% 40% at 5% 105%, var(--bx-glow-a), transparent 70%),
+    radial-gradient(ellipse 30% 25% at 70% 10%, var(--bx-glow-b), transparent 70%);
+}
+.bx-sky::after {
+  content: ''; position: absolute; inset: -50%;
+  background-image:
+    radial-gradient(1px 1px at 20px 30px, var(--bx-star), transparent 60%),
+    radial-gradient(1px 1px at 140px 90px, var(--bx-star), transparent 60%),
+    radial-gradient(1.5px 1.5px at 260px 200px, var(--bx-star), transparent 60%),
+    radial-gradient(1px 1px at 330px 40px, var(--bx-star), transparent 60%),
+    radial-gradient(1px 1px at 90px 260px, var(--bx-star), transparent 60%),
+    radial-gradient(1.5px 1.5px at 380px 300px, var(--bx-star), transparent 60%);
+  background-size: 420px 340px;
+  opacity: 0.35;
+  mask-image: radial-gradient(ellipse 80% 70% at 60% 20%, #000 20%, transparent 75%);
+}
+html:not(.dark) .bx-sky::after { opacity: 0.18; }
+@media (prefers-reduced-motion: no-preference) {
+  .bx-sky::after { animation: drift 160s linear infinite; }
+  @keyframes drift { to { transform: translate3d(-420px, -340px, 0); } }
+}
+
 .font-display {
   font-family: var(--font-display);
   font-stretch: 112%;
@@ -75,6 +147,7 @@ button, input, textarea, select { font-family: inherit; }
 }
 @media (min-width: 768px) { .font-display { font-stretch: 125%; } }
 .font-mono, .text-label { font-family: var(--font-mono); }
+.tnum { font-variant-numeric: tabular-nums; }
 .text-label {
   font-size: 0.6875rem;
   line-height: 1.4;
@@ -82,23 +155,60 @@ button, input, textarea, select { font-family: inherit; }
   text-transform: uppercase;
 }
 
+/* Gold script eyebrow, as on the site ("…what we engineer") */
+.script-label {
+  font-family: var(--font-script); font-size: 1.05rem; line-height: 1.35;
+  letter-spacing: 0; text-transform: lowercase;
+  width: fit-content; padding-right: 0.45em;
+  background: linear-gradient(105deg, var(--tag-ink) 40%, var(--tag-shine) 50%, var(--tag-ink) 60%) 160% 0 / 260% 100% repeat-x;
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+  filter: drop-shadow(0 0 10px var(--tag-glow));
+  --tag-ink: #7E5A22; --tag-shine: #C9963F; --tag-glow: transparent;
+}
+.script-label::before { content: '…'; }
+.dark .script-label { --tag-ink: #F2D096; --tag-shine: #FFF6E1; --tag-glow: rgba(242, 208, 150, 0.35); }
+@media (min-width: 768px) { .script-label { font-size: 1.15rem; } }
+@media (prefers-reduced-motion: no-preference) {
+  .script-label { animation: tagSweep 5s ease-in-out 1.2s infinite; }
+  @keyframes tagSweep { 0% { background-position: 160% 0; } 45%, 100% { background-position: -60% 0; } }
+}
+
 ::selection { background: color-mix(in oklab, var(--bx-accent) 30%, transparent); }
 :focus-visible { outline: 2px solid var(--bx-accent); outline-offset: 2px; }
 
-/* form controls (in the components layer so utilities like pl-9 still win) */
 @layer components {
+/* ── surfaces ─────────────────────────────────────────────────────── */
+.bx-card {
+  border: 1px solid var(--bx-line);
+  background: var(--bx-surface);
+  border-radius: 1.25rem;
+  box-shadow: var(--bx-card-shadow);
+}
+/* stat tiles: a faint green light in the corner */
+.bx-stat {
+  background:
+    radial-gradient(120% 90% at 100% 0%, color-mix(in oklab, var(--bx-accent) 12%, transparent), transparent 60%),
+    var(--bx-surface);
+}
+
+/* ── form controls (components layer so utilities like pl-11 still win) ── */
 .field {
   width: 100%;
-  border-radius: 0.75rem;
-  border: 1px solid var(--bx-line);
-  background: var(--bx-sunken);
+  min-height: 2.75rem;
+  border-radius: 0.875rem;
+  border: 1px solid var(--bx-field-line);
+  background: var(--bx-field);
   color: var(--bx-ink);
-  padding: 0.5rem 0.75rem;
-  font-size: 0.875rem;
-  line-height: 1.4;
-  transition: border-color .15s ease;
+  padding: 0.625rem 0.9rem;
+  font-size: 0.9375rem;
+  line-height: 1.45;
+  transition: border-color .15s ease, box-shadow .15s ease, background-color .15s ease;
 }
-.field:focus { outline: none; border-color: var(--bx-accent); }
+.field:hover:not(:disabled):not(:focus) { background: var(--bx-field-hover); border-color: color-mix(in oklab, var(--bx-field-line), var(--bx-muted) 30%); }
+.field:focus { outline: none; border-color: var(--bx-accent); box-shadow: 0 0 0 4px var(--bx-ring); background: var(--bx-field-hover); }
+.field[aria-invalid='true'] { border-color: var(--bx-danger); }
+.field[aria-invalid='true']:focus { box-shadow: 0 0 0 4px color-mix(in oklab, var(--bx-danger) 22%, transparent); }
+.field:disabled, .field[readonly] { opacity: 0.75; }
 /* masked passwords: system font at a smaller size, so the dots are neat
    (Satoshi's bullet is oversized), with a little air between them */
 .field[type='password']:not(:placeholder-shown) {
@@ -110,28 +220,51 @@ button, input, textarea, select { font-family: inherit; }
   .field { font-size: 16px; }
   .field[type='password']:not(:placeholder-shown) { font-size: 14px; letter-spacing: 0.16em; }
 }
-.field::placeholder { color: color-mix(in oklab, var(--bx-muted) 75%, transparent); }
-select.field { appearance: none; padding-right: 2rem;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%239BA39E' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
-  background-repeat: no-repeat; background-position: right 0.7rem center; }
-
+.field::placeholder { color: color-mix(in oklab, var(--bx-muted) 70%, transparent); }
+textarea.field { line-height: 1.6; padding-top: 0.75rem; padding-bottom: 0.75rem; }
+select.field { appearance: none; padding-right: 2.5rem; cursor: pointer;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%239BA39E' stroke-width='2' stroke-linecap='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat; background-position: right 0.9rem center; }
 }
 
 .skeleton {
   background: linear-gradient(90deg, var(--bx-sunken) 0%, color-mix(in oklab, var(--bx-line) 60%, var(--bx-sunken)) 50%, var(--bx-sunken) 100%);
   background-size: 200% 100%;
   animation: shimmer 1.3s ease-in-out infinite;
-  border-radius: 0.5rem;
+  border-radius: 0.75rem;
 }
 @keyframes shimmer { from { background-position: 200% 0; } to { background-position: -200% 0; } }
 
+/* kept for the auth pages */
 .field-glow {
   background:
     radial-gradient(ellipse 55% 45% at 85% 0%, rgba(95, 203, 147, 0.08), transparent 70%),
     radial-gradient(ellipse 45% 40% at 0% 100%, rgba(95, 203, 147, 0.05), transparent 70%);
 }
 
+/* the gold star's soft halo (empty states, active nav, login) */
+.star-glow { filter: drop-shadow(0 0 10px rgba(229, 192, 138, 0.55)); }
+html:not(.dark) .star-glow { filter: drop-shadow(0 2px 6px rgba(122, 84, 24, 0.35)); }
+
+/* active nav pill */
+.nav-active {
+  background: linear-gradient(90deg, color-mix(in oklab, var(--bx-accent) 16%, transparent), color-mix(in oklab, var(--bx-accent) 6%, transparent));
+  box-shadow: 0 0 0 1px color-mix(in oklab, var(--bx-accent) 28%, transparent) inset, 0 8px 24px -14px var(--bx-accent);
+}
+
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { scrollbar-width: none; }
+
+/* ── motion (only when allowed) ─────────────────────────────────────── */
 @media (prefers-reduced-motion: no-preference) {
   .toast-in { animation: toastIn .25s cubic-bezier(0.16, 1, 0.3, 1) both; }
   @keyframes toastIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+  .page-in { animation: pageIn .45s cubic-bezier(0.16, 1, 0.3, 1) both; }
+  @keyframes pageIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+  .lift { transition: translate .2s ease, box-shadow .2s ease, border-color .2s ease; }
+  .lift:hover { translate: 0 -2px; }
+  .sheet-in { animation: sheetIn .3s cubic-bezier(0.16, 1, 0.3, 1) both; }
+  @keyframes sheetIn { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: none; } }
+  .float-slow { animation: floatSlow 7s ease-in-out infinite; }
+  @keyframes floatSlow { 0%, 100% { transform: translateY(0) rotate(0); } 50% { transform: translateY(-8px) rotate(2deg); } }
 }

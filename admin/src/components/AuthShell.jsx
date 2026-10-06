@@ -1,28 +1,32 @@
-import { useTheme } from '../lib/contexts'
 import { Moon, Sun } from 'lucide-react'
-import { Star } from './ui'
+import { useTheme } from '../lib/contexts'
 
 /** Centred card used by login, forgot and reset pages. */
 export default function AuthShell({ title, sub, children }) {
   const { theme, toggle } = useTheme()
   return (
-    <div className="field-glow relative flex min-h-dvh flex-col items-center justify-center px-4 py-10">
+    <div className="relative flex min-h-dvh flex-col items-center justify-center overflow-hidden px-4 py-12">
+      <div className="bx-sky" aria-hidden />
+      {/* a soft gold-green aurora behind the card */}
+      <div aria-hidden className="pointer-events-none absolute left-1/2 top-[18%] h-[28rem] w-[28rem] -translate-x-1/2 rounded-full bg-[radial-gradient(circle,rgba(229,192,138,0.18),rgba(95,203,147,0.08)_45%,transparent_70%)] blur-2xl" />
       <button type="button" onClick={toggle} aria-label="Toggle light and dark mode"
-        className="absolute right-4 top-4 inline-flex h-9 w-9 items-center justify-center rounded-xl text-muted hover:bg-sunken hover:text-ink">
+        className="absolute right-4 top-4 z-10 inline-flex h-11 w-11 items-center justify-center rounded-xl text-muted transition hover:bg-ink/5 hover:text-ink">
         {theme === 'dark' ? <Sun className="h-4 w-4" aria-hidden /> : <Moon className="h-4 w-4" aria-hidden />}
       </button>
-      <div className="w-full max-w-sm">
-        <div className="mb-8 flex flex-col items-center gap-3">
-          <img src="/bloxio-logo.png" alt="BLOXio" className="h-7 w-auto" />
-          <span className="text-label text-muted">Admin portal</span>
+
+      <div className="page-in relative w-full max-w-[26rem]">
+        <div className="mb-9 flex flex-col items-center text-center">
+          <img src="/brand/star-cluster.png" alt="" aria-hidden className="float-slow star-glow mb-5 h-20 w-auto" draggable="false" />
+          <img src="/bloxio-logo.png" alt="BLOXio" className="h-10 w-auto drop-shadow-[0_6px_24px_rgba(229,192,138,0.25)] sm:h-12" />
+          <p className="script-label mx-auto mt-3">one step ahead of tech</p>
         </div>
-        <div className="relative rounded-2xl border border-line bg-surface p-6 shadow-2xl shadow-black/20 sm:p-7">
-          <Star className="absolute -right-3 -top-3 h-7 w-7" />
-          <h1 className="font-display text-xl leading-tight">{title}</h1>
-          {sub && <p className="mt-2 text-sm text-muted">{sub}</p>}
-          <div className="mt-6">{children}</div>
+        <div className="bx-card relative p-7 sm:p-9">
+          <p className="text-label mb-3 text-muted">Admin portal</p>
+          <h1 className="font-display text-2xl leading-tight">{title}</h1>
+          {sub && <p className="mt-2.5 text-[15px] leading-relaxed text-muted">{sub}</p>}
+          <div className="mt-7">{children}</div>
         </div>
-        <p className="mt-6 text-center text-xs text-muted">BLOXio Nigeria Limited · staff only</p>
+        <p className="mt-8 text-center text-xs text-muted">BLOXio Nigeria Limited · staff only</p>
       </div>
     </div>
   )

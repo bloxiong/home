@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'
-import { ClipboardList, Download, Search, X } from 'lucide-react'
-import { Badge, Button, Card, Empty, ErrorNote, Input, PageHeader, Pagination, Select, SkeletonRows, StatusBadge } from '../components/ui'
+import { ClipboardList, Download, X } from 'lucide-react'
+import { Badge, Button, Card, Empty, ErrorNote, PageHeader, SearchInput, Pagination, Select, SkeletonRows, StatusBadge } from '../components/ui'
 import { download } from '../lib/api'
 import { useCounts, useToast } from '../lib/contexts'
 import { RESPONDENT_TYPES, SURVEY_STATUSES } from '../lib/constants'
@@ -67,11 +67,8 @@ export default function Surveys() {
         actions={<Button icon={Download} onClick={exportCsv} loading={exporting}>Export CSV</Button>} />
 
       <Card>
-        <div className="grid gap-2 border-b border-line p-3 sm:grid-cols-2 sm:p-4 lg:grid-cols-[1fr_auto_auto_auto_auto]">
-          <div className="relative sm:col-span-2 lg:col-span-1">
-            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted" aria-hidden />
-            <Input type="search" placeholder="Search email, location, answers…" aria-label="Search surveys" value={q} onChange={(e) => setQ(e.target.value)} className="pl-9" />
-          </div>
+        <div className="grid grid-cols-2 gap-3 border-b border-line p-4 sm:p-5 lg:grid-cols-[1fr_auto_auto_auto_auto]">
+          <SearchInput className="col-span-2 lg:col-span-1" placeholder="Search email, location, answers…" aria-label="Search surveys" value={q} onChange={(e) => setQ(e.target.value)} />
           <Select aria-label="Status" value={status} onChange={(e) => set('status', e.target.value)}>
             <option value="">All statuses</option>
             {SURVEY_STATUSES.map((s) => <option key={s} value={s}>{s[0].toUpperCase() + s.slice(1)}</option>)}
@@ -98,33 +95,33 @@ export default function Surveys() {
             </Empty>
           ) : (
             <div className={loading ? 'opacity-60 transition' : 'transition'}>
-              <div className="overflow-x-auto">
+              <div className="overflow-x-auto md:overflow-visible">
                 <table className="w-full text-left text-sm">
-                  <thead className="text-label text-muted">
+                  <thead className="text-label sticky top-0 z-10 bg-surface/95 text-muted backdrop-blur md:top-0">
                     <tr className="border-b border-line">
-                      <th className="px-4 py-2.5 font-normal sm:px-5">#</th>
-                      <th className="px-3 py-2.5 font-normal">Respondent</th>
-                      <th className="hidden px-3 py-2.5 font-normal md:table-cell">Email</th>
-                      <th className="hidden px-3 py-2.5 font-normal lg:table-cell">Rating</th>
-                      <th className="hidden px-3 py-2.5 font-normal sm:table-cell">Submitted</th>
-                      <th className="px-4 py-2.5 font-normal sm:px-5">Status</th>
+                      <th className="px-5 py-3.5 font-normal sm:px-6">#</th>
+                      <th className="px-3 py-3.5 font-normal">Respondent</th>
+                      <th className="hidden px-3 py-3.5 font-normal md:table-cell">Email</th>
+                      <th className="hidden px-3 py-3.5 font-normal lg:table-cell">Rating</th>
+                      <th className="hidden px-3 py-3.5 font-normal sm:table-cell">Submitted</th>
+                      <th className="px-5 py-3.5 font-normal sm:px-6">Status</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-line">
                     {data.items.map((r) => (
-                      <tr key={r.id} onClick={() => nav(`/surveys/${r.id}`)} className="cursor-pointer transition hover:bg-sunken">
-                        <td className="px-4 py-3 font-mono text-xs text-muted sm:px-5">{r.id}</td>
-                        <td className="w-full max-w-0 px-3 py-3">
+                      <tr key={r.id} onClick={() => nav(`/surveys/${r.id}`)} className="group cursor-pointer transition hover:bg-ink/[0.035]">
+                        <td className="px-5 py-4 font-mono text-xs text-muted sm:px-5">{r.id}</td>
+                        <td className="w-full max-w-0 px-3 py-4">
                           <Link to={`/surveys/${r.id}`} onClick={(e) => e.stopPropagation()} className="block truncate font-bold">{r.respondent_type || 'Respondent'}</Link>
                           <span className="block truncate text-xs text-muted">{r.location || 'No location'}<span className="md:hidden">{r.email ? ` · ${r.email}` : ''}</span></span>
                         </td>
-                        <td className="hidden max-w-56 px-3 py-3 md:table-cell md:max-w-56">
+                        <td className="hidden max-w-56 px-3 py-4 md:table-cell md:max-w-56">
                           <span className="block truncate">{r.email || <span className="text-muted">—</span>}</span>
                           {r.wants_updates && <Badge tone="accent" className="mt-1">wants updates</Badge>}
                         </td>
-                        <td className="hidden px-3 py-3 font-mono text-xs lg:table-cell">{r.data?.usefulnessRating ? `${r.data.usefulnessRating}/5` : '—'}</td>
-                        <td className="hidden whitespace-nowrap px-3 py-3 text-xs text-muted sm:table-cell" title={fmtDate(r.created_at)}>{fmtRelative(r.created_at)}</td>
-                        <td className="px-4 py-3 sm:px-5"><StatusBadge status={r.status} /></td>
+                        <td className="hidden px-3 py-4 font-mono text-xs lg:table-cell">{r.data?.usefulnessRating ? `${r.data.usefulnessRating}/5` : '—'}</td>
+                        <td className="hidden whitespace-nowrap px-3 py-4 text-xs text-muted sm:table-cell" title={fmtDate(r.created_at)}>{fmtRelative(r.created_at)}</td>
+                        <td className="px-5 py-4 sm:px-6"><StatusBadge status={r.status} /></td>
                       </tr>
                     ))}
                   </tbody>
