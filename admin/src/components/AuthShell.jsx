@@ -16,9 +16,7 @@ export default function AuthShell({ title, sub, children }) {
 
       <div className="page-in relative w-full max-w-[26rem]">
         <div className="mb-9 flex flex-col items-center text-center">
-          <img src="/brand/star-cluster.png" alt="" aria-hidden className="float-slow star-glow mb-5 h-20 w-auto" draggable="false" />
           <img src="/bloxio-logo.png" alt="BLOXio" className="h-10 w-auto drop-shadow-[0_6px_24px_rgba(229,192,138,0.25)] sm:h-12" />
-          <p className="script-label mx-auto mt-3">one step ahead of tech</p>
         </div>
         <div className="bx-card relative p-7 sm:p-9">
           <p className="text-label mb-3 text-muted">Admin portal</p>
