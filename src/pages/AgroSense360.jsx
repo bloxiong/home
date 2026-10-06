@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import {
-  PageMeta, PageHeader, Button, StatusBadge, Section, SectionHeading, CTABand, Reveal, CountUp, TechLabel,
+  PageMeta, PageHeader, Button, StatusBadge, Section, SectionHeading, CTABand, Reveal, CountUp, TechLabel, StarTag,
 } from '../components/ui';
 import { card } from '../lib/ui-utils';
 import FAQList from '../components/FAQList';
@@ -17,11 +17,11 @@ const PRODUCT_FAQS = [
   },
   {
     q: 'Can my farm host a pilot?',
-    a: 'We are looking for mid-sized commercial farms willing to test the system in real conditions. Choose “AgroSense360 pilot” on the contact page and tell us about your farm.',
+    a: 'We are looking for five design-partner farms: mid-sized commercial farms of 20 to 80 hectares growing tomato, pepper, cassava or yam, starting in Imo, Abia and Enugu. None are recruited yet. Choose “AgroSense360 pilot” on the contact page and tell us about your farm.',
   },
   {
     q: 'Which crops does it cover?',
-    a: `The model covers 38 disease and healthy states across 9 crops, including ${AGROSENSE.crops.slice(0, 6).join(', ')}. Tell us what you grow in the survey; it affects which crops we test first.`,
+    a: `The prototype model names 38 disease and healthy states across 9 crops. Written advice covers local crops including ${AGROSENSE.crops.slice(0, 6).join(', ')}. Retraining on Nigerian field imagery is part of field testing. Tell us what you grow in the survey; it affects which crops we test first.`,
   },
 ];
 
@@ -54,7 +54,7 @@ function LoopSection() {
             <span>{String(active + 1).padStart(2, '0')} / 04</span>
             <span>{step.tag}</span>
           </div>
-          <p key={step.key} className="rise-in font-display mt-16 uppercase leading-none text-accent" style={{ fontSize: 'clamp(3.5rem, 7vw, 6.5rem)' }}>
+          <p key={step.key} className="rise-in font-display mt-16 uppercase leading-none text-accent" style={{ fontSize: 'clamp(1.05rem, max(7vw, min(8.5vw, 3.5rem)), 6.5rem)' }}>
             {step.verb}
           </p>
           <div className="mt-16 grid grid-cols-4 gap-2">
@@ -101,13 +101,13 @@ export default function AgroSense360() {
 
       <PageHeader
         image={IMG.farmers}
-        label="Overview · Flagship technology"
+        label="Overview"
         title="AgroSense360"
         lead={AGROSENSE.oneLiner}
         aside={
           <div className="border border-forest-line bg-forest-2 p-6">
             <StatusBadge status={AGROSENSE.status} onForest />
-            <dl className="mt-6 space-y-4 text-sm">
+            <dl className="mt-4 space-y-4 text-sm">
               <div>
                 <dt className="text-label text-forest-muted">Where it stands</dt>
                 <dd className="mt-1 font-semibold">Integrated prototype, worked end to end</dd>
@@ -124,8 +124,8 @@ export default function AgroSense360() {
           </div>
         }
       >
-        <Button to="/products/agrosense360/survey" variant="light" arrow>Join the pilot list</Button>
-        <Button to="/contact?topic=pilot" variant="ghost">Pilot / partnership enquiries</Button>
+        <Button to="/products/agrosense360/survey" variant="text">Join the pilot list</Button>
+        <Button to="/contact?topic=pilot" variant="text">Partnership enquiries</Button>
       </PageHeader>
 
 
@@ -162,7 +162,7 @@ export default function AgroSense360() {
         <SectionHeading
           label="System"
           title="One rover does the walking, looking, testing and telling"
-          lead="Drones can’t touch the soil. Phone apps only see one leaf. AgroSense360 does both."
+          lead="Phone apps only see the leaf you photographed. Drones cannot touch the soil. Soil probes are blind to the crop. AgroSense360 brings crop and soil together in the row."
         />
         <LoopSection />
       </Section>
@@ -172,12 +172,12 @@ export default function AgroSense360() {
         <SectionHeading
           label="Intelligence"
           title="An instruction, not a score"
-          lead="Trained on the crops Nigerian farmers grow, with a next step for every diagnosis."
+          lead="Advice written for the crops Nigerian farmers grow, with a next step for every diagnosis."
         />
         <div className="grid gap-4 md:grid-cols-2">
           <Reveal className={`${card()} p-7`}>
             <TechLabel>What reaches the farmer</TechLabel>
-            <div className="mt-5 space-y-5">
+            <div className="mt-4 space-y-5">
               {AGROSENSE.farmer.map((f) => (
                 <div key={f.title}>
                   <h3 className="font-bold text-ink">{f.title}</h3>
@@ -188,7 +188,7 @@ export default function AgroSense360() {
           </Reveal>
           <Reveal i={1} className={`${card()} p-7`}>
             <TechLabel>What the farm manager sees</TechLabel>
-            <div className="mt-5 space-y-5">
+            <div className="mt-4 space-y-5">
               {AGROSENSE.manager.map((f) => (
                 <div key={f.title}>
                   <h3 className="font-bold text-ink">{f.title}</h3>
@@ -199,10 +199,10 @@ export default function AgroSense360() {
           </Reveal>
         </div>
         <Reveal className="mt-8">
-          <TechLabel>Crops in the model include</TechLabel>
+          <TechLabel>Advice written for</TechLabel>
           <ul className="mt-4 flex flex-wrap gap-2">
-            {AGROSENSE.crops.map((c) => (
-              <li key={c} className="rounded-full border border-line bg-surface px-3 py-1.5 text-sm font-medium text-ink">{c}</li>
+            {AGROSENSE.crops.map((c, i) => (
+              <StarTag key={c} i={i} className="bg-surface text-sm">{c}</StarTag>
             ))}
           </ul>
         </Reveal>
@@ -211,16 +211,17 @@ export default function AgroSense360() {
       {/* 05 Development */}
       <section className="on-forest relative overflow-hidden bg-forest text-on-forest">
         <div className="field-glow pointer-events-none absolute inset-0" aria-hidden="true" />
-        <div className="relative mx-auto max-w-6xl px-5 py-16 sm:px-6 md:py-20">
+        <div className="relative mx-auto max-w-6xl px-5 py-14 sm:px-6 md:py-20">
           <Reveal>
-            <p className="label-rule text-label text-forest-muted">Development</p>
-            <h2 className="font-display mt-5 max-w-3xl uppercase leading-[0.98]" style={{ fontSize: 'clamp(1.75rem, 3.6vw, 2.9rem)' }}>
+            <p className="script-label text-forest-muted">Development</p>
+            <h2 className="font-display mt-4 max-w-3xl uppercase leading-[0.98]" style={{ fontSize: 'clamp(1.05rem, max(3.6vw, min(8.5vw, 1.75rem)), 2.9rem)' }}>
               The core system has already worked end to end
             </h2>
           </Reveal>
-          <dl className="mt-14 grid grid-cols-2 gap-px overflow-hidden border border-forest-line bg-forest-line md:grid-cols-3 lg:grid-cols-5">
+          <dl className="mt-14 grid grid-cols-2 gap-px overflow-hidden border border-forest-line bg-forest-line lg:grid-cols-5">
             {AGROSENSE.proof.map((p, i) => (
-              <Reveal key={p.label} i={i} className="bg-forest p-6">
+              /* five results: on two columns the last one spans the row, so no empty box */
+              <Reveal key={p.label} i={i} className="bg-forest p-6 last:col-span-2 lg:last:col-span-1">
                 <dt className="sr-only">{p.label}</dt>
                 <dd>
                   <CountUp
@@ -241,11 +242,11 @@ export default function AgroSense360() {
               <p className="mt-3 leading-relaxed">{AGROSENSE.have}</p>
             </Reveal>
             <Reveal i={1} className="border border-dashed border-forest-line p-6">
-              <p className="label-rule text-label text-forest-muted">What we do not have yet</p>
+              <p className="script-label text-forest-muted">What we do not have yet</p>
               <p className="mt-3 leading-relaxed">{AGROSENSE.haveNot}</p>
             </Reveal>
           </div>
-          <p className="mt-8 text-xs leading-relaxed text-forest-muted">{AGROSENSE.proofNote}</p>
+          <p className="mt-6 text-xs leading-relaxed text-forest-muted">{AGROSENSE.proofNote}</p>
         </div>
       </section>
 
@@ -262,15 +263,18 @@ export default function AgroSense360() {
               <p className="text-label text-accent">{r.when}</p>
               <h3 className="mt-6 text-xl font-bold text-ink">{r.title}</h3>
               <p className="mt-2 leading-relaxed text-muted">{r.body}</p>
-              <p className="mt-6 text-label text-muted">Target</p>
+              <p className="mt-4 text-label text-muted">Target</p>
             </Reveal>
           ))}
         </ol>
       </Section>
 
       <Section tone="sunken">
-        <div className="grid gap-12 lg:grid-cols-[1fr_1.5fr] lg:gap-20">
-          <SectionHeading title="Questions about AgroSense360" />
+        <div className="grid gap-10 lg:grid-cols-[1fr_1.6fr] lg:gap-16">
+          <div className="lg:sticky lg:top-28 lg:self-start">
+            <SectionHeading className="mb-6!" label="Questions" title="Questions about AgroSense360" lead="Availability, price, pilots and crops, answered plainly." />
+            <Button to="/contact?topic=pilot" variant="text">Ask about a pilot</Button>
+          </div>
           <FAQList items={PRODUCT_FAQS} />
         </div>
       </Section>
@@ -280,8 +284,8 @@ export default function AgroSense360() {
         title="Every farm deserves an agronomist that never sleeps."
         body="A few minutes of your time decides which problems we solve first."
       >
-        <Button to="/products/agrosense360/survey" variant="light" arrow>Take the survey</Button>
-        <Button to="/contact?topic=pilot" variant="ghost">Host a pilot</Button>
+        <Button to="/products/agrosense360/survey" variant="text">Take the survey</Button>
+        <Button to="/contact?topic=pilot" variant="text">Host a pilot</Button>
       </CTABand>
     </>
   );

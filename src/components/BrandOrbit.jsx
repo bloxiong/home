@@ -10,7 +10,7 @@ import { useInView } from '../lib/ui-utils';
    Decorative only: aria-hidden. */
 
 // One discipline per small star; it appears when that star flares.
-const LABELS = ['Electronics', 'AI & vision', 'IoT', 'Cloud'];
+const LABELS = ['Electronics', 'AI', 'IoT', 'Cloud'];
 
 // Small-star positions from the lockup, relative to the large star, in
 // units of the large star's width (lockup: star 280px wide, small stars

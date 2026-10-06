@@ -5,13 +5,21 @@
    BLOXio · Field Green
    One ground (sage paper / deep field), one ink,
    one green accent. Gold lives only in the logo.
-   Archivo for words, IBM Plex Mono for labels and
+   Archivo for headlines, Satoshi for text, IBM Plex Mono for labels and
    engineering metadata.
    ───────────────────────────────────────────── */
+/* The tagline's script, self-hosted (Latin subset of Lucida Handwriting Std). */
+@font-face {
+  font-family: 'Lucida Handwriting';
+  src: url('/fonts/lucida-handwriting.woff2') format('woff2');
+  font-weight: 400; font-style: normal; font-display: swap;
+}
+
 :root {
   --font-display: 'Archivo', 'Helvetica Neue', Arial, sans-serif;
-  --font-ui:      'Archivo', 'Helvetica Neue', Arial, sans-serif;
+  --font-ui:      'Satoshi', 'Helvetica Neue', Arial, sans-serif;
   --font-mono:    'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+  --font-script:  'Lucida Handwriting', 'Lucida Handwriting Std', cursive;
 
   --bx-canvas:    #D2D7CA;
   --bx-surface:   #DCE0D5;
@@ -34,6 +42,9 @@ html.dark {
 }
 
 @theme inline {
+  /* tighter body text: lines sit closer together across the site */
+  --leading-relaxed: 1.5;
+  --leading-snug: 1.3;
   --color-canvas:    var(--bx-canvas);
   --color-surface:   var(--bx-surface);
   --color-sunken:    var(--bx-sunken);
@@ -207,6 +218,21 @@ button, input, textarea, select { font-family: inherit; }
   mix-blend-mode: overlay;
 }
 
+/* the script tagline writes itself in when its block reveals, then the
+   light sweep runs across it */
+/* sized so the image tagline and the live script labels are the same size */
+.tag-write { font-size: 1.25rem; width: 13.55em; max-width: 100%; }
+.tag-write img { display: block; }
+@media (prefers-reduced-motion: no-preference) {
+  .tag-write { clip-path: inset(-10% 100% -10% 0); }
+  .is-in .tag-write { clip-path: inset(-10% -2% -10% 0); transition: clip-path 1.4s cubic-bezier(0.65, 0, 0.35, 1) 0.2s; }
+  .is-in .tag-write::after { animation: tagSweep 5s ease-in-out 1.6s infinite; }
+}
+@keyframes tagSweep {
+  0%, 60%, 100% { background-position: 160% 0; }
+  30% { background-position: -60% 0; }
+}
+
 /* fine label that appears beside a flaring star */
 .bx-label {
   position: absolute; left: 0; top: 0; z-index: 6; opacity: 0;
@@ -281,6 +307,114 @@ html:not(.dark) .text-shimmer {
 .sw { display: inline-block; overflow: hidden; vertical-align: bottom; padding-bottom: 0.06em; margin-bottom: -0.06em; }
 .sw-i { display: inline-block; }
 .split-chars { white-space: nowrap; }
+
+/* hero horizon: the edge of a planet at dawn along the foot of the hero.
+   Layers, back to front: the sky's glow above the edge (atmo), the planet
+   (its surface is the page colour, lit gold near the sun, so it melts into
+   the section below), the rim of light along the edge (brightest at the sun,
+   fading to the sides),  */
+.hero {
+  --rim: rgba(255, 238, 205, 0.95);
+  --rim-glow: rgba(242, 208, 150, 0.7);
+  --haze-gold: rgba(242, 208, 150, 0.2);
+  --haze-green: rgba(111, 211, 157, 0.2);
+  --lit: color-mix(in oklab, var(--bx-canvas) 72%, #F2D096);
+  --lit-soft: color-mix(in oklab, var(--bx-canvas) 78%, #F2D096);
+}
+/* light mode: morning glow. A warm gold dawn on the planet's edge and a
+   pale, white-lit surface; the glow in the sky behind it is green. */
+html:not(.dark) .hero {
+  /* a lighter, softer gold than before */
+  --rim: rgba(206, 156, 72, 0.85);
+  --rim-glow: rgba(246, 214, 158, 0.6);
+  --haze-gold: rgba(95, 190, 140, 0.32);
+  --haze-green: rgba(15, 110, 64, 0.2);
+  --lit: color-mix(in oklab, var(--bx-canvas) 40%, #FDF1D8);
+  --lit-soft: color-mix(in oklab, var(--bx-canvas) 55%, #FBEBCB);
+}
+html:not(.dark) .hero-planet {
+  background:
+    radial-gradient(ellipse 640px 180px at 50% 0%, var(--lit), transparent 100%),
+    radial-gradient(ellipse 900px 260px at 50% 0%, rgba(255, 255, 255, 0.55), transparent 100%),
+    color-mix(in oklab, var(--bx-canvas) 72%, #FFFFFF);
+  box-shadow:
+    inset 0 4px 10px -4px rgba(255, 255, 255, 0.95),
+    inset 0 26px 60px -22px var(--lit-soft),
+    inset 0 90px 120px -50px rgba(110, 130, 112, 0.22);
+}
+/* phones: the planet is a gentle arc (edge drops ~20px to the sides), so the
+   horizon only needs room for that plus a fade */
+.hero-horizon { height: 130px; }
+/* the planet melts into the page at the very foot of the hero */
+.hero-ground {
+  position: absolute; inset: 0; z-index: 1;
+  -webkit-mask-image: linear-gradient(to bottom, #000 calc(100% - 110px), transparent 100%);
+          mask-image: linear-gradient(to bottom, #000 calc(100% - 110px), transparent 100%);
+}
+/* Desktop: a wide, gently curved planet (240vw across). Its edge still
+   reaches both sides of the screen, dropping 10.91vw from the peak, so the
+   horizon is that tall plus a little room to fade; the copy sits just above. */
+@media (min-width: 768px) {
+  .hero-horizon { height: calc(10.91vw + 90px); }
+  .hero-planet, .hero-rim { width: 240vw !important; }
+  .hero-out { padding-bottom: calc(10.91vw + 90px + 1.5rem); }
+  .hero-ground {
+    -webkit-mask-image: linear-gradient(to bottom, #000 calc(100% - 70px), transparent 100%);
+            mask-image: linear-gradient(to bottom, #000 calc(100% - 70px), transparent 100%);
+  }
+}
+
+/* the glow is centred on the planet's edge and fades out fully in every
+   direction inside its own box, so it never shows a straight cut */
+.hero-atmo {
+  position: absolute; left: 50%; top: -60svh; width: max(160vw, 1400px); height: 120svh; translate: -50% 0;
+  z-index: 0;
+  background:
+    radial-gradient(ellipse 34% 32% at 50% 50%, var(--haze-gold), transparent 70%),
+    radial-gradient(ellipse 60% 40% at 50% 50%, var(--haze-green), transparent 72%);
+  /* below the planet's edge the glow fades out within 100px, so it can never
+     reach the bottom of the hero and leave a line there (phones especially) */
+  -webkit-mask-image: linear-gradient(to bottom, #000 50%, transparent calc(50% + 100px));
+          mask-image: linear-gradient(to bottom, #000 50%, transparent calc(50% + 100px));
+}
+.hero-planet, .hero-rim {
+  position: absolute; left: 50%; top: 0; width: max(190vw, 1700px); aspect-ratio: 1; translate: -50% 0;
+  border-radius: 50%;
+}
+.hero-planet {
+  background:
+    radial-gradient(ellipse 520px 140px at 50% 0%, var(--lit), transparent 100%),
+    var(--bx-canvas);
+  /* a sunlit band that follows the curve all the way round to the edges */
+  box-shadow: inset 0 26px 70px -26px var(--lit-soft), inset 0 6px 22px -10px var(--lit-soft);
+}
+.hero-rim {
+  box-shadow:
+    inset 0 1.5px 0 0 var(--rim),
+    inset 0 6px 16px -6px var(--rim-glow),
+    inset 0 22px 50px -24px var(--rim-glow);
+  /* brightest under the sun, still clearly lit where the curve leaves the screen */
+  -webkit-mask-image: radial-gradient(ellipse 50% 22% at 50% 0%, #000 18%, rgba(0, 0, 0, 0.5) 70%, rgba(0, 0, 0, 0.35) 100%);
+          mask-image: radial-gradient(ellipse 50% 22% at 50% 0%, #000 18%, rgba(0, 0, 0, 0.5) 70%, rgba(0, 0, 0, 0.35) 100%);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .hero-horizon { animation: horizonRise 1.8s cubic-bezier(0.16, 1, 0.3, 1) 0.2s both; }
+  .hero-atmo { animation: atmoBreathe 7s ease-in-out 2s infinite; }
+}
+@keyframes horizonRise { from { translate: 0 60px; opacity: 0; } to { translate: 0 0; opacity: 1; } }
+@keyframes atmoBreathe { 0%, 100% { opacity: 0.85; } 50% { opacity: 1; } }
+
+/* hero headline decode: each cell keeps the real letter's width */
+.decode { white-space: nowrap; }
+.decode-cell { position: relative; display: inline-block; }
+.decode-glyph { position: absolute; inset: 0; text-align: center; color: var(--bx-accent); opacity: 0.85; }
+.decode-glyph.is-set { color: inherit; opacity: 1; transition: color 0.4s ease; }
+/* hero scroll-out: the copy lifts and softens, the stars ease back */
+@media (prefers-reduced-motion: no-preference) {
+  .hero-out > :not(.hero-orbit) { opacity: calc(1 - var(--out, 0) * 1.3); translate: 0 calc(var(--out, 0) * -56px); filter: blur(calc(var(--out, 0) * 5px)); }
+  .hero-orbit { scale: calc(1 - var(--out, 0) * 0.1); opacity: calc(1 - var(--out, 0) * 0.9); }
+}
 .split-chars > span { display: inline-block; }
 
 @media (prefers-reduced-motion: no-preference) {
@@ -311,15 +445,46 @@ html:not(.dark) .text-shimmer {
     .drift > li { translate: calc((0.5 - var(--p, 0.5)) * (40px + var(--k, 0) * 36px)) 0; }
   }
 
-  /* process: a line draws across and each step lights up as it is reached */
-  .process-line { position: relative; overflow: hidden; }
-  .process-line span { position: absolute; inset: 0; background: #6FD39D; transform-origin: left; scale: calc(var(--e, 1) * 1.2) 1; box-shadow: 0 0 12px rgba(111, 211, 157, 0.7); }
-  .process .process-step { opacity: clamp(0.3, calc((var(--e, 1) * 1.2 - var(--k)) * 5 + 0.3), 1); }
 }
 
-/* hero headline: sized to its column once it sits beside the stars */
-.hero-title { font-size: clamp(2rem, 9vw, 3.5rem); }
-@media (min-width: 768px) { .hero-title { font-size: clamp(2.1rem, 4.3vw, 3.5rem); } }
+/* hero headline: fills the phone width, then sized to its column once it
+   sits beside the stars */
+/* "ENGINEERING" is ~8.2em wide, so these fill the text column edge to edge */
+.hero-title { font-size: min(calc((100vw - 2.6rem) / 8.25), 4.6rem); }
+@media (min-width: 640px) { .hero-title { font-size: min(calc((100vw - 3.1rem) / 8.25), 4.6rem); } }
+@media (min-width: 768px) { .hero-title { font-size: calc((min(100vw, 72rem) - 4.6rem) * 0.512 / 8.3); } }
+
+/* phone hero: a slow green field light drifting behind the headline */
+.hero-aurora {
+  background:
+    radial-gradient(60% 38% at 85% 18%, color-mix(in oklab, var(--bx-accent) 26%, transparent), transparent 70%),
+    radial-gradient(55% 32% at 0% 78%, color-mix(in oklab, var(--bx-accent) 16%, transparent), transparent 70%);
+  -webkit-mask-image: linear-gradient(to bottom, #000 55%, transparent 78%);
+  mask-image: linear-gradient(to bottom, #000 55%, transparent 78%);
+}
+@media (prefers-reduced-motion: no-preference) {
+  .hero-aurora { animation: heroAurora 14s ease-in-out infinite alternate; }
+}
+@keyframes heroAurora {
+  0%   { transform: translate3d(0, 0, 0) scale(1); opacity: 0.8; }
+  50%  { transform: translate3d(-6%, 5%, 0) scale(1.08); opacity: 1; }
+  100% { transform: translate3d(4%, -3%, 0) scale(1.02); opacity: 0.85; }
+}
+/* the discipline tiles: gold stars glint one after another, like the cluster */
+.star-bullet { color: #D9A55B; opacity: 0.6; transform-origin: center; }
+html:not(.dark) .star-bullet { color: #A8721F; }
+@media (prefers-reduced-motion: no-preference) {
+  .star-bullet { animation: signalGlint 4.8s ease-in-out infinite; animation-delay: calc(var(--k) * 0.9s); }
+  .hero-signal { animation: signalEdge 4.8s ease-in-out infinite; animation-delay: calc(var(--k) * 1.2s); }
+}
+@keyframes signalGlint {
+  0%, 30%, 100% { opacity: 0.55; transform: scale(1) rotate(0deg); filter: none; }
+  12% { opacity: 1; transform: scale(1.35) rotate(45deg); filter: drop-shadow(0 0 6px rgba(240, 200, 120, 0.85)); }
+}
+@keyframes signalEdge {
+  0%, 30%, 100% { border-color: var(--bx-line); }
+  12% { border-color: color-mix(in oklab, var(--bx-accent) 55%, var(--bx-line)); }
+}
 /* the dark drop shadow only belongs on dark grounds */
 html:not(.dark) .bx-wordmark { filter: none; }
 /* hero: the stage keeps air above the stars for dust and labels; pull it
@@ -327,11 +492,15 @@ html:not(.dark) .bx-wordmark { filter: none; }
 @media (min-width: 768px) { .hero .bx-art { margin-top: calc(var(--size) * -0.12); } }
 
 /* light mode: a soft, deeper pool behind the stars so the gold reads */
+/* light mode hero: a dawn sky, cool sage overhead warming to cream gold at
+   the planet's horizon and settling to the page colour at the foot, so the
+   hero still flows into the next section. The gold star logo gets a warm
+   shadow so it lifts off the pale sky. */
 html:not(.dark) .hero {
-  background:
-    radial-gradient(ellipse 50% 65% at 76% 46%, rgba(70, 82, 62, 0.42) 0%, transparent 72%),
-    var(--bx-canvas);
+  background: linear-gradient(to bottom, #C3CCBC 0%, #CDD3C4 34%, #E4DBC3 62%, var(--bx-canvas) 100%);
 }
+html:not(.dark) .hero .hero-vignette { display: none; }
+html:not(.dark) .hero .bx-art { filter: drop-shadow(0 8px 22px rgba(92, 62, 14, 0.32)); }
 
 /* Section 02 in light mode matches the dark products band */
 html:not(.dark) .cap-band { background-color: #0A0C0B; }
@@ -434,7 +603,38 @@ html:not(.dark) .brand-gold:not(.on-forest *) {
 
 /* page change: the new page rises in */
 @media (prefers-reduced-motion: no-preference) {
-  .page-enter { animation: pageIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) both; }
+  .page-enter { animation: pageIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.22s both; }
+  /* route change: the loader's curtain covers the swap, the gold star glints,
+     then it lifts away and its curved, gold-rimmed edge sweeps up the page */
+  .route-curtain {
+    position: fixed; left: 0; right: 0; top: 0; z-index: 70; pointer-events: none;
+    height: calc(100vh + 18vh); padding-bottom: 18vh;
+    display: grid; place-items: center;
+    background: #0B0D0C;
+    border-radius: 0 0 50% 50% / 0 0 18vh 18vh;
+    box-shadow: 0 1.5px 0 rgba(255, 238, 205, 0.9), 0 8px 30px rgba(242, 208, 150, 0.45), 0 30px 90px rgba(111, 211, 157, 0.22);
+    animation: curtainLift 0.85s cubic-bezier(0.7, 0, 0.2, 1) both;
+  }
+  html:not(.dark) .route-curtain {
+    background: #D2D7CA;
+    box-shadow: 0 1.5px 0 rgba(168, 110, 26, 0.95), 0 8px 30px rgba(236, 178, 90, 0.45), 0 30px 90px rgba(95, 190, 140, 0.25);
+  }
+  .route-curtain-star {
+    width: 52px; height: auto; max-width: none;
+    filter: drop-shadow(0 0 16px rgba(242, 208, 150, 0.8));
+    animation: curtainStar 0.85s ease-out both;
+  }
+  @keyframes curtainLift {
+    0%, 35% { translate: 0 0; }
+    100%    { translate: 0 -125%; }
+  }
+  @keyframes curtainStar {
+    0%   { opacity: 0; scale: 0.5; rotate: -30deg; }
+    25%  { opacity: 1; scale: 1.1; rotate: 0deg; }
+    45%  { opacity: 1; scale: 1; }
+    70%  { opacity: 0; scale: 0.8; }
+    100% { opacity: 0; }
+  }
   @keyframes pageIn {
     from { opacity: 0; translate: 0 14px; filter: blur(4px); }
     to   { opacity: 1; translate: none; filter: none; }
@@ -498,11 +698,230 @@ html:not(.dark) .bx-tagline img { filter: brightness(0.5) saturate(1.4) contrast
 .btn-pop-light:hover { translate: 0 -2px; background-color: #FFFFFF; box-shadow: 0 16px 36px -14px rgba(238, 241, 239, 0.7); }
 
 /* section labels: a short accent rule before the text */
-.label-rule { display: inline-flex; align-items: center; gap: 0.75rem; }
-.label-rule::before { content: ''; width: 1.5rem; height: 1px; background: currentColor; opacity: 0.6; }
-.text-center .label-rule, .items-center > .label-rule { justify-content: center; }
+/* Section labels are set like the tagline: gold script, led by an ellipsis
+   ("…what we engineer"). This is the standard for every section eyebrow. */
+/* Same gold as the tagline image (#F2D096), the same light sweep across the
+   letters and the same soft glow; light mode uses the tagline's bronze. */
+.script-label {
+  font-family: var(--font-script); font-size: 1.25rem; line-height: 1.35;
+  letter-spacing: 0; text-transform: lowercase;
+  width: fit-content; padding-right: 0.45em;
+  background: linear-gradient(105deg, var(--tag-ink) 40%, var(--tag-shine) 50%, var(--tag-ink) 60%) 160% 0 / 260% 100% repeat-x;
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+  filter: drop-shadow(0 0 10px var(--tag-glow));
+  --tag-ink: #7E5A22; --tag-shine: #C9963F; --tag-glow: transparent;
+}
+.script-label::before { content: '…'; }
+.dark .script-label,
+.script-label.text-forest-muted { --tag-ink: #F2D096; --tag-shine: #FFF6E1; --tag-glow: rgba(242, 208, 150, 0.4); }
+@media (prefers-reduced-motion: no-preference) {
+  .script-label { animation: tagSweep 5s ease-in-out 1.4s infinite; }
+}
+/* inside a reveal, the label writes itself in from the left */
+@media (prefers-reduced-motion: no-preference) {
+  .reveal .script-label { clip-path: inset(-20% 100% -20% 0); transition: clip-path 1.1s cubic-bezier(0.65, 0, 0.35, 1) 0.15s; }
+  .reveal.is-in .script-label { clip-path: inset(-20% -12% -20% 0); }
+}
 
 /* form cards sit above the site-wide starfield so nothing drifts over answers */
 .above-stars { position: relative; z-index: 31; }
 
+/* Text links that lead somewhere ("About the company", "Read the note"):
+   the same underline as the hero's rotating word, a 2px green line fading
+   out to the right. It draws in from the left when the link scrolls into
+   view and redraws on hover; on press the link sinks a pixel. */
+.link-line {
+  position: relative; display: inline-flex; align-items: center;
+  padding-bottom: 0.3em;
+  font-size: 0.9375rem; font-weight: 600; line-height: 1.3; color: var(--bx-accent);
+  transition: translate 0.15s ease, color 0.2s ease;
+}
+.on-forest .link-line { color: #6FD39D; }
+.link-line::after {
+  content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 2px; border-radius: 2px;
+  background: linear-gradient(90deg, currentColor, transparent);
+  transform-origin: left;
+}
+.link-line:active { translate: 0 1px; }
+.link-line:focus-visible { outline: 2px solid currentColor; outline-offset: 4px; border-radius: 4px; }
+@media (prefers-reduced-motion: no-preference) {
+  .reveal .link-line::after { transform: scaleX(0); transition: transform 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.35s; }
+  .reveal.is-in .link-line::after { transform: scaleX(1); }
+  .link-line:hover::after, .group:hover .link-line::after { animation: lineRedraw 0.8s cubic-bezier(0.16, 1, 0.3, 1); }
+}
+@keyframes lineRedraw { from { transform: scaleX(0); } to { transform: scaleX(1); } }
 
+/* Progress timeline (About › Where we are): a rail from the first marker to
+   the last; a green fill grows down it with scroll (--fill), and each step
+   brightens and settles in as the fill reaches it (.is-on). */
+.track::before, .track::after {
+  content: ''; position: absolute; left: 1.25rem; top: 1.25rem; width: 2px; translate: -50% 0;
+  height: var(--rail, 0px); border-radius: 2px;
+}
+.track::before { background: var(--bx-line); }
+.track::after {
+  background: linear-gradient(to bottom, var(--bx-accent), #6FD39D);
+  box-shadow: 0 0 12px rgba(111, 211, 157, 0.55);
+  transform-origin: top; scale: 1 var(--fill, 0);
+}
+.track-dot { transition: scale 0.5s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.5s ease, opacity 0.4s ease; }
+.track-body { transition: opacity 0.6s ease, translate 0.6s cubic-bezier(0.16, 1, 0.3, 1), filter 0.6s ease; }
+@media (prefers-reduced-motion: no-preference) {
+  .track-step:not(.is-on) .track-dot { scale: 0.8; opacity: 0.5; }
+  .track-step:not(.is-on) .track-body { opacity: 0.3; translate: 0 10px; filter: blur(1px); }
+  .track-step.is-on .track-dot { box-shadow: 0 0 0 6px color-mix(in oklab, var(--bx-accent) 14%, transparent); }
+}
+
+/* mobile menu links: no dividers; the current page carries a glinting gold
+   star, the others show a faint one that brightens on hover */
+.menu-link .menu-star { opacity: 0.25; transition: opacity 0.3s ease, scale 0.3s ease; }
+.menu-link:hover .menu-star { opacity: 0.8; }
+.menu-link.is-active .menu-star { opacity: 1; scale: 1.15; }
+.menu-link:not(.is-active) .menu-star { animation: none; }
+
+/* the wordmark inside a script label ("…inside BLOXio") needs a clear gap
+   after the handwriting's last letter */
+.script-label .brand { margin-left: 0.4em; }
+
+/* Engineering › Ways to engage: a soft green light rises from the bottom
+   of a card on hover */
+.engage-card::after {
+  content: ''; position: absolute; inset: auto 0 0 0; height: 60%; pointer-events: none;
+  background: radial-gradient(ellipse 70% 100% at 50% 100%, color-mix(in oklab, var(--bx-accent) 16%, transparent), transparent 70%);
+  opacity: 0; transition: opacity 0.4s ease;
+}
+.engage-card:hover::after { opacity: 1; }
+
+/* Engineering › How we work: a path of BLOXio stars. The rail runs down the
+   left on phones and across the top on desktop; a green line fills it with
+   scroll (--e) and each step switches on as the line passes it (--on). */
+.howpath::before, .howpath::after {
+  content: ''; position: absolute; border-radius: 2px;
+  left: 0.9rem; top: 0.9rem; bottom: 0.9rem; width: 2px; translate: -50% 0;
+}
+.howpath::before { background: var(--color-forest-line, #262D2A); background: #262D2A; }
+.howpath::after {
+  background: linear-gradient(to bottom, #6FD39D, #E5C08A);
+  box-shadow: 0 0 14px rgba(111, 211, 157, 0.55);
+  transform-origin: top; scale: 1 var(--e, 0);
+}
+@media (min-width: 1024px) {
+  .howpath::before, .howpath::after { left: 0.9rem; right: 0.9rem; top: 0.9rem; bottom: auto; width: auto; height: 2px; translate: 0 -50%; }
+  .howpath::after { background: linear-gradient(to right, #6FD39D, #E5C08A); transform-origin: left; scale: var(--e, 0) 1; }
+}
+.howpath-step { --on: clamp(0, (var(--e, 0) * 1.08 - var(--k)) * 8, 1); }
+.howpath-node {
+  position: absolute; left: 0; top: 0; z-index: 1;
+  width: 1.8rem; height: 1.8rem; display: grid; place-items: center;
+  border-radius: 9999px; background: #0E1211;
+}
+.howpath-node img {
+  width: 1.5rem; height: 1.5rem; max-width: none;
+  opacity: calc(0.3 + var(--on) * 0.7);
+  scale: calc(0.7 + var(--on) * 0.35);
+  filter: grayscale(calc(1 - var(--on))) drop-shadow(0 0 calc(var(--on) * 10px) rgba(242, 208, 150, 0.85));
+  transition: scale 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.howpath-step > h3, .howpath-step > p {
+  opacity: calc(0.35 + var(--on) * 0.65);
+  translate: 0 calc((1 - var(--on)) * 8px);
+}
+
+/* Page header, cinematic variant (About): taller, the photo drifts in slowly
+   and a deeper wash from the left keeps the copy readable */
+.ph-cinematic { min-height: min(88svh, 760px); display: flex; flex-direction: column; justify-content: flex-end; }
+.ph-cinematic > .relative { width: 100%; }
+@media (prefers-reduced-motion: no-preference) {
+  .ph-cinematic .ph-photo img { animation: phDrift 16s cubic-bezier(0.16, 1, 0.3, 1) both; }
+}
+@keyframes phDrift { from { scale: 1.14; translate: 2% 0; } to { scale: 1.02; translate: 0 0; } }
+.ph-cinematic .fact-card { transition: border-color 0.3s ease, background-color 0.3s ease; }
+.ph-cinematic .fact-card:hover { border-color: rgba(111, 211, 157, 0.4); background-color: rgba(255, 255, 255, 0.07); }
+
+/* Home › founders: initials in a ring */
+.founder-mono {
+  position: relative; flex: none; width: 4.5rem; height: 4.5rem; display: grid; place-items: center;
+  border-radius: 9999px; border: 1px solid rgba(111, 211, 157, 0.35);
+  background: radial-gradient(circle at 50% 40%, rgba(111, 211, 157, 0.14), transparent 70%);
+}
+
+/* founder cards follow the theme: a light surface card in light mode, a
+   dark field card in dark mode */
+.founder-card { background: var(--bx-surface); border-color: var(--bx-line); color: var(--bx-ink); }
+.founder-card:hover { border-color: color-mix(in oklab, var(--bx-accent) 55%, var(--bx-line)); box-shadow: 0 24px 50px -28px color-mix(in oklab, var(--bx-accent) 60%, transparent); }
+.founder-card .founder-tag { border-color: var(--bx-line); color: var(--bx-ink); }
+.founder-card .founder-meta { border-color: var(--bx-line); color: var(--bx-muted); }
+.founder-card .founder-initials { color: var(--bx-accent); }
+.founder-card .founder-mono { border-color: color-mix(in oklab, var(--bx-accent) 40%, transparent); background: radial-gradient(circle at 50% 40%, color-mix(in oklab, var(--bx-accent) 14%, transparent), transparent 70%); }
+.founder-glow { display: none; }
+html.dark .founder-card { background: #0E1211; border-color: #262D2A; color: #EEF1EF; }
+html.dark .founder-card .founder-tag { border-color: #262D2A; color: #EEF1EF; }
+html.dark .founder-card .founder-meta { border-color: #262D2A; color: #A3ABA6; }
+html.dark .founder-card .founder-initials { color: #6FD39D; }
+html.dark .founder-glow { display: block; background: radial-gradient(ellipse 55% 45% at 85% 0%, rgba(95, 203, 147, 0.07), transparent 70%); }
+@media (max-width: 639px) { .founder-mono { width: 3.75rem; height: 3.75rem; } }
+
+/* About › founders use the same monogram as Home */
+.founder-card-mono { border-color: color-mix(in oklab, var(--bx-accent) 40%, transparent); background: radial-gradient(circle at 50% 40%, color-mix(in oklab, var(--bx-accent) 14%, transparent), transparent 70%); }
+
+.founder-card .founder-badge { border-color: var(--bx-line); color: var(--bx-accent); }
+html.dark .founder-card .founder-badge { border-color: #262D2A; color: #6FD39D; }
+html.dark .founder-card .founder-bio { color: #A3ABA6; }
+
+/* About › Company details: bento cards with an icon tile and a mono key */
+.detail-card { padding: 1.25rem; }
+@media (min-width: 768px) { .detail-card { padding: 1.5rem; } }
+.detail-key {
+  display: flex; align-items: center; gap: 0.6rem;
+  font-family: var(--font-mono); font-size: 0.6875rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--bx-muted);
+}
+.detail-icon {
+  display: grid; place-items: center; width: 1.9rem; height: 1.9rem; border-radius: 0.6rem;
+  color: var(--bx-accent); background: color-mix(in oklab, var(--bx-accent) 12%, transparent);
+}
+
+/* Theme switch: the new theme is revealed as a growing circle (see
+   ThemeContext); the old page stays put underneath, with no cross-fade */
+::view-transition-old(root),
+::view-transition-new(root) { animation: none; mix-blend-mode: normal; }
+::view-transition-new(root) { z-index: 2; }
+::view-transition-old(root) { z-index: 1; }
+
+/* FAQ cards: the open card gets a green edge and tinted toggle; the answer
+   slides open where the browser can animate to auto height */
+:root { interpolate-size: allow-keywords; }
+.faq-item { transition: border-color 0.3s ease, box-shadow 0.3s ease; }
+.faq-item:hover { border-color: color-mix(in oklab, var(--bx-accent) 40%, var(--bx-line)); }
+.faq-item[open] { border-color: color-mix(in oklab, var(--bx-accent) 60%, var(--bx-line)); box-shadow: 0 18px 40px -30px color-mix(in oklab, var(--bx-accent) 60%, transparent); }
+.faq-item[open] .faq-toggle { background: var(--bx-accent); border-color: var(--bx-accent); color: var(--bx-on-accent, #fff); }
+.faq-item .faq-star { animation: none; opacity: 0.45; transition: opacity 0.3s ease, rotate 0.5s cubic-bezier(0.34, 1.56, 0.64, 1), scale 0.5s ease; }
+.faq-item[open] .faq-star { opacity: 1; rotate: 45deg; scale: 1.2; filter: drop-shadow(0 0 6px rgba(240, 200, 120, 0.8)); }
+@media (prefers-reduced-motion: no-preference) {
+  .faq-item::details-content { block-size: 0; overflow: hidden; transition: block-size 0.4s cubic-bezier(0.16, 1, 0.3, 1), content-visibility 0.4s allow-discrete; }
+  .faq-item[open]::details-content { block-size: auto; }
+}
+
+/* ── Tiny screens (watches, folded phones ≤ 300px) ─────────────────────
+   Everything is rem-based, so a smaller root size scales the whole site
+   down evenly; tighter gutters, single-column grids and wrapping lines keep
+   every box inside the screen. */
+@media (max-width: 300px) {
+  html { font-size: 13.5px; }
+  .px-5, .px-4 { padding-left: 0.85rem; padding-right: 0.85rem; }
+  .p-7, .p-6 { padding: 1rem; }
+  .hero-rotline { flex-wrap: wrap; white-space: normal; font-size: 1.15rem; }
+  .hero-tiles, .grid-cols-2:not(.howpath) { grid-template-columns: minmax(0, 1fr); }
+  .founder-head { flex-direction: column; align-items: flex-start; }
+  .founder-mono { width: 3.25rem; height: 3.25rem; }
+  nav img[alt="BLOXio"] { width: 78px; }
+  nav button.h-11, nav .burger { width: 2.4rem; height: 2.4rem; }
+  .last\:col-span-2:last-child { grid-column: auto; }
+  .hero-title { font-size: calc((100vw - 1.7rem) / 8.3); }
+  body .fixed.bottom-6.right-5 { display: none; }
+}
+
+/* grid and flex children may shrink below their longest word, and long
+   words wrap instead of pushing a card past the screen edge */
+.grid > *, .flex-1 { min-width: 0; }
+body { overflow-wrap: break-word; }
+@media (max-width: 300px) { main, footer { overflow-wrap: anywhere; } }

@@ -1,7 +1,56 @@
 {
   "buildCommand": "npm run build",
   "outputDirectory": "dist",
+  "redirects": [
+    {
+      "source": "/products/agrosense360",
+      "has": [
+        {
+          "type": "host",
+          "value": "bloxio.tech"
+        }
+      ],
+      "destination": "https://agrosense360.bloxio.tech/",
+      "permanent": true
+    },
+    {
+      "source": "/products/agrosense360/survey",
+      "has": [
+        {
+          "type": "host",
+          "value": "bloxio.tech"
+        }
+      ],
+      "destination": "https://agrosense360.bloxio.tech/survey",
+      "permanent": true
+    },
+    {
+      "source": "/products/agrosense360",
+      "has": [
+        {
+          "type": "host",
+          "value": "www.bloxio.tech"
+        }
+      ],
+      "destination": "https://agrosense360.bloxio.tech/",
+      "permanent": true
+    },
+    {
+      "source": "/products/agrosense360/survey",
+      "has": [
+        {
+          "type": "host",
+          "value": "www.bloxio.tech"
+        }
+      ],
+      "destination": "https://agrosense360.bloxio.tech/survey",
+      "permanent": true
+    }
+  ],
   "rewrites": [
-    { "source": "/(.*)", "destination": "/index.html" }
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
   ]
 }

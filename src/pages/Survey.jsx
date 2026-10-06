@@ -15,7 +15,7 @@ export default function Survey() {
         image={IMG.field}
         label="AgroSense360 · Pilot survey"
         title="Help shape AgroSense360"
-        lead="Seven short steps, about four minutes. Your answers decide which problems we solve first, and put you first in line for the pilot."
+        lead="Seven short steps, about four minutes. Your answers decide which problems we solve first, and put you on the list for the pilot."
       />
       <section className="bg-canvas">
         <div className="mx-auto max-w-3xl px-5 py-12 sm:px-6 md:py-16">

@@ -1,6 +1,5 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight } from 'lucide-react';
 import {
   PageMeta, PageHeader, Button, StatusBadge, Section, SectionHeading, CTABand, Reveal, CountUp, TechLabel, Photo, BrandText,
 } from '../components/ui';
@@ -23,7 +22,7 @@ export default function Products() {
         image={IMG.pcb}
         label="Products"
         title="What we are building"
-        lead="One working prototype. Four product lines in research."
+        lead="AgroSense360 is a working prototype. Four more product lines are concepts in research. None are for sale yet."
       />
 
       {/* Flagship */}
@@ -36,12 +35,12 @@ export default function Products() {
                 <TechLabel>Flagship · 01</TechLabel>
                 <StatusBadge status={flagship.status} />
               </div>
-              <h2 className="font-display mt-6 uppercase leading-none text-ink transition-colors group-hover:text-accent" style={{ fontSize: 'clamp(2rem, 4vw, 3.2rem)' }}>
+              <h2 className="font-display mt-4 uppercase leading-none text-ink transition-colors group-hover:text-accent" style={{ fontSize: 'clamp(1.05rem, max(4vw, min(8.5vw, 2rem)), 3.2rem)' }}>
                 {flagship.name}
               </h2>
               <p className="mt-2 text-label text-muted">{flagship.category}</p>
-              <p className="mt-5 text-lg leading-relaxed text-muted">{flagship.blurb}</p>
-              <dl className="mt-8 grid grid-cols-3 gap-4 border-t border-line pt-6">
+              <p className="mt-4 text-lg leading-relaxed text-muted">{flagship.blurb}</p>
+              <dl className="mt-6 grid grid-cols-2 gap-4 border-t border-line pt-4 sm:grid-cols-3">
                 {headline.map((p) => (
                   <div key={p.label}>
                     <dt className="sr-only">{p.label}</dt>
@@ -52,10 +51,9 @@ export default function Products() {
                   </div>
                 ))}
               </dl>
-              <span className="mt-auto inline-flex items-center gap-2 pt-8 font-semibold text-accent">
-                How AgroSense360 works
-                <ArrowRight size={18} className="transition-transform group-hover:translate-x-1" />
-              </span>
+              <div className="mt-auto pt-8">
+                <span className="link-line">How AgroSense360 works</span>
+              </div>
             </div>
           </Link>
         </Reveal>
@@ -70,29 +68,31 @@ export default function Products() {
         />
         <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {pipeline.map((p, i) => (
-            <Reveal as="li" key={p.slug} i={i % 3} id={p.slug} className={`${card(true)} group flex scroll-mt-28 flex-col overflow-hidden`}>
+            <Reveal as="li" key={p.slug} i={i % 3} id={p.slug} className="scroll-mt-28">
+              <Link to="/contact?topic=other" aria-label={`${p.name}: tell us your use case`} className={`${card(true)} group flex h-full flex-col overflow-hidden`}>
               <Photo id={p.img} zoom className="aspect-[16/10]" sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw" />
               <div className="flex flex-1 flex-col p-7">
               <div className="flex items-center justify-between">
                 <span className="text-label text-muted">{String(i + 2).padStart(2, '0')}</span>
                 <StatusBadge status={p.status} />
               </div>
-              <h3 className="mt-10 text-xl font-bold tracking-tight text-ink"><BrandText>{p.name}</BrandText></h3>
+              <h3 className="mt-6 text-xl font-bold tracking-tight text-ink"><BrandText>{p.name}</BrandText></h3>
               <p className="mt-1 text-label text-muted">{p.category}</p>
               <p className="mt-4 leading-relaxed text-muted">{p.blurb}</p>
               </div>
+              </Link>
             </Reveal>
           ))}
         </ul>
       </Section>
 
       <CTABand
-        label="Demand shapes the roadmap"
+        label="Tell us what to build"
         title="Want one of these to exist?"
         body="Tell us what you would use it for. Real demand decides what we build next."
       >
-        <Button to="/products/agrosense360/survey" variant="light" arrow>Take the survey</Button>
-        <Button to="/contact?topic=other" variant="ghost">Tell us your use case</Button>
+        <Button to="/products/agrosense360/survey" variant="text">Take the survey</Button>
+        <Button to="/contact?topic=other" variant="text">Tell us your use case</Button>
       </CTABand>
     </>
   );

@@ -1,26 +1,26 @@
 import React from 'react';
 import { Link, Navigate, useParams } from 'react-router-dom';
-import { ArrowLeft, ArrowRight } from 'lucide-react';
 import {
-  PageMeta, Reveal, Button, BrandText,
+  PageMeta, Reveal, Button, BrandText, StarBullet,
 } from '../components/ui';
 import { card, fmtDate } from '../lib/ui-utils';
 import { ARTICLES, COMPANY } from '../content/site';
 
 function Block({ b }) {
-  if (b.type === 'h') return <h2 className="mt-12 text-2xl font-bold tracking-tight text-ink"><BrandText>{b.text}</BrandText></h2>;
+  if (b.type === 'h') return <h2 className="mt-10 text-2xl font-bold tracking-tight text-ink"><BrandText>{b.text}</BrandText></h2>;
   if (b.type === 'list') {
     return (
-      <ul className="mt-6 space-y-3 border-l border-line pl-6">
-        {b.items.map((it) => (
-          <li key={it} className="relative text-lg leading-relaxed text-ink before:absolute before:-left-[27px] before:top-3 before:h-1.5 before:w-1.5 before:bg-accent">
-            <BrandText>{it}</BrandText>
+      <ul className="mt-5 space-y-3">
+        {b.items.map((it, i) => (
+          <li key={it} className="flex gap-3 text-lg leading-relaxed text-ink">
+            <StarBullet i={i} className="mt-[0.45em] h-3.5 w-3.5" />
+            <span><BrandText>{it}</BrandText></span>
           </li>
         ))}
       </ul>
     );
   }
-  return <p className="mt-6 text-lg leading-relaxed text-muted"><BrandText>{b.text}</BrandText></p>;
+  return <p className="mt-5 text-lg leading-relaxed text-muted"><BrandText>{b.text}</BrandText></p>;
 }
 
 export default function JournalArticle() {
@@ -47,17 +47,16 @@ export default function JournalArticle() {
       <article className="bg-canvas">
         <header className="border-b border-line">
           <div className="mx-auto max-w-3xl px-5 pt-32 pb-14 sm:px-6 md:pt-40">
-            <Link to="/journal" className="group inline-flex items-center gap-2 text-sm font-semibold text-accent">
-              <ArrowLeft size={15} className="transition-transform group-hover:-translate-x-0.5" /> Journal
+            <Link to="/journal" className="link-line"> Journal
             </Link>
-            <p className="rise-in mt-10 text-label text-muted">
+            <p className="rise-in mt-8 text-label text-muted">
               {a.category} · <time dateTime={a.date}>{fmtDate(a.date)}</time>
             </p>
-            <h1 className="rise-in font-display mt-5 uppercase leading-[0.98] text-ink text-balance" style={{ fontSize: 'clamp(2rem, 5vw, 3.5rem)', '--i': 1 }}>
+            <h1 className="rise-in font-display mt-4 uppercase leading-[0.98] text-ink text-balance" style={{ fontSize: 'clamp(1.05rem, max(5vw, min(8.5vw, 2rem)), 3.5rem)', '--i': 1 }}>
               {a.title}
             </h1>
-            <p className="rise-in mt-6 text-xl leading-relaxed text-muted" style={{ '--i': 2 }}>{a.summary}</p>
-            <p className="rise-in mt-8 text-label text-ink" style={{ '--i': 3 }}
+            <p className="rise-in mt-4 text-xl leading-relaxed text-muted" style={{ '--i': 2 }}>{a.summary}</p>
+            <p className="rise-in mt-6 text-label text-ink" style={{ '--i': 3 }}
               >By <BrandText>{a.author}</BrandText></p>
           </div>
         </header>
@@ -73,7 +72,6 @@ export default function JournalArticle() {
                   <Reveal key={r.to}>
                     <Link to={r.to} className={`${card(true)} group flex items-center justify-between p-5 font-semibold text-ink`}>
                       {r.label}
-                      <ArrowRight size={18} className="text-muted transition-all group-hover:translate-x-1 group-hover:text-accent" />
                     </Link>
                   </Reveal>
                 ))}
@@ -89,8 +87,8 @@ export default function JournalArticle() {
             </aside>
           )}
 
-          <div className="mt-16">
-            <Button to="/contact" arrow>Talk to the engineers</Button>
+          <div className="mt-10">
+            <Button to="/contact" variant="text">Talk to the engineers</Button>
           </div>
         </div>
       </article>

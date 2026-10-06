@@ -28,7 +28,7 @@ const SECTIONS = [
   {
     h: 'Third-party services',
     p: [
-      'Pages load fonts from Google Fonts and cdnfonts, and photos from Unsplash. Survey answers are stored with Google. These providers receive technical information such as your IP address when your browser contacts them, under their own privacy policies.',
+      'Pages load fonts from Google Fonts and Fontshare. Photos are served from this site. Survey answers are stored with Google. These providers receive technical information such as your IP address when your browser contacts them, under their own privacy policies.',
     ],
   },
   {

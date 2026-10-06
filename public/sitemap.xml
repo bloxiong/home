@@ -2,7 +2,7 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url><loc>https://bloxio.tech/</loc><lastmod>2026-10-05</lastmod></url>
   <url><loc>https://bloxio.tech/products</loc><lastmod>2026-10-05</lastmod></url>
-  <url><loc>https://bloxio.tech/products/agrosense360</loc><lastmod>2026-10-05</lastmod></url>
+  <url><loc>https://agrosense360.bloxio.tech/</loc><lastmod>2026-10-05</lastmod></url>
   <url><loc>https://bloxio.tech/engineering</loc><lastmod>2026-10-05</lastmod></url>
   <url><loc>https://bloxio.tech/research</loc><lastmod>2026-10-05</lastmod></url>
   <url><loc>https://bloxio.tech/about</loc><lastmod>2026-10-05</lastmod></url>
@@ -10,6 +10,6 @@
   <url><loc>https://bloxio.tech/journal/inside-the-first-agrosense360-prototype</loc><lastmod>2026-10-05</lastmod></url>
   <url><loc>https://bloxio.tech/careers</loc><lastmod>2026-10-05</lastmod></url>
   <url><loc>https://bloxio.tech/contact</loc><lastmod>2026-10-05</lastmod></url>
-  <url><loc>https://bloxio.tech/products/agrosense360/survey</loc><lastmod>2026-10-05</lastmod></url>
+  <url><loc>https://agrosense360.bloxio.tech/survey</loc><lastmod>2026-10-05</lastmod></url>
   <url><loc>https://bloxio.tech/privacy</loc><lastmod>2026-10-05</lastmod></url>
 </urlset>

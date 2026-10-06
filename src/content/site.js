@@ -124,14 +124,14 @@ export const AGROSENSE = {
   crops: ['Cassava', 'Yam', 'Cocoyam', 'Ugu', 'Tomato', 'Pepper', 'Maize'],
   farmer: [
     { title: 'An instruction, not a score', body: 'A diagnosis, what to do about it this week, and how to stop it coming back.' },
-    { title: 'Written for these crops', body: 'Cassava, yam, cocoyam, ugu, tomato, pepper and the rest of the crops in the model, not a generic pest list.' },
+    { title: 'Written for these crops', body: 'Cassava, yam, cocoyam, ugu, tomato and pepper, not a generic pest list.' },
   ],
   manager: [
     { title: 'Live and historic', body: 'Soil readings against the ideal band, trends per sensor, every diagnosis logged with confidence, time and location.' },
     { title: 'Hands on the wheel', body: 'Take control from any browser and drive to the plant in question.' },
   ],
   roadmap: [
-    { when: 'Months 1–6',   title: 'Field-ready units',      body: 'The next generation, developed for real field deployment.' },
+    { when: 'Months 1–6',   title: 'Field-ready units',      body: 'Next-generation units engineered for field durability, mobility and reliability.' },
     { when: 'Months 6–12',  title: 'Field testing',          body: 'Design-partner deployments. Model retrained on Nigerian field imagery.' },
     { when: 'Months 12–18', title: 'Commercial validation',  body: 'Outcomes measured against control blocks. Pricing validated. First paid conversions targeted.' },
   ],
@@ -148,16 +148,16 @@ export const PRODUCTS = [
     status: 'prototype',
     blurb: 'An autonomous field rover that spots crop problems early.',
     href: '/products/agrosense360',
-    img: IMG.farmers,
+    img: IMG.maize,
   },
   {
     slug: 'smart-systems',
-    img: IMG.pcb,
+    img: IMG.lighting,
     name: 'BLOXio Smart Systems',
     code: 'SS',
     category: 'Electronics · Lighting · Industrial',
     status: 'concept',
-    blurb: 'Connected devices and lighting built for local conditions.',
+    blurb: 'Connected devices and lighting designed for unstable power, heat and dust.',
   },
   {
     slug: 'agricultural-drones',
@@ -166,7 +166,7 @@ export const PRODUCTS = [
     code: 'AD',
     category: 'Agriculture · Aerial',
     status: 'concept',
-    blurb: 'Aerial scouting for larger farms.',
+    blurb: 'Aerial scouting to extend ground-rover coverage across larger plots.',
   },
   {
     slug: 'security',
@@ -175,7 +175,7 @@ export const PRODUCTS = [
     code: 'SS',
     category: 'Security',
     status: 'concept',
-    blurb: 'Monitoring that works off-grid.',
+    blurb: 'Camera and sensor monitoring for sites where power and networks drop out.',
   },
   {
     slug: 'energy',
@@ -184,7 +184,7 @@ export const PRODUCTS = [
     code: 'EP',
     category: 'Energy',
     status: 'concept',
-    blurb: 'Power that keeps devices running.',
+    blurb: 'Power systems that keep field devices running when the grid does not.',
   },
 ];
 
@@ -248,7 +248,7 @@ export const CAPABILITIES = [
   {
     id: 'product',
     n: '04',
-    img: IMG.parts,
+    img: IMG.drafting,
     title: 'Product engineering',
     body: 'System architecture, CAD, prototyping, electronics integration, testing and design for manufacturing. One team owns the whole path, so nothing falls between vendors.',
     stack: ['System architecture', 'CAD', 'Prototyping', 'Test tracks', 'DFM'],
@@ -258,19 +258,19 @@ export const CAPABILITIES = [
 
 /* Ways to work with BLOXio (formerly the services list) */
 export const ENGAGEMENTS = [
-  { id: 'rnd',        title: 'R&D and feasibility',    body: 'Turn an idea into a technical design, testing the riskiest assumptions first.' },
-  { id: 'product',    title: 'Prototype to production', body: 'Working prototypes, PCB layout, enclosure and assembly planning, pre-production testing.' },
-  { id: 'iot',        title: 'Connected systems',      body: 'Sensor networks, device-to-cloud connectivity, dashboards and alerts that survive dropped networks.' },
-  { id: 'consulting', title: 'Technical consulting',   body: 'An independent engineering opinion before you commit money: design review, component and vendor selection.' },
-  { id: 'support',    title: 'Support and maintenance', body: 'Monitoring, firmware updates, fault diagnosis and upgrades for systems already in the field.' },
+  { id: 'rnd',        phase: 'explore', title: 'R&D and feasibility',    body: 'Turn an idea into a technical design, testing the riskiest assumptions first.' },
+  { id: 'product',    phase: 'build',   title: 'Prototype to production', body: 'Working prototypes, PCB layout, enclosure and assembly planning, pre-production testing.' },
+  { id: 'iot',        phase: 'connect', title: 'Connected systems',      body: 'Sensor networks, device-to-cloud connectivity, dashboards and alerts that survive dropped networks.' },
+  { id: 'consulting', phase: 'decide',  title: 'Technical consulting',   body: 'An independent engineering opinion before you commit money: design review, component and vendor selection.' },
+  { id: 'support',    phase: 'run',     title: 'Support and maintenance', body: 'Monitoring, firmware updates, fault diagnosis and upgrades for systems already in the field.' },
 ];
 
 export const PROCESS = [
-  { title: 'Discover', body: 'Learn the problem where it happens.' },
-  { title: 'Design', body: 'Hardware and software planned together.' },
-  { title: 'Prototype', body: 'Something you can hold and break.' },
-  { title: 'Validate', body: 'Tested in heat, dust and power cuts.' },
-  { title: 'Deliver', body: 'Shipped, supported, kept running.' },
+  { title: 'Discover', body: 'Learn the problem where it happens: the farm, the site, the factory floor.' },
+  { title: 'Design', body: 'Boards, firmware, cloud and models planned together.' },
+  { title: 'Prototype', body: 'Something you can hold, test and break.' },
+  { title: 'Validate', body: 'Riskiest assumption first, then heat, dust and power cuts.' },
+  { title: 'Deliver', body: 'Shipped, documented, supported, kept running.' },
 ];
 
 /* Research: areas of exploration. None of these are products for sale. */
@@ -322,8 +322,8 @@ export const RESEARCH = [
 
 export const FOUNDERS = [
   {
-    name: 'Anyakie Owen',
-    initials: 'AO',
+    name: 'Owen Anyakie',
+    initials: 'OA',
     role: 'Co-founder & CEO',
     education: 'B.Eng Electrical and Electronics Engineering',
     postnominals: 'GMNSE, P.COREN',
@@ -344,10 +344,10 @@ export const FOUNDERS = [
 
 /* Truthful numbers only. Small is fine. */
 export const NUMBERS = [
-  { value: 1, label: 'product in active development' },
-  { value: 3, label: 'engineering disciplines under one roof' },
-  { value: 6, label: 'research areas being explored' },
-  { value: 2, label: 'engineer founders who build it themselves' },
+  { value: 1, label: 'product in active development', to: '/products' },
+  { value: 3, label: 'engineering disciplines under one roof', to: '/engineering' },
+  { value: 6, label: 'research areas being explored', to: '/research' },
+  { value: 2, label: 'engineer founders who build it themselves', to: '/about#founders' },
 ];
 
 export const MILESTONES = [
@@ -371,7 +371,7 @@ export const ARTICLES = [
     summary:
       'What the first integrated rover does, what it measured on the test track, and what it has not proven yet.',
     body: [
-      { type: 'p', text: 'The first integrated AgroSense360 prototype was developed and tested during the founders’ engineering work at FUTO. All rights in the system are held by BLOXio. This is what it does, and where it stands.' },
+      { type: 'p', text: 'The first integrated AgroSense360 prototype was developed and tested by the founders. All rights in the system are held by BLOXio. This is what it does, and where it stands.' },
       { type: 'h', text: 'One loop: drive, see, sense, say' },
       { type: 'p', text: 'The rover moves through the rows on its own or under control from a phone. It photographs foliage up close and a model names one of 38 disease and healthy states across 9 crops. It reads nitrogen, phosphorus and potassium, plus moisture, light and location. The diagnosis, a treatment and a prevention list reach the farmer’s phone in seconds.' },
       { type: 'p', text: 'Drones cannot touch the soil, and a phone app only sees the leaf you photographed. The point of a ground rover is to stand in the row and do both.' },
@@ -381,8 +381,11 @@ export const ARTICLES = [
         '160 diagnoses through the live pipeline.',
         '13.6 seconds from crop photographed to alert on the phone.',
         '95% obstacle avoidance over 20 test-track trials.',
+        '1.8 seconds from a sensor reading to the dashboard refreshing.',
+        '450 ms from a manual drive command to the rover responding.',
       ] },
       { type: 'p', text: 'These are prototype results, measured on a test track and a held-out image set. They are not commercial field results.' },
+      { type: 'p', text: 'The 96.5% was measured on images drawn from the same distribution as the training set. How well it transfers to Nigerian field imagery is still open, which is why field testing includes retraining on local images.' },
       { type: 'h', text: 'What it has not proven' },
       { type: 'p', text: 'There is no paying customer yet, and no field results from a commercial farm. The next generation is being developed for real field deployment, and the plan is to run it with design-partner farms and measure outcomes against control blocks.' },
     ],
@@ -413,7 +416,7 @@ export const FAQS = [
   },
   {
     q: 'Who runs BLOXio?',
-    a: 'Co-founders Anyakie Owen (CEO) and Austin-Chris Iwu (CTO), both electrical and electronics engineers (B.Eng) and graduate members of the Nigerian Society of Engineers.',
+    a: 'Co-founders Owen Anyakie (CEO) and Austin-Chris Iwu (CTO), both electrical and electronics engineers (B.Eng) and graduate members of the Nigerian Society of Engineers.',
   },
   {
     q: 'Is BLOXio a registered company?',
@@ -428,3 +431,20 @@ export const FAQS = [
     a: 'No roles are listed right now, but we want to hear from engineers who would like to build hardware made in Nigeria. See the careers page.',
   },
 ];
+
+/* Content published from the admin portal (fetched at build time by
+   scripts/fetch-content.mjs) replaces the defaults above, section by
+   section. The exports stay the same objects, so every page picks it up. */
+import overrides from './overrides.json' with { type: 'json' };
+
+const SECTIONS = { COMPANY, HERO_WORDS, AGROSENSE, PRODUCTS, DISCIPLINES, CAPABILITIES, ENGAGEMENTS, PROCESS,
+  RESEARCH, FOUNDERS, NUMBERS, MILESTONES, ARTICLES, FAQS };
+for (const [key, value] of Object.entries(overrides)) {
+  const target = SECTIONS[key];
+  if (!target || value == null) continue;
+  if (Array.isArray(target) && Array.isArray(value)) target.splice(0, target.length, ...value);
+  else if (!Array.isArray(target) && typeof value === 'object') {
+    Object.keys(target).forEach((k) => delete target[k]);
+    Object.assign(target, value);
+  }
+}
