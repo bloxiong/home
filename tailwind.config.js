@@ -8,16 +8,9 @@ module.exports = {
     theme: {
       extend: {
         fontFamily: {
-          display: ['Equinox', 'Syncopate', 'Orbitron', 'Inter', 'system-ui', 'sans-serif'],
-          sans:    ['Inter', 'system-ui', '-apple-system', 'Segoe UI', 'Roboto', 'sans-serif'],
-          mono:    ['Orbitron', 'ui-monospace', 'monospace'],
-        },
-        colors: {
-          gold: {
-            light: '#c99655',
-            DEFAULT: '#bd8a4c',
-            dark: '#a8743c',
-          },
+          display: ['Archivo', 'Helvetica Neue', 'Arial', 'sans-serif'],
+          sans:    ['Archivo', 'Helvetica Neue', 'Arial', 'sans-serif'],
+          mono:    ['IBM Plex Mono', 'ui-monospace', 'SFMono-Regular', 'Menlo', 'monospace'],
         },
       },
     },

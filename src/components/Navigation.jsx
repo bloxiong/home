@@ -1,49 +1,94 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link, NavLink, useLocation } from 'react-router-dom';
-import { Menu, X, Sun, Moon, ArrowRight } from 'lucide-react';
+import { Sun, Moon, ArrowRight } from 'lucide-react';
 import { useTheme } from '../contexts/ThemeContext';
+import { COMPANY } from '../content/site';
 
 const NAV_LINKS = [
-  { label: 'Products', to: '/products' },
-  { label: 'Services', to: '/services' },
-  { label: 'About',    to: '/about' },
-  { label: 'Careers',  to: '/careers' },
+  { label: 'Products',    to: '/products' },
+  { label: 'Engineering', to: '/engineering' },
+  { label: 'Research',    to: '/research' },
+  { label: 'Company',     to: '/about' },
+  { label: 'Journal',     to: '/journal' },
+  { label: 'Contact',     to: '/contact' },
 ];
+
 
 function ThemeToggle({ overDark }) {
   const { theme, toggleTheme } = useTheme();
   const isDark = theme === 'dark';
   return (
     <button
+      type="button"
       onClick={toggleTheme}
       aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
       title={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
-      className={`relative w-10 h-10 flex items-center justify-center border rounded-xl transition-colors duration-200 overflow-hidden ${
-        overDark
-          ? 'border-amber-500/30 text-amber-400 hover:bg-amber-500/10'
-          : 'border-line text-accent hover:bg-accent/10'
+      className={`relative flex h-11 w-11 items-center justify-center overflow-hidden rounded-full border transition-colors duration-200 ${
+        overDark ? 'border-forest-line text-on-forest hover:border-signal' : 'border-line text-ink hover:border-accent'
       }`}
     >
-      <Moon size={17} className={`absolute transition-all duration-500 ${isDark ? 'opacity-0 -rotate-90 scale-50' : 'opacity-100 rotate-0 scale-100'}`} />
-      <Sun  size={17} className={`absolute transition-all duration-500 ${isDark ? 'opacity-100 rotate-0 scale-100' : 'opacity-0 rotate-90 scale-50'}`} />
+      <Moon size={17} className={`absolute transition-all duration-500 ${isDark ? 'scale-50 -rotate-90 opacity-0' : 'scale-100 rotate-0 opacity-100'}`} />
+      <Sun  size={17} className={`absolute transition-all duration-500 ${isDark ? 'scale-100 rotate-0 opacity-100' : 'scale-50 rotate-90 opacity-0'}`} />
     </button>
   );
 }
 
 export default function Navigation() {
   const [isOpen, setIsOpen]     = useState(false);
+  const [origin, setOrigin]     = useState({ x: '90%', y: '34px' });
+  const buttonRef = useRef(null);
+  const firstLinkRef = useRef(null);
   const [scrolled, setScrolled] = useState(false);
   const location = useLocation();
 
-  useEffect(() => {
-    const handler = () => setScrolled(window.scrollY > 40);
-    handler();
-    window.addEventListener('scroll', handler, { passive: true });
-    return () => window.removeEventListener('scroll', handler);
-  }, []);
+  const navRef = useRef(null);
+  const [onDark, setOnDark] = useState(true);
 
-  // Close the mobile menu on navigation (adjust state during render,
-  // not in an effect).
+  // The bar is transparent, so its icons and links follow whatever is
+  // behind it: read the background colour just under the bar and switch
+  // to light ink over dark sections, dark ink over light ones.
+  useEffect(() => {
+    let raf = 0;
+    const sample = () => {
+      raf = 0;
+      setScrolled(window.scrollY > 24);
+      const nav = navRef.current;
+      const y = (nav?.offsetHeight ?? 68) / 2;
+      const stack = document.elementsFromPoint(window.innerWidth / 2, y);
+      for (const el of stack) {
+        if (nav?.contains(el) || el.tagName === 'CANVAS') continue;
+        let node = el;
+        while (node && node !== document.documentElement) {
+          const bg = getComputedStyle(node).backgroundColor;
+          const m = bg.match(/rgba?\(([^)]+)\)/);
+          if (m) {
+            const [r, g, b, a = 1] = m[1].split(',').map(Number);
+            if (a > 0.5) {
+              const lum = (0.2126 * r + 0.7152 * g + 0.0722 * b) / 255;
+              setOnDark(lum < 0.5);
+              return;
+            }
+          }
+          node = node.parentElement;
+        }
+      }
+      setOnDark(document.documentElement.classList.contains('dark'));
+    };
+    const onScroll = () => { if (!raf) raf = requestAnimationFrame(sample); };
+    // sample after the new page has painted, and whenever the theme flips
+    const t = setTimeout(sample, 80);
+    const mo = new MutationObserver(onScroll);
+    mo.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll);
+    return () => {
+      clearTimeout(t); cancelAnimationFrame(raf); mo.disconnect();
+      window.removeEventListener('scroll', onScroll);
+      window.removeEventListener('resize', onScroll);
+    };
+  }, [location.pathname]);
+
+  // Close the mobile menu on navigation (adjust state during render).
   const [menuPath, setMenuPath] = useState(location.pathname);
   if (menuPath !== location.pathname) {
     setMenuPath(location.pathname);
@@ -52,117 +97,142 @@ export default function Navigation() {
 
   useEffect(() => {
     document.body.style.overflow = isOpen ? 'hidden' : '';
-    return () => { document.body.style.overflow = ''; };
+    if (!isOpen) return () => { document.body.style.overflow = ''; };
+    const onKey = (e) => { if (e.key === 'Escape') setIsOpen(false); };
+    window.addEventListener('keydown', onKey);
+    const t = setTimeout(() => firstLinkRef.current?.focus({ preventScroll: true }), 350);
+    const button = buttonRef.current;
+    return () => {
+      clearTimeout(t);
+      document.body.style.overflow = '';
+      window.removeEventListener('keydown', onKey);
+      button?.focus({ preventScroll: true });
+    };
   }, [isOpen]);
 
-  // The home page opens on the always-dark cinematic hero.
-  const overDark = location.pathname === '/' && !scrolled && !isOpen;
+  // the panel grows out of the menu button, wherever it sits
+  const toggleMenu = () => {
+    const r = buttonRef.current?.getBoundingClientRect();
+    if (r) setOrigin({ x: `${r.left + r.width / 2}px`, y: `${r.top + r.height / 2}px` });
+    setIsOpen((o) => !o);
+  };
+
+  const overDark = isOpen || onDark;
 
   const linkCls = ({ isActive }) =>
-    `relative px-4 py-2 text-sm font-semibold rounded-lg transition-colors duration-200 ${
+    `relative px-3 py-2 text-sm font-medium transition-colors duration-200 ${
       overDark
-        ? isActive ? 'text-white' : 'text-white/70 hover:text-white'
+        ? isActive ? 'text-on-forest' : 'text-forest-muted hover:text-on-forest'
         : isActive ? 'text-accent' : 'text-muted hover:text-ink'
     }`;
 
   return (
     <>
       <nav
-        {...(overDark ? { 'data-always-dark': '' } : {})}
-        className={`fixed top-0 left-0 right-0 z-50 transition-[background-color,border-color,box-shadow] duration-300 ${
-          scrolled || isOpen
-            ? 'bg-canvas/90 backdrop-blur-xl border-b border-line shadow-[0_8px_24px_-16px_rgba(0,0,0,0.4)]'
-            : 'bg-transparent border-b border-transparent'
-        }`}
+        ref={navRef}
+        className={`fixed inset-x-0 top-0 z-50 transition-[background-color,border-color] duration-300 ${
+          isOpen
+            ? 'border-b border-forest-line bg-forest'
+            : scrolled
+              ? 'border-b border-transparent bg-transparent backdrop-blur-md'
+              : 'border-b border-transparent bg-transparent shadow-none'
+        } ${overDark ? 'on-forest' : ''}`}
         aria-label="Main"
       >
         <div className="mx-auto max-w-7xl px-4 sm:px-6">
-          <div className="flex items-center justify-between h-[68px] gap-6">
-            <Link to="/" className="flex items-center flex-shrink-0" aria-label="Bloxio home">
-              <img
-                src="/bloxio-logo.png"
-                alt="Bloxio"
-                width="400"
-                height="75"
-                className={`w-[92px] h-auto object-contain ${overDark ? '' : 'logo-adapt'}`}
-              />
+          <div className="flex h-[68px] items-center justify-between gap-6">
+            <Link to="/" className="flex shrink-0 items-center" aria-label="BLOXio home">
+              <img src="/bloxio-logo.png" alt="BLOXio" width="400" height="75" className="h-auto w-[96px] object-contain" />
             </Link>
 
-            <div className="hidden lg:flex items-center gap-1">
+            <div className="hidden items-center gap-1 lg:flex">
               {NAV_LINKS.map((l) => (
                 <NavLink key={l.to} to={l.to} className={linkCls}>
                   {({ isActive }) => (
                     <>
                       {l.label}
-                      <span className={`absolute bottom-1 left-4 right-4 h-px bg-amber-500 origin-left transition-transform duration-300 ${isActive ? 'scale-x-100' : 'scale-x-0'}`} />
+                      <span
+                        className={`absolute inset-x-3 -bottom-0.5 h-px origin-left transition-transform duration-300 ${
+                          overDark ? 'bg-signal' : 'bg-accent'
+                        } ${isActive ? 'scale-x-100' : 'scale-x-0'}`}
+                      />
                     </>
                   )}
                 </NavLink>
               ))}
             </div>
 
-            <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
+            <div className="flex shrink-0 items-center gap-2 sm:gap-3">
               <ThemeToggle overDark={overDark} />
               <Link
-                to="/contact"
-                className="hidden lg:inline-flex items-center gap-2 bg-gradient-to-r from-gold-light via-gold to-gold-dark text-black px-5 py-2.5 rounded-full text-sm font-semibold hover:-translate-y-px hover:shadow-[0_8px_20px_-8px_rgba(189,138,76,0.8)] transition-all duration-200"
+                to="/contact?topic=project"
+                className={`group hidden min-h-11 items-center gap-2 rounded-full px-5 text-sm font-semibold transition-all duration-200 lg:inline-flex ${
+                  overDark ? 'bg-on-forest text-forest hover:bg-white' : 'bg-accent text-on-accent hover:brightness-110'
+                }`}
               >
-                Contact us
+                Start a project
+                <ArrowRight size={15} className="transition-transform group-hover:translate-x-0.5" />
               </Link>
               <button
-                onClick={() => setIsOpen(!isOpen)}
-                className={`lg:hidden w-10 h-10 flex items-center justify-center border rounded-xl transition-colors duration-200 ${
-                  overDark ? 'border-amber-500/30 text-amber-400' : 'border-line text-accent'
+                ref={buttonRef}
+                type="button"
+                onClick={toggleMenu}
+                className={`burger flex h-11 w-11 items-center justify-center rounded-full border transition-colors duration-200 lg:hidden ${
+                  overDark ? 'border-forest-line text-on-forest' : 'border-line text-ink'
                 }`}
+                data-open={isOpen}
                 aria-label={isOpen ? 'Close menu' : 'Open menu'}
                 aria-expanded={isOpen}
                 aria-controls="mobile-menu"
               >
-                {isOpen ? <X size={20} /> : <Menu size={20} />}
+                <span className="burger-lines" aria-hidden="true"><i /><i /><i /></span>
               </button>
             </div>
           </div>
         </div>
       </nav>
 
-      {/* Mobile menu */}
+      {/* Mobile menu: grows out of the button as a circle, links follow */}
       <div
         id="mobile-menu"
-        className={`lg:hidden fixed inset-0 z-40 bg-canvas transition-opacity duration-300 ${
-          isOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
-        }`}
+        className="menu-panel on-forest fixed inset-0 z-40 bg-forest text-on-forest lg:hidden"
+        data-open={isOpen}
+        style={{ '--mx': origin.x, '--my': origin.y }}
         aria-hidden={!isOpen}
+        inert={!isOpen}
       >
-        <div className="flex h-full flex-col px-6 pt-28 pb-10">
-          <nav className="flex flex-col border-t border-line" aria-label="Mobile">
-            {[{ label: 'Home', to: '/' }, ...NAV_LINKS, { label: 'Contact', to: '/contact' }].map((l, i) => (
+        <div className="field-glow pointer-events-none absolute inset-0" aria-hidden="true" />
+        <div className="relative flex h-full flex-col overflow-y-auto px-5 pt-24 pb-10 sm:px-6">
+          <nav className="flex flex-col border-t border-forest-line" aria-label="Mobile">
+            {[{ label: 'Home', to: '/' }, ...NAV_LINKS].map((l, i) => (
               <NavLink
                 key={l.to}
+                ref={i === 0 ? firstLinkRef : undefined}
                 to={l.to}
                 end={l.to === '/'}
-                tabIndex={isOpen ? 0 : -1}
                 className={({ isActive }) =>
-                  `flex items-center justify-between border-b border-line py-4 font-display text-2xl font-black transition-colors ${
-                    isActive ? 'text-accent' : 'text-ink'
-                  }`
+                  `menu-item group flex items-center justify-between border-b border-forest-line py-4 ${isActive ? 'text-signal' : 'text-on-forest'}`
                 }
-                style={{ animation: isOpen ? `menuIn 0.4s cubic-bezier(0.16,1,0.3,1) ${i * 0.04}s both` : 'none' }}
+                style={{ '--k': i }}
               >
-                {l.label}
-                <ArrowRight size={20} className="text-muted" />
+                <span className="font-display text-2xl uppercase transition-transform duration-300 group-hover:translate-x-1">{l.label}</span>
+                <ArrowRight size={20} className="text-forest-muted transition-all duration-300 group-hover:translate-x-1 group-hover:text-signal" />
               </NavLink>
             ))}
           </nav>
-          <div className="mt-auto space-y-1 text-sm text-muted">
-            <a href="mailto:contact@bloxio.tech" className="block text-accent font-semibold" tabIndex={isOpen ? 0 : -1}>contact@bloxio.tech</a>
+          <Link
+            to="/contact?topic=project"
+            className="menu-item mt-8 inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-on-forest px-6 font-semibold text-forest"
+            style={{ '--k': NAV_LINKS.length + 1 }}
+          >
+            Start a project <ArrowRight size={16} />
+          </Link>
+          <div className="menu-item mt-auto space-y-1 pt-10 text-sm text-forest-muted" style={{ '--k': NAV_LINKS.length + 2 }}>
+            <a href={`mailto:${COMPANY.email}`} className="block font-semibold text-signal">{COMPANY.email}</a>
             <p>Festac, Lagos, Nigeria</p>
           </div>
         </div>
       </div>
-
-      <style>{`
-        @keyframes menuIn { from { opacity:0; transform:translateY(14px); } to { opacity:1; transform:none; } }
-      `}</style>
     </>
   );
 }

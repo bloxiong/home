@@ -1,5 +1,6 @@
 import React from 'react';
 import { Check } from 'lucide-react';
+import { BrandText } from './ui';
 
 /* Honest progress track. Steps are `done`, `now` (in progress) or upcoming. */
 export default function Timeline({ steps }) {
@@ -21,7 +22,7 @@ export default function Timeline({ steps }) {
             <span
               className={`relative z-10 flex h-10 w-10 items-center justify-center rounded-full border text-sm font-bold ${
                 state === 'done'
-                  ? 'border-accent bg-accent text-canvas'
+                  ? 'border-accent bg-accent text-on-accent'
                   : state === 'now'
                     ? 'border-accent bg-canvas text-accent'
                     : 'border-line bg-canvas text-muted'
@@ -42,7 +43,7 @@ export default function Timeline({ steps }) {
                   <span className="rounded-full border border-line px-2.5 py-0.5 text-xs font-semibold text-muted">Next</span>
                 )}
               </div>
-              <p className="mt-2 max-w-[56ch] text-sm leading-relaxed text-muted md:text-base">{s.body}</p>
+              <p className="mt-2 max-w-[56ch] text-sm leading-relaxed text-muted md:text-base"><BrandText>{s.body}</BrandText></p>
             </div>
           </li>
         );

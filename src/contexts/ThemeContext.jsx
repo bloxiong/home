@@ -23,7 +23,7 @@ export function ThemeProvider({ children }) {
     const root = document.documentElement;
     root.classList.toggle('dark', theme === 'dark');
     root.style.colorScheme = theme;
-    try { window.localStorage.setItem(STORAGE_KEY, theme); } catch {}
+    try { window.localStorage.setItem(STORAGE_KEY, theme); } catch { /* storage blocked: theme still applies */ }
   }, [theme]);
 
   const setTheme = (next) => {
@@ -38,4 +38,5 @@ export function ThemeProvider({ children }) {
   );
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const useTheme = () => useContext(ThemeContext);

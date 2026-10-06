@@ -1,6 +1,8 @@
 import React from 'react';
-import { PageMeta, PageHeader, Button, RevealImage, Section, SectionHeading, CTABand } from '../components/ui';
-import { IMG, COMPANY } from '../content/site';
+import {
+  PageMeta, PageHeader, Button, Section, SectionHeading, CTABand, Reveal,
+} from '../components/ui';
+import { COMPANY, IMG } from '../content/site';
 
 const AREAS = [
   { title: 'Embedded systems and firmware', body: 'Microcontrollers, sensors, low-power design and the code that runs on them.' },
@@ -24,27 +26,30 @@ export default function Careers() {
     <>
       <PageMeta
         title="Careers"
-        description="Build hardware made in Nigeria. Bloxio wants to hear from engineers in embedded systems, electronics, machine learning, software and agronomy."
+        path="/careers"
+        description="Build hardware made in Nigeria. BLOXio wants to hear from engineers in embedded systems, electronics, machine learning, software and agronomy."
       />
 
       <PageHeader
+        image={IMG.parts}
+        label="Careers"
         title="Build hardware made in Nigeria"
-        lead="We are a small, founder-led team. There are no open roles listed right now, but we always want to meet people who would like to build products like AgroSense360 with us."
+        lead="A small, founder-led team. No open roles yet, but we always want to meet builders."
       >
-        <Button href={mailto} arrow>Introduce yourself</Button>
+        <Button href={mailto} variant="light" arrow>Introduce yourself</Button>
       </PageHeader>
 
       <Section>
         <SectionHeading
           title="Who we would like to hear from"
-          lead="Skills we expect to need as AgroSense360 moves from prototype to pilot, and as client work grows."
+          lead="Skills we will need as AgroSense360 moves to pilot."
         />
         <div className="grid gap-x-12 md:grid-cols-2 lg:grid-cols-3">
           {AREAS.map((a) => (
-            <div key={a.title} className="border-t border-line py-6">
+            <Reveal key={a.title} className="border-t border-line py-6">
               <h3 className="text-lg font-bold tracking-tight text-ink">{a.title}</h3>
               <p className="mt-2 leading-relaxed text-muted">{a.body}</p>
-            </div>
+            </Reveal>
           ))}
         </div>
       </Section>
@@ -62,7 +67,15 @@ export default function Careers() {
               ))}
             </div>
           </div>
-          <RevealImage src={IMG.parts} className="aspect-[4/3]" />
+          <Reveal className="on-forest relative overflow-hidden bg-forest p-8 text-on-forest md:p-10">
+            <div className="field-glow pointer-events-none absolute inset-0" aria-hidden="true" />
+            <p className="relative text-label text-forest-muted">What you would work on</p>
+            <ul className="relative mt-6 space-y-3 text-lg">
+              {['Firmware and embedded control', 'Crop-disease models', 'Backend services and dashboards', 'Field testing with real farms'].map((t) => (
+                <li key={t} className="flex items-center gap-3"><span className="h-1.5 w-1.5 bg-signal" aria-hidden="true" />{t}</li>
+              ))}
+            </ul>
+          </Reveal>
         </div>
       </Section>
 
@@ -89,7 +102,7 @@ export default function Careers() {
       </Section>
 
       <CTABand title="Not an engineer, but want to help?" body="Investors, partners, farms and distributors: we would like to hear from you too.">
-        <Button to="/contact?topic=invest" arrow>Get in touch</Button>
+        <Button to="/contact?topic=invest" variant="light" arrow>Get in touch</Button>
         <Button href={mailto} variant="ghost">Careers email</Button>
       </CTABand>
     </>
