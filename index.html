@@ -18,6 +18,7 @@
     <title>BLOXio · Engineering tomorrow</title>
     <meta name="twitter:card" content="summary_large_image" />
     <link rel="preload" href="/fonts/lucida-handwriting.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="dns-prefetch" href="https://agrosense360.bloxio.tech" />
     <link rel="preconnect" href="https://api.fontshare.com" />
     <link rel="preconnect" href="https://cdn.fontshare.com" crossorigin />
     <link href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700,900&display=swap" rel="stylesheet" />
@@ -67,6 +68,18 @@
         <img class="boot-tag" src="/brand/tagline.png" alt="" width="785" height="70" />
       </div>
     </div>
+    <script>
+      // Moving between bloxio.tech and agrosense360.bloxio.tech (or back /
+      // forward): the site is already familiar, so skip the loader.
+      (function () {
+        var b = document.getElementById('boot');
+        try {
+          var ref = document.referrer ? new URL(document.referrer).hostname : '';
+          var nav = (performance.getEntriesByType('navigation')[0] || {}).type;
+          if ((/(^|\.)bloxio\.tech$/.test(ref) && ref !== location.hostname) || nav === 'back_forward') b && b.remove();
+        } catch (e) {}
+      })();
+    </script>
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
   </body>
