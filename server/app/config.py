@@ -1,6 +1,7 @@
 """Settings, all from environment variables (see server/.env.example)."""
 from functools import lru_cache
 
+from pydantic import field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -45,6 +46,17 @@ class Settings(BaseSettings):
         "austin@bloxio.tech|Austin-Chris Iwu|super,"
         "contact@bloxio.tech|BLOXio Contact|admin"
     )
+
+    @field_validator("*", mode="before")
+    @classmethod
+    def _unquote(cls, v):
+        # Dashboards (Render, .env pasting) sometimes keep quotes around a
+        # value: "BLOXio <no-reply@bloxio.tech>" makes Resend reject every email.
+        if isinstance(v, str):
+            v = v.strip()
+            if len(v) >= 2 and v[0] == v[-1] and v[0] in "\"'":
+                v = v[1:-1].strip()
+        return v
 
     @property
     def origins(self) -> list[str]:

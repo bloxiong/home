@@ -39,7 +39,7 @@ def me(a: Admin = Depends(current_admin)):
 
 
 def send_password_link(db: Session, a: Admin, purpose: str, invited_by: str | None = None,
-                       sent_by: str | None = None) -> None:
+                       sent_by: str | None = None):
     raw = new_password_token(db, a, purpose)
     link = f"{settings().admin_url}/reset?token={raw}"
     if purpose == "invite":
@@ -51,7 +51,7 @@ def send_password_link(db: Session, a: Admin, purpose: str, invited_by: str | No
         text = ("Someone asked to reset the password for this admin account. If it was you, choose a new "
                 "password below. The link works once and expires in 1 hour.\n\nIf it wasn't you, ignore this email.")
     first = (a.name or "").split(" ")[0]
-    mailer.send(db, to=[a.email], kind=purpose, subject=subject, sent_by=sent_by,
+    return mailer.send(db, to=[a.email], kind=purpose, subject=subject, sent_by=sent_by,
                 greeting=f"Dear {first}," if first else "Hello,",
                 body_html=mailer.text_to_html(text), button=("Set my password", link))
 
