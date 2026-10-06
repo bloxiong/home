@@ -35,7 +35,7 @@ def verify_password(pw: str, hashed: str | None) -> bool:
 def check_strength(pw: str) -> None:
     if len(pw) < MIN_PASSWORD:
         raise HTTPException(400, f"Password must be at least {MIN_PASSWORD} characters.")
-    if pw.lower() == pw or not any(c.isdigit() for c in pw):
+    if not (any(c.islower() for c in pw) and any(c.isupper() for c in pw) and any(c.isdigit() for c in pw)):
         raise HTTPException(400, "Use upper and lower case letters and at least one number.")
 
 
