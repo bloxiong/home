@@ -968,21 +968,23 @@ html:not(.dark) .hero {
   --lit: color-mix(in oklab, #0B0D0C 72%, #F2D096);
   --lit-soft: color-mix(in oklab, #0B0D0C 78%, #F2D096);
   color: #EEF1EF;
-  /* night until the planet's foot, then a long, eased fade into the light page */
-  background: linear-gradient(to bottom, #0B0D0C calc(100% - 240px), #2A302C calc(100% - 150px),
-    #7C857A calc(100% - 80px), #BCC3B4 calc(100% - 30px), #D2D7CA 100%);
+  /* the sky is the dark-mode night; the light page begins at the planet's edge */
+  background: #0B0D0C;
 }
-html:not(.dark) .hero .hero-ground {
-  -webkit-mask-image: linear-gradient(to bottom, #000 calc(100% - 240px), transparent 100%);
-          mask-image: linear-gradient(to bottom, #000 calc(100% - 240px), transparent 100%);
-}
+html:not(.dark) .hero .hero-ground { -webkit-mask-image: none; mask-image: none; }
 html:not(.dark) .hero-planet {
+  /* the planet is the light page itself, warmed gold just under the rim */
   background:
-    radial-gradient(ellipse 520px 140px at 50% 0%, var(--lit), transparent 100%),
-    #0B0D0C;
-  box-shadow: inset 0 26px 70px -26px var(--lit-soft), inset 0 6px 22px -10px var(--lit-soft);
+    radial-gradient(ellipse 520px 140px at 50% 0%, color-mix(in oklab, #D2D7CA 62%, #F2D096), transparent 100%),
+    #D2D7CA;
+  box-shadow: inset 0 4px 10px -4px rgba(255, 244, 222, 0.95), inset 0 26px 60px -22px rgba(242, 208, 150, 0.55);
 }
-html:not(.dark) .hero .hero-vignette { display: block; }
+html:not(.dark) .hero .hero-vignette {
+  display: block;
+  /* the dark vignette stays in the sky, never on the planet */
+  -webkit-mask-image: linear-gradient(to bottom, #000 40%, transparent 70%);
+          mask-image: linear-gradient(to bottom, #000 40%, transparent 70%);
+}
 html:not(.dark) .hero .bx-art { filter: none; }
 html:not(.dark) .hero .bx-wordmark { filter: drop-shadow(0 4px 14px rgba(0, 0, 0, 0.6)); }
 html:not(.dark) .hero .bx-tagline img { filter: none; }
@@ -991,4 +993,3 @@ html:not(.dark) .hero .bx-label::before { background: linear-gradient(90deg, rgb
 html:not(.dark) .hero .bx-label.is-left::before { background: linear-gradient(270deg, rgba(229, 192, 138, 0.9), rgba(229, 192, 138, 0)); }
 html:not(.dark) .hero .text-shimmer { background-image: linear-gradient(90deg, #8FD3A8 0%, #E9EDE4 30%, #E5C08A 50%, #E9EDE4 70%, #8FD3A8 100%); }
 html:not(.dark) .hero .star-bullet { color: #D9A55B; }
-html:not(.dark) #overview { margin-top: 0; }
