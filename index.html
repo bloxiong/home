@@ -29,7 +29,9 @@
       // Apply the saved theme before first paint so light-mode visitors
       // don't see a black flash.
       try {
-        var t = localStorage.getItem('bloxio-theme');
+        // shared by bloxio.tech and agrosense360.bloxio.tech (cookie), then this site's own choice
+        var m = document.cookie.match(/(?:^|; )bx-theme=(dark|light)/);
+        var t = m ? m[1] : localStorage.getItem('bloxio-theme');
         if (!t) t = matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
         document.documentElement.classList.toggle('dark', t === 'dark');
       } catch (e) {}
@@ -52,12 +54,17 @@
       #boot .boot-tag { width: 190px; height: auto; clip-path: inset(-10% 100% -10% 0); animation: bootWrite 1s cubic-bezier(0.65, 0, 0.35, 1) 0.35s forwards; }
       html:not(.dark) #boot .boot-tag { filter: brightness(0.5) saturate(1.4) contrast(1.2); }
       #boot.boot-done { translate: 0 -125%; transition: translate 0.95s cubic-bezier(0.7, 0, 0.2, 1); }
+      /* leaving for the other site: the curtain drops down over the page first */
+      #boot.boot-closing { translate: 0 -125%; }
+      #boot.boot-closing.boot-closed { translate: 0 0; transition: translate 0.6s cubic-bezier(0.7, 0, 0.2, 1); }
       @keyframes bootGlint { 0%, 100% { scale: 1; } 50% { scale: 1.06; filter: drop-shadow(0 0 30px rgba(242, 208, 150, 0.95)); } }
       @keyframes bootIn { to { opacity: 1; } }
       @keyframes bootWrite { to { clip-path: inset(-10% -2% -10% 0); } }
       @media (prefers-reduced-motion: reduce) {
         #boot .boot-star, #boot .boot-word, #boot .boot-tag { animation: none; opacity: 1; clip-path: none; }
         #boot.boot-done { translate: none; opacity: 0; transition: opacity 0.3s ease; }
+        #boot.boot-closing { translate: none; opacity: 0; }
+        #boot.boot-closing.boot-closed { opacity: 1; transition: opacity 0.25s ease; }
       }
     </style>
   </head>
