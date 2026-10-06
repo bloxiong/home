@@ -21,7 +21,7 @@ logging.basicConfig(level=logging.INFO)
 log = logging.getLogger("bloxio")
 
 DEFAULTS = Path(__file__).with_name("content_defaults.json")
-RESEND_ROUND = "2026-10-06"
+RESEND_ROUND = "2026-10-06b"
 
 
 def seed() -> None:
@@ -47,12 +47,16 @@ def seed() -> None:
         # To send links to everyone again later, change RESEND_ROUND.
         if not db.scalar(select(AuditLog).where(AuditLog.action == "system.resend_links",
                                                 AuditLog.entity_id == RESEND_ROUND)):
+            failed = 0
             for a in db.scalars(select(Admin).where(Admin.active.is_(True))):
-                send_password_link(db, a, "invite", invited_by="BLOXio")
-                log.info("Set-password link emailed to %s", a.email)
+                entry = send_password_link(db, a, "invite", invited_by="BLOXio")
+                ok = entry.status != "failed"
+                failed += not ok
+                log.info("Set-password link to %s: %s", a.email, "sent" if ok else f"FAILED ({entry.error})")
                 time.sleep(0.6)  # Resend allows 2 emails a second
-            db.add(AuditLog(admin_email="system", action="system.resend_links", entity="admin",
-                            entity_id=RESEND_ROUND, summary="Emailed every admin a fresh set-password link"))
+            if not failed:  # otherwise try again on the next start
+                db.add(AuditLog(admin_email="system", action="system.resend_links", entity="admin",
+                                entity_id=RESEND_ROUND, summary="Emailed every admin a fresh set-password link"))
         refreshed = []
         if DEFAULTS.exists():
             defaults = json.loads(DEFAULTS.read_text())
