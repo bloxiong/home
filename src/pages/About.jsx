@@ -32,7 +32,7 @@ const PRINCIPLES = [
 ];
 
 const TRUST = [
-  ['CAC registered', 'BLOXio Nigeria Limited'],
+  ['Name', 'BLOXio Nigeria Limited'],
   ['Based in', 'Festac, Lagos, Nigeria'],
   ['Works in', 'Electronics, embedded, cloud & AI'],
   ['Founded by', 'Two electrical and electronics engineers'],
@@ -54,9 +54,9 @@ export default function About() {
         title="BLOXio Nigeria Limited"
         lead="A Nigerian engineering and technology company developing intelligent hardware and software systems."
         footer={
-          <dl className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+          <dl className="grid grid-cols-1 gap-3 min-[360px]:grid-cols-2 lg:grid-cols-4">
             {TRUST.map(([k, v], i) => (
-              <div key={k} className="fact-card rise-in rounded-2xl border border-white/10 bg-white/[0.04] p-4 backdrop-blur-md md:p-5" style={{ '--i': 3 + i * 0.6 }}>
+              <div key={k} className={`fact-card rise-in rounded-2xl border border-white/10 bg-white/[0.04] p-4 backdrop-blur-md md:p-5 ${i === 0 || i === TRUST.length - 1 ? 'min-[360px]:col-span-2 lg:col-span-1' : ''}`} style={{ '--i': 3 + i * 0.6 }}>
                 <dt className="flex items-center gap-2 text-label text-forest-muted">
                   <StarBullet i={i} className="h-3 w-3" />{k}
                 </dt>
@@ -191,16 +191,13 @@ export default function About() {
           </div>
           <div className="grid gap-3 sm:grid-cols-2">
             <Reveal className={`${card()} detail-card sm:col-span-2`}>
-              <p className="detail-key"><span className="detail-icon"><Building2 size={16} /></span>Registered name</p>
+              <p className="detail-key"><span className="detail-icon"><Building2 size={16} /></span>Name</p>
               <div className="mt-3">
                 <span className="font-display block text-2xl uppercase leading-tight text-ink md:text-3xl"><BrandText>{COMPANY.legalName}</BrandText></span>
-                <span className="mt-3 inline-flex items-center gap-2 rounded-full bg-accent/10 px-3 py-1 text-xs font-semibold text-accent">
-                  <BadgeCheck size={14} /> Registered with the Corporate Affairs Commission (CAC), Nigeria
-                </span>
               </div>
             </Reveal>
             <Reveal i={1} className={`${card()} detail-card sm:col-span-2`}>
-              <p className="detail-key"><span className="detail-icon"><MapPin size={16} /></span>Registered office</p>
+              <p className="detail-key"><span className="detail-icon"><MapPin size={16} /></span>Office</p>
               <div className="mt-3 text-lg font-semibold leading-snug text-ink">
                 {COMPANY.address[0]}<br />{COMPANY.address[1]}
               </div>
