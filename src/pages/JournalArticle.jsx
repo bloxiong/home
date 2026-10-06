@@ -2,7 +2,7 @@ import React from 'react';
 import { Link, Navigate, useParams } from 'react-router-dom';
 import { ArrowLeft, ArrowRight } from 'lucide-react';
 import {
-  PageMeta, Reveal, Button,
+  PageMeta, Reveal, Button, BrandText,
 } from '../components/ui';
 import { card, fmtDate } from '../lib/ui-utils';
 import { ARTICLES, COMPANY } from '../content/site';
@@ -45,7 +45,7 @@ export default function JournalArticle() {
       <script type="application/ld+json">{JSON.stringify(ld)}</script>
 
       <article className="bg-canvas">
-        <header className="border-b border-line paper-grid">
+        <header className="border-b border-line">
           <div className="mx-auto max-w-3xl px-5 pt-32 pb-14 sm:px-6 md:pt-40">
             <Link to="/journal" className="group inline-flex items-center gap-2 text-sm font-semibold text-accent">
               <ArrowLeft size={15} className="transition-transform group-hover:-translate-x-0.5" /> Journal
