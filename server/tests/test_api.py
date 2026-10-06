@@ -92,3 +92,20 @@ def test_visits_need_secret_and_skip_bots(client, monkeypatch):
     assert a["current"] == {"views": 3, "visitors": 1}
     assert a["countries"] == [["NG", 3]] and a["cities"][0]["city"] == "Lagos"
     assert ["google.com", 3] in a["referrers"] and ["mobile", 3] in a["devices"]
+
+
+def test_invite_link_sets_password_then_login_works(client):
+    from app.db import SessionLocal
+    from app.models import Admin
+    from app.security import new_password_token
+    with SessionLocal() as db:
+        a = db.query(Admin).filter_by(email="austin@bloxio.tech").one()
+        a.password_hash = None
+        raw = new_password_token(db, a, "invite")
+        db.commit()
+    bad = client.post("/auth/login", json={"email": "austin@bloxio.tech", "password": "Whatever123x"})
+    assert bad.status_code == 401 and "invite email" in bad.json()["detail"]
+    assert client.post("/auth/reset", json={"token": raw, "password": "MyNewPass123"}).status_code == 200
+    assert client.post("/auth/reset", json={"token": raw, "password": "MyNewPass123"}).status_code == 400  # single use
+    ok = client.post("/auth/login", json={"email": "Austin@Bloxio.tech", "password": "MyNewPass123"})
+    assert ok.status_code == 200

@@ -34,3 +34,8 @@ lucida-handwriting-std/
 server/.venv/
 server/.env
 **/__pycache__/
+
+# local secrets: never commit
+.env
+.env.*
+!.env.example

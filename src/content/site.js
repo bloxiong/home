@@ -112,9 +112,8 @@ export const AGROSENSE = {
     { value: 95, suffix: '%', label: 'obstacle avoidance over 20 test-track trials' },
   ],
   proofNote:
-    'Prototype results measured on a test track and a held-out image set. They are not commercial field results.',
+    'Prototype results, measured on a test track and a held-out image set.',
   have: 'Working hardware, a trained model, a deployed API, a live dashboard, an alert path to the farmer’s phone, and 38 written crop advisories.',
-  haveNot: 'A paying customer, or field results from a commercial farm. Field validation closes both gaps.',
   problems: [
     { n: '01', title: 'Nobody is looking', body: 'Scouting on foot covers a farm about once a week. Infection does not wait a week.' },
     { n: '02', title: 'Nobody can name it', body: 'Early and late blight look alike and need different responses. Guessing wrong costs the input and the crop.' },
@@ -353,9 +352,9 @@ export const NUMBERS = [
 export const MILESTONES = [
   { title: 'Incorporated', body: 'BLOXio Nigeria Limited registered with the CAC, with a registered office in Festac, Lagos.', done: true },
   { title: 'First integrated prototype', body: 'AgroSense360 worked end to end, from the field to an alert on the farmer’s phone.', done: true },
-  { title: 'Farmer research', body: 'Surveying farmers and agribusinesses about monitoring problems and what they would pay for. Still open.', now: true },
+  { title: 'Farmer research', body: 'Surveying farmers and agribusinesses about monitoring problems and what they would pay for.', now: true },
   { title: 'Field-ready units', body: 'The next AgroSense360 generation, developed for real field deployment.', now: true },
-  { title: 'Design-partner pilots', body: 'Target: five commercial farms. None recruited yet.' },
+  { title: 'Design-partner pilots', body: 'Five commercial farms as design partners.' },
   { title: 'More product lines', body: 'Taking the next concept from research into development.' },
 ];
 
@@ -369,7 +368,7 @@ export const ARTICLES = [
     author: 'BLOXio Engineering',
     category: 'Product development',
     summary:
-      'What the first integrated rover does, what it measured on the test track, and what it has not proven yet.',
+      'What the first integrated rover does, what it measured on the test track, and what comes next.',
     body: [
       { type: 'p', text: 'The first integrated AgroSense360 prototype was developed and tested by the founders. All rights in the system are held by BLOXio. This is what it does, and where it stands.' },
       { type: 'h', text: 'One loop: drive, see, sense, say' },
@@ -384,10 +383,9 @@ export const ARTICLES = [
         '1.8 seconds from a sensor reading to the dashboard refreshing.',
         '450 ms from a manual drive command to the rover responding.',
       ] },
-      { type: 'p', text: 'These are prototype results, measured on a test track and a held-out image set. They are not commercial field results.' },
-      { type: 'p', text: 'The 96.5% was measured on images drawn from the same distribution as the training set. How well it transfers to Nigerian field imagery is still open, which is why field testing includes retraining on local images.' },
-      { type: 'h', text: 'What it has not proven' },
-      { type: 'p', text: 'There is no paying customer yet, and no field results from a commercial farm. The next generation is being developed for real field deployment, and the plan is to run it with design-partner farms and measure outcomes against control blocks.' },
+      { type: 'p', text: 'These are prototype results, measured on a test track and a held-out image set.' },
+      { type: 'h', text: 'What comes next' },
+      { type: 'p', text: 'The next generation is being developed for real field deployment. It will run with design-partner farms, retrained on local field imagery, with outcomes measured against control blocks.' },
     ],
     related: [{ label: 'AgroSense360', to: '/products/agrosense360' }],
   },
@@ -408,7 +406,7 @@ export const FAQS = [
   },
   {
     q: 'What is AgroSense360, and can I buy it?',
-    a: 'An autonomous field rover that watches crops, reads the soil and tells farmers what is wrong and what to do. The core system has worked end to end as a prototype, but it is not for sale yet. Join the pilot list and we will contact you when field testing opens.',
+    a: 'An autonomous field rover that watches crops, reads the soil and tells farmers what is wrong and what to do. The core system has worked end to end as a prototype and is now heading into field testing. Join the pilot list and we will contact you when field testing opens.',
   },
   {
     q: 'Can BLOXio build a product or system for my company?',

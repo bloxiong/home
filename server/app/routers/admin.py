@@ -222,7 +222,8 @@ class ComposeIn(BaseModel):
 def send_email(body: ComposeIn, me: Admin = Depends(current_admin), db: Session = Depends(get_db)):
     html_body = mailer.text_to_html(body.body)
     targets = [[str(t)] for t in body.to] if body.separate else [[str(t) for t in body.to]]
-    results = [mailer.send(db, to=t, subject=body.subject, title=body.subject, body_html=html_body, kind="compose",
+    results = [mailer.send(db, to=t, subject=body.subject, greeting=None, body_html=html_body, kind="compose",
+                           sign_name=me.name or "The BLOXio team",
                            sent_by=me.email, reply_to=settings().notify_to) for t in targets]
     sent = sum(r.status in ("sent", "logged") for r in results)
     if body.enquiry_id and (e := db.get(Enquiry, body.enquiry_id)) and sent and e.status != "replied":

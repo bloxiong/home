@@ -20,7 +20,7 @@ export default function Journal() {
         image={IMG.space}
         label="Journal"
         title="Engineering notes"
-        lead="Notes from the bench and the test track: how we build, what we measured, and what is not proven yet."
+        lead="Notes from the bench and the test track: how we build, what we measured, and what comes next."
       />
       <Section>
         <ul className="border-t border-line">

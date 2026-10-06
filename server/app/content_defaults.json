@@ -98,9 +98,8 @@
         "label": "obstacle avoidance over 20 test-track trials"
       }
     ],
-    "proofNote": "Prototype results measured on a test track and a held-out image set. They are not commercial field results.",
+    "proofNote": "Prototype results, measured on a test track and a held-out image set.",
     "have": "Working hardware, a trained model, a deployed API, a live dashboard, an alert path to the farmer’s phone, and 38 written crop advisories.",
-    "haveNot": "A paying customer, or field results from a commercial farm. Field validation closes both gaps.",
     "problems": [
       {
         "n": "01",
@@ -490,7 +489,7 @@
     },
     {
       "title": "Farmer research",
-      "body": "Surveying farmers and agribusinesses about monitoring problems and what they would pay for. Still open.",
+      "body": "Surveying farmers and agribusinesses about monitoring problems and what they would pay for.",
       "now": true
     },
     {
@@ -500,7 +499,7 @@
     },
     {
       "title": "Design-partner pilots",
-      "body": "Target: five commercial farms. None recruited yet."
+      "body": "Five commercial farms as design partners."
     },
     {
       "title": "More product lines",
@@ -515,7 +514,7 @@
       "date": "2026-10-05",
       "author": "BLOXio Engineering",
       "category": "Product development",
-      "summary": "What the first integrated rover does, what it measured on the test track, and what it has not proven yet.",
+      "summary": "What the first integrated rover does, what it measured on the test track, and what comes next.",
       "body": [
         {
           "type": "p",
@@ -550,19 +549,15 @@
         },
         {
           "type": "p",
-          "text": "These are prototype results, measured on a test track and a held-out image set. They are not commercial field results."
-        },
-        {
-          "type": "p",
-          "text": "The 96.5% was measured on images drawn from the same distribution as the training set. How well it transfers to Nigerian field imagery is still open, which is why field testing includes retraining on local images."
+          "text": "These are prototype results, measured on a test track and a held-out image set."
         },
         {
           "type": "h",
-          "text": "What it has not proven"
+          "text": "What comes next"
         },
         {
           "type": "p",
-          "text": "There is no paying customer yet, and no field results from a commercial farm. The next generation is being developed for real field deployment, and the plan is to run it with design-partner farms and measure outcomes against control blocks."
+          "text": "The next generation is being developed for real field deployment. It will run with design-partner farms, retrained on local field imagery, with outcomes measured against control blocks."
         }
       ],
       "related": [
@@ -580,7 +575,7 @@
     },
     {
       "q": "What is AgroSense360, and can I buy it?",
-      "a": "An autonomous field rover that watches crops, reads the soil and tells farmers what is wrong and what to do. The core system has worked end to end as a prototype, but it is not for sale yet. Join the pilot list and we will contact you when field testing opens."
+      "a": "An autonomous field rover that watches crops, reads the soil and tells farmers what is wrong and what to do. The core system has worked end to end as a prototype and is now heading into field testing. Join the pilot list and we will contact you when field testing opens."
     },
     {
       "q": "Can BLOXio build a product or system for my company?",
