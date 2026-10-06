@@ -100,3 +100,22 @@ class AuditLog(Base):
     before: Mapped[dict | list | None] = mapped_column(JSON, nullable=True)
     after: Mapped[dict | list | None] = mapped_column(JSON, nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=now, index=True)
+
+
+class Visit(Base):
+    """One page view. No cookies and no IP addresses: `visitor` is a hash of
+    IP + browser + day + a server secret, so the same person counts once per
+    day and can't be traced across days. Location is approximate (city level,
+    from Vercel's edge)."""
+    __tablename__ = "visits"
+    id: Mapped[int] = mapped_column(primary_key=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=now, index=True)
+    host: Mapped[str] = mapped_column(String(80), default="", index=True)
+    path: Mapped[str] = mapped_column(String(300), default="/")
+    referrer: Mapped[str] = mapped_column(String(200), default="")  # host only, e.g. google.com
+    country: Mapped[str] = mapped_column(String(2), default="", index=True)
+    region: Mapped[str] = mapped_column(String(80), default="")
+    city: Mapped[str] = mapped_column(String(120), default="")
+    device: Mapped[str] = mapped_column(String(10), default="")  # mobile | tablet | desktop
+    browser: Mapped[str] = mapped_column(String(20), default="")
+    visitor: Mapped[str] = mapped_column(String(16), index=True)

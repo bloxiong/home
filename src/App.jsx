@@ -7,6 +7,7 @@ import ScrollToTop from './components/ScrollToTop';
 import ScrollToTopButton from './components/ScrollToTopButton';
 import Starfield from './components/Starfield';
 import { isAgroHost, isMainLiveHost, MAIN_URL, AGRO_URL } from './lib/hosts';
+import { trackView } from './lib/track';
 
 // Everything except the home page loads on demand.
 const Products     = lazy(() => import('./pages/Products'));
@@ -23,6 +24,13 @@ const Survey       = lazy(() => import('./pages/Survey'));
 
 /* Each page change remounts its content so it rises in (see .page-enter).
    Hash links within a page don't trigger it. */
+/* One page view per route change (live site only) */
+function PageViews() {
+  const { pathname } = useLocation();
+  React.useEffect(() => { trackView(pathname); }, [pathname]);
+  return null;
+}
+
 function PageTransition({ children }) {
   const { pathname } = useLocation();
   // count route changes (React's "adjust state while rendering" pattern) so
@@ -108,6 +116,7 @@ export default function App() {
   return (
     <Router>
       <ScrollToTop />
+      <PageViews />
       <div className="flex min-h-screen flex-col overflow-x-clip bg-canvas text-ink">
         <Navigation />
         <main className="flex-grow">

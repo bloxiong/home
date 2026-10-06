@@ -55,6 +55,8 @@ def send(db: Session, *, to: list[str], subject: str, title: str, body_html: str
                 entry.status = "sent"
         except httpx.HTTPError as e:
             entry.status, entry.error = "failed", str(e)[:1000]
+    if entry.status == "failed":
+        log.error("Email to %s failed (%s): %s", to, subject, entry.error)
     db.add(entry)
     db.flush()
     return entry

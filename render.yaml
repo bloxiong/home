@@ -31,3 +31,5 @@ services:
         value: https://admin.bloxio.tech
       - key: VERCEL_DEPLOY_HOOK    # Vercel → main site project → Settings → Git → Deploy Hooks
         sync: false
+      - key: VISIT_SECRET          # any long random string; set the SAME value in Vercel (main site)
+        sync: false

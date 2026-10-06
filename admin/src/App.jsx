@@ -7,6 +7,7 @@ import Login from './pages/Login'
 import Forgot from './pages/Forgot'
 import Reset from './pages/Reset'
 import Dashboard from './pages/Dashboard'
+import Traffic from './pages/Traffic'
 import Surveys from './pages/Surveys'
 import SurveyDetail from './pages/SurveyDetail'
 import Enquiries from './pages/Enquiries'
@@ -76,6 +77,7 @@ const router = createBrowserRouter([
         element: <RequireAuth />,
         children: [
           { index: true, element: <Dashboard /> },
+          { path: 'traffic', element: <Traffic /> },
           { path: 'surveys', element: <Surveys /> },
           { path: 'surveys/:id', element: <SurveyDetail /> },
           { path: 'enquiries', element: <Enquiries /> },
