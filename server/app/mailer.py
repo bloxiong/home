@@ -20,7 +20,7 @@ TEMPLATES = Path(__file__).with_name("email_templates")
 
 # Colours for things inside the message body, matched to each template
 PALETTE = {
-    "light": {"ink": "#17120C", "body": "#4A4038", "muted": "#857A6D", "link": "#0F5533", "line": "#EADFCB"},
+    "light": {"ink": "#111413", "body": "#474D49", "muted": "#5E655F", "link": "#0F5533", "line": "#C3CAB8"},
     "dark": {"ink": "#EEF1EF", "body": "#C4CBC6", "muted": "#8A938D", "link": "#6FD39D", "line": "#262D2A"},
 }
 
