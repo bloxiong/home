@@ -951,3 +951,44 @@ body { overflow-wrap: break-word; }
   0%, 100% { box-shadow: 0 0 0 1px rgba(111, 211, 157, 0.5), 0 0 12px rgba(111, 211, 157, 0.35); }
   50% { box-shadow: 0 0 0 1px rgba(111, 211, 157, 0.8), 0 0 26px rgba(111, 211, 157, 0.65); }
 }
+
+/* ── Light mode: the hero is exactly the dark-mode hero ───────────────
+   Same night sky, dark planet and gold glow as dark mode; light mode
+   starts at "…who we are". The planet's foot fades from dark to the light
+   page so there is no hard line, and that section isn't pulled up over
+   the fade, so its text always sits on the light background. */
+html:not(.dark) .hero {
+  --bx-canvas: #0B0D0C; --bx-surface: #131615; --bx-sunken: #0F1211;
+  --bx-ink: #EEF1EF; --bx-muted: #9BA39E; --bx-line: #232826;
+  --bx-accent: #5FCB93; --bx-on-accent: #0B0D0C;
+  --rim: rgba(255, 238, 205, 0.95);
+  --rim-glow: rgba(242, 208, 150, 0.7);
+  --haze-gold: rgba(242, 208, 150, 0.2);
+  --haze-green: rgba(111, 211, 157, 0.2);
+  --lit: color-mix(in oklab, #0B0D0C 72%, #F2D096);
+  --lit-soft: color-mix(in oklab, #0B0D0C 78%, #F2D096);
+  color: #EEF1EF;
+  /* night until the planet's foot, then a long, eased fade into the light page */
+  background: linear-gradient(to bottom, #0B0D0C calc(100% - 240px), #2A302C calc(100% - 150px),
+    #7C857A calc(100% - 80px), #BCC3B4 calc(100% - 30px), #D2D7CA 100%);
+}
+html:not(.dark) .hero .hero-ground {
+  -webkit-mask-image: linear-gradient(to bottom, #000 calc(100% - 240px), transparent 100%);
+          mask-image: linear-gradient(to bottom, #000 calc(100% - 240px), transparent 100%);
+}
+html:not(.dark) .hero-planet {
+  background:
+    radial-gradient(ellipse 520px 140px at 50% 0%, var(--lit), transparent 100%),
+    #0B0D0C;
+  box-shadow: inset 0 26px 70px -26px var(--lit-soft), inset 0 6px 22px -10px var(--lit-soft);
+}
+html:not(.dark) .hero .hero-vignette { display: block; }
+html:not(.dark) .hero .bx-art { filter: none; }
+html:not(.dark) .hero .bx-wordmark { filter: drop-shadow(0 4px 14px rgba(0, 0, 0, 0.6)); }
+html:not(.dark) .hero .bx-tagline img { filter: none; }
+html:not(.dark) .hero .bx-label { color: #F3E3C4; text-shadow: 0 0 12px rgba(229, 192, 138, 0.6); }
+html:not(.dark) .hero .bx-label::before { background: linear-gradient(90deg, rgba(229, 192, 138, 0.9), rgba(229, 192, 138, 0)); }
+html:not(.dark) .hero .bx-label.is-left::before { background: linear-gradient(270deg, rgba(229, 192, 138, 0.9), rgba(229, 192, 138, 0)); }
+html:not(.dark) .hero .text-shimmer { background-image: linear-gradient(90deg, #8FD3A8 0%, #E9EDE4 30%, #E5C08A 50%, #E9EDE4 70%, #8FD3A8 100%); }
+html:not(.dark) .hero .star-bullet { color: #D9A55B; }
+html:not(.dark) #overview { margin-top: 0; }

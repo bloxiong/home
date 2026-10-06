@@ -63,6 +63,10 @@ export default function Navigation() {
       const stack = document.elementsFromPoint(window.innerWidth / 2, y);
       for (const el of stack) {
         if (nav?.contains(el) || el.tagName === 'CANVAS') continue;
+        // sections can state their tone (gradients and images have no
+        // background colour to read), e.g. the hero is always dark
+        const toned = el.closest?.('[data-nav-tone]');
+        if (toned) { setOnDark(toned.getAttribute('data-nav-tone') === 'dark'); return; }
         let node = el;
         while (node && node !== document.documentElement) {
           const bg = getComputedStyle(node).backgroundColor;
