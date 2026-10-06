@@ -3,7 +3,10 @@ import { Link } from 'react-router-dom';
 import { StarBullet } from './ui';
 import WordRotator from './WordRotator';
 import BrandOrbit from './BrandOrbit';
-import { HERO_WORDS } from '../content/site';
+import { APPEARANCE, HERO_WORDS } from '../content/site';
+
+// light mode's hero: 'night' (default) or the earlier 'morning' glow, set in the admin
+const CLASSIC_LIGHT = APPEARANCE.lightHero === 'morning';
 
 export const INTRO_END_ID = 'overview';
 
@@ -33,7 +36,8 @@ function useParticles(canvasRef) {
 
     const draw = () => {
       const w = canvas.clientWidth, h = canvas.clientHeight;
-      const dark = true; // the hero looks the same in light mode as in dark mode
+      // the "night" light-mode hero looks the same as dark mode
+      const dark = !CLASSIC_LIGHT || document.documentElement.classList.contains('dark');
       const dot = dark ? '143,211,168' : '27,122,75';
       const line = dark ? '93,187,132' : '27,122,75';
       ctx.clearRect(0, 0, w, h);
@@ -172,8 +176,8 @@ export default function Hero() {
   return (
     <section
       ref={sectionRef}
-      data-nav-tone="dark"
-      className="hero relative flex flex-col overflow-hidden bg-canvas text-ink"
+      data-nav-tone={CLASSIC_LIGHT ? undefined : 'dark'}
+      className={`hero ${CLASSIC_LIGHT ? 'hero-classic ' : ''}relative flex flex-col overflow-hidden bg-canvas text-ink`}
       aria-labelledby="hero-title"
     >
       <div

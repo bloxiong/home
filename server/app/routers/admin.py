@@ -276,6 +276,8 @@ def save_content(key: str, body: ContentIn, me: Admin = Depends(current_admin), 
         raise HTTPException(404, "Unknown content section.")
     if type(body.data) is not type(d.published):
         raise HTTPException(400, "That change doesn't match the shape of this section.")
+    if key == "APPEARANCE" and body.data.get("lightHero") not in ("night", "morning"):
+        raise HTTPException(400, "Choose the night or the morning light-mode hero.")
     before = d.draft
     d.draft, d.updated_at, d.updated_by = body.data, now(), me.email
     audit.record(db, me, "content.edit", entity="content", entity_id=key, before=before, after=body.data,

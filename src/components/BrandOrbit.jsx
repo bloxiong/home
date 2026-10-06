@@ -1,5 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import { useInView } from '../lib/ui-utils';
+import { APPEARANCE } from '../content/site';
 
 /* Brand piece built from the BLOXio lockup taken apart. The five stars
    keep their places from the logo and come alive: the small stars float
@@ -72,7 +73,8 @@ export default function BrandOrbit({ className = '' }) {
       const bt = Math.min((now - burst.current) / 1300, 1);
       const grow = reduce ? 1 : 1 + 2.2 * Math.pow(bt - 1, 3) + 1.2 * Math.pow(bt - 1, 2);
       const cx = W / 2, cy = H / 2;
-      const G = '229,192,138'; // the hero is the dark-mode hero in both themes
+      // gold on the night hero; the morning-glow light hero uses a deeper gold
+      const G = APPEARANCE.lightHero !== 'morning' || document.documentElement.classList.contains('dark') ? '229,192,138' : '150,98,24';
 
       ctx.clearRect(0, 0, W, H);
 

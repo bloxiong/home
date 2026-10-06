@@ -598,6 +598,9 @@
       "a": "No roles are listed right now, but we want to hear from engineers who would like to build hardware made in Nigeria. See the careers page."
     }
   ],
+  "APPEARANCE": {
+    "lightHero": "night"
+  },
   "_IMAGES": {
     "circuit": "1518770660439-4636190af475",
     "pcb": "1517077304055-6e89abbf09b0",
