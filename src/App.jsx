@@ -24,7 +24,40 @@ const Survey       = lazy(() => import('./pages/Survey'));
    Hash links within a page don't trigger it. */
 function PageTransition({ children }) {
   const { pathname } = useLocation();
-  return <div key={pathname} className="page-enter">{children}</div>;
+  return (
+    <PageErrorBoundary key={pathname}>
+      <div className="page-enter">{children}</div>
+    </PageErrorBoundary>
+  );
+}
+
+/* A page that throws should never blank the whole site. A stale chunk after a
+   deploy gets one reload; anything else shows a way back home. */
+class PageErrorBoundary extends React.Component {
+  state = { failed: false };
+
+  static getDerivedStateFromError() {
+    return { failed: true };
+  }
+
+  componentDidCatch(error) {
+    const stale = /dynamically imported module|Loading chunk|Importing a module script/i.test(String(error?.message));
+    if (stale && !sessionStorage.getItem('bx-reloaded')) {
+      sessionStorage.setItem('bx-reloaded', '1');
+      window.location.reload();
+    }
+  }
+
+  render() {
+    if (!this.state.failed) return this.props.children;
+    return (
+      <div className="mx-auto flex min-h-[60vh] max-w-3xl flex-col items-start justify-center px-5 pt-32 pb-16 sm:px-6">
+        <p className="text-label text-accent">Something went wrong</p>
+        <h1 className="font-display mt-4 text-3xl uppercase text-ink">This page didn't load.</h1>
+        <a href="/" className="mt-8 inline-flex h-11 items-center rounded-full bg-accent px-6 text-sm font-semibold text-canvas">Back to home</a>
+      </div>
+    );
+  }
 }
 
 export default function App() {
