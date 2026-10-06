@@ -6,7 +6,7 @@ import Home from './pages/Home';
 import ScrollToTop from './components/ScrollToTop';
 import ScrollToTopButton from './components/ScrollToTopButton';
 import Starfield from './components/Starfield';
-import { isAgroHost, isMainLiveHost, MAIN_URL, AGRO_URL } from './lib/hosts';
+import { isAgroHost, isMainLiveHost, MAIN_URL, AGRO_URL, leaveTo } from './lib/hosts';
 import { trackView } from './lib/track';
 
 // Everything except the home page loads on demand.
@@ -95,7 +95,7 @@ class PageErrorBoundary extends React.Component {
 /* Leaves this site for the same path on another one (full page load). */
 function GoTo({ to }) {
   const { search, hash } = useLocation();
-  React.useEffect(() => { window.location.replace(to + search + hash); }, [to, search, hash]);
+  React.useEffect(() => { leaveTo(to + search + hash); }, [to, search, hash]);
   return <div className="min-h-screen bg-canvas" />;
 }
 

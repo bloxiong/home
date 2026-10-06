@@ -11,7 +11,9 @@ const ThemeContext = createContext({
 
 const getInitialTheme = () => {
   if (typeof window === 'undefined') return 'dark';
-  const saved = window.localStorage.getItem(STORAGE_KEY);
+  // the cookie is shared across *.bloxio.tech, so the choice follows you between sites
+  const shared = document.cookie.match(/(?:^|; )bx-theme=(dark|light)/)?.[1];
+  const saved = shared || window.localStorage.getItem(STORAGE_KEY);
   if (saved === 'light' || saved === 'dark') return saved;
   // System preference fallback: default to dark since the brand is dark-first
   return window.matchMedia?.('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
@@ -25,6 +27,8 @@ export function ThemeProvider({ children }) {
     root.classList.toggle('dark', theme === 'dark');
     root.style.colorScheme = theme;
     try { window.localStorage.setItem(STORAGE_KEY, theme); } catch { /* storage blocked: theme still applies */ }
+    const domain = /(^|\.)bloxio\.tech$/.test(window.location.hostname) ? '; domain=.bloxio.tech' : '';
+    document.cookie = `bx-theme=${theme}; path=/; max-age=31536000; SameSite=Lax${domain}${window.location.protocol === 'https:' ? '; Secure' : ''}`;
   }, [theme]);
 
   const setTheme = (next) => {
