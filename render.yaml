@@ -1,0 +1,33 @@
+# Render Blueprint: Dashboard → New → Blueprint → pick this repo.
+# Creates the BLOXio API at api.bloxio.tech. The database is Neon (not Render),
+# so paste its connection string into DATABASE_URL when Render asks.
+services:
+  - type: web
+    name: bloxio-api
+    runtime: python
+    rootDir: server
+    plan: free               # kept awake by .github/workflows/keep-api-awake.yml (pings /health every 10 min)
+    region: frankfurt        # closest Render region to Lagos
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /health
+    autoDeploy: true
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.12.7
+      - key: DATABASE_URL          # Neon → Connection details → connection string (pooled)
+        sync: false
+      - key: JWT_SECRET
+        generateValue: true
+      - key: RESEND_API_KEY        # Resend → API Keys (domain bloxio.tech verified)
+        sync: false
+      - key: MAIL_FROM
+        value: "BLOXio <no-reply@bloxio.tech>"
+      - key: NOTIFY_TO
+        value: contact@bloxio.tech
+      - key: SITE_URL
+        value: https://bloxio.tech
+      - key: ADMIN_URL
+        value: https://admin.bloxio.tech
+      - key: VERCEL_DEPLOY_HOOK    # Vercel → main site project → Settings → Git → Deploy Hooks
+        sync: false

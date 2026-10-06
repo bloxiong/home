@@ -5,9 +5,10 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "eslint . && vite build",
+    "build": "node scripts/fetch-content.mjs && eslint . && vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "content:export": "node scripts/export-content.mjs"
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.1.18",

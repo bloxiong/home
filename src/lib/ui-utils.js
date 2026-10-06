@@ -88,3 +88,33 @@ export function useScrollVars() {
   }, []);
   return ref;
 }
+
+/* Progress of an element past a "reading line" 62% down the screen, as --e
+   (0 to 1). The run is at least 45% of the screen tall, so short rows don't
+   finish in a flick. Set on the DOM directly, no re-renders. */
+export function useReadingLine() {
+  const ref = useRef(null);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return undefined;
+    if (prefersReducedMotion()) { el.style.setProperty('--e', '1'); return undefined; }
+    let raf = 0;
+    const update = () => {
+      raf = 0;
+      const r = el.getBoundingClientRect();
+      const vh = window.innerHeight;
+      const run = Math.max(r.height, vh * 0.45);
+      el.style.setProperty('--e', Math.min(1, Math.max(0, (vh * 0.62 - r.top) / run)).toFixed(4));
+    };
+    const onScroll = () => { if (!raf) raf = requestAnimationFrame(update); };
+    update();
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll);
+    return () => {
+      cancelAnimationFrame(raf);
+      window.removeEventListener('scroll', onScroll);
+      window.removeEventListener('resize', onScroll);
+    };
+  }, []);
+  return ref;
+}

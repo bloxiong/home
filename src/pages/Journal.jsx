@@ -1,6 +1,5 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight } from 'lucide-react';
 import {
   PageMeta, PageHeader, Section, Reveal, BrandText,
 } from '../components/ui';
@@ -21,7 +20,7 @@ export default function Journal() {
         image={IMG.space}
         label="Journal"
         title="Engineering notes"
-        lead="How we build, what worked, and what is not proven yet."
+        lead="Notes from the bench and the test track: how we build, what we measured, and what is not proven yet."
       />
       <Section>
         <ul className="border-t border-line">
@@ -40,7 +39,6 @@ export default function Journal() {
                   <p className="mt-3 max-w-[62ch] leading-relaxed text-muted">{a.summary}</p>
                   <p className="mt-4 text-label text-muted"><BrandText>{a.author}</BrandText></p>
                 </div>
-                <ArrowRight size={22} className="hidden text-muted transition-all group-hover:translate-x-1 group-hover:text-accent md:block" />
               </Link>
             </Reveal>
           ))}

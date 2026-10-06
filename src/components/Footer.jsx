@@ -1,7 +1,8 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowUpRight } from 'lucide-react';
 import { COMPANY } from '../content/site';
+import { isAgroHost, MAIN_URL } from '../lib/hosts';
+
 import { BrandText } from './ui';
 
 const COLUMNS = [
@@ -40,9 +41,15 @@ export default function Footer() {
       <div className="relative mx-auto max-w-6xl px-5 pt-20 pb-10 sm:px-6">
         <div className="grid gap-12 md:grid-cols-[1.5fr_1fr_1fr_1fr]">
           <div>
-            <Link to="/" aria-label="BLOXio home" className="inline-block">
+            {isAgroHost ? (
+              <a href={MAIN_URL} aria-label="BLOXio home" className="inline-block">
+              <img src="/bloxio-logo.png" alt="BLOXio" width="400" height="75" className="mb-6 h-auto w-28" />
+            </a>
+            ) : (
+              <Link to="/" aria-label="BLOXio home" className="inline-block">
               <img src="/bloxio-logo.png" alt="BLOXio" width="400" height="75" className="mb-6 h-auto w-28" />
             </Link>
+            )}
             <p className="max-w-xs text-sm leading-relaxed text-forest-muted">{COMPANY.positioning} Designed and engineered in Nigeria.</p>
             <ul className="mt-6 space-y-1.5 text-sm">
               <li><a href={`mailto:${COMPANY.email}`} className="text-on-forest transition-colors hover:text-signal">{COMPANY.email}</a></li>
@@ -69,7 +76,7 @@ export default function Footer() {
 
         <p
           className="font-display mt-20 select-none uppercase leading-none text-forest-line"
-          style={{ fontSize: 'clamp(3rem, 14vw, 11rem)' }}
+          style={{ fontSize: 'clamp(1.05rem, max(14vw, min(8.5vw, 3rem)), 11rem)' }}
           aria-hidden="true"
         >
           One step ahead of tech
@@ -79,8 +86,8 @@ export default function Footer() {
           <p className="text-label text-forest-muted">
             © {new Date().getFullYear()} <BrandText>{COMPANY.legalName}</BrandText>
           </p>
-          <Link to="/contact" className="group inline-flex items-center gap-1.5 text-sm font-semibold text-signal">
-            Work with us <ArrowUpRight size={14} className="transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
+          <Link to="/contact" className="link-line">
+            Work with us
           </Link>
         </div>
       </div>

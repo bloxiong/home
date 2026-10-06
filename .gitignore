@@ -26,3 +26,11 @@ dist-ssr
 
 # Brand source masters (large video/PNG originals — kept locally)
 Blox Main Props/
+
+# licensed source font files (only the web subset in public/fonts ships)
+lucida-handwriting-std/
+
+# backend local files
+server/.venv/
+server/.env
+**/__pycache__/

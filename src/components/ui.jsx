@@ -1,19 +1,18 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight } from 'lucide-react';
 import { STATUS } from '../content/site';
+import { publicUrl } from '../lib/hosts';
 import { useInView, useScrollVars, prefersReducedMotion, photo, photoSrcSet, photoPreview } from '../lib/ui-utils';
 
 const DEFAULT_DESCRIPTION =
   'BLOXio Nigeria Limited builds intelligent hardware and software for the physical world: electronics, embedded systems, cloud and AI, starting with the AgroSense360 field rover.';
-const SITE = 'https://bloxio.tech';
 
 /* Per-page <title>, description, canonical and social tags. React 19
    hoists these into <head>; index.html deliberately has no description,
    og:title or og:description, so these are the only copies. */
 export function PageMeta({ title, description = DEFAULT_DESCRIPTION, path, type = 'website' }) {
   const full = title ? `${title} · BLOXio` : 'BLOXio · Engineering tomorrow';
-  const url = path != null ? `${SITE}${path}` : null;
+  const url = path != null ? publicUrl(path) : null;
   return (
     <>
       <title>{full}</title>
@@ -84,12 +83,14 @@ export function Brand({ gold = false, className = '' }) {
    sentence that carries the logo is set in the display face (the one
    used for "Engineering tomorrow") so the logo reads as part of it;
    the rest of the text keeps its own font. */
-export function BrandText({ children, gold = false }) {
+export function BrandText({ children, gold = false, plain = false }) {
   if (typeof children !== 'string' || !children.includes('BLOXio')) return children;
   const withLogo = (text) =>
     text.split(/(BLOXio)/).map((part, i) =>
       part === 'BLOXio' ? <Brand key={i} gold={gold} /> : <React.Fragment key={i}>{part}</React.Fragment>,
     );
+  /* plain: just the logo, the sentence keeps its own font (lists, FAQs) */
+  if (plain) return withLogo(children);
   return children.split(/(?<=[.!?])(\s+)/).map((chunk, i) =>
     chunk.includes('BLOXio')
       ? <span key={i} className="brand-line">{withLogo(chunk)}</span>
@@ -131,26 +132,41 @@ export function ScrollWords({ text, as = 'p', className = '', style }) {
 
 /* ── Building blocks ───────────────────────────────────────────── */
 
+/* The brand star as a list point. In a list the stars glint one after
+   another (pass the item index as `i`), like the logo cluster. */
+export function StarBullet({ i = 0, className = 'h-3.5 w-3.5' }) {
+  return (
+    <svg viewBox="0 0 24 24" className={`star-bullet shrink-0 ${className}`} style={{ '--k': i }} aria-hidden="true">
+      <path d="M12 0 L14.2 9.8 L24 12 L14.2 14.2 L12 24 L9.8 14.2 L0 12 L9.8 9.8 Z" fill="currentColor" />
+    </svg>
+  );
+}
+
+/* A small bordered tag led by a star (stacks, crops, skills). */
+export function StarTag({ i = 0, children, className = '' }) {
+  return (
+    <li className={`inline-flex items-center gap-2 rounded-lg border border-line px-2.5 py-1.5 text-xs font-medium text-ink ${className}`}>
+      <StarBullet i={i} className="h-3 w-3" />
+      {children}
+    </li>
+  );
+}
+
 const BTN_BASE =
-  'group inline-flex min-h-12 items-center justify-center gap-2 rounded-full px-6 text-sm font-semibold transition-all duration-200 active:translate-y-px';
+  'group inline-flex min-h-12 items-center justify-center gap-2 rounded-xl px-6 text-sm font-semibold transition-all duration-200 active:translate-y-px';
 const BTN = {
   primary:   `${BTN_BASE} btn-pop bg-accent text-on-accent`,
   secondary: `${BTN_BASE} border border-ink/25 text-ink hover:-translate-y-0.5 hover:border-accent hover:bg-accent/6 hover:text-accent`,
   /* for always-dark field sections */
   light:     `${BTN_BASE} btn-pop-light bg-on-forest text-forest`,
   ghost:     `${BTN_BASE} border border-forest-muted/40 text-on-forest hover:-translate-y-0.5 hover:border-signal hover:bg-signal/8 hover:text-signal`,
-  text:      'group inline-flex items-center gap-2 text-sm font-semibold text-accent hover:gap-3 transition-all duration-200',
+  text:      'link-line',
 };
 
 /* Internal routes use <Link>; anything with a scheme uses <a>. */
-export function Button({ to, href, variant = 'primary', arrow = false, children, className = '', ...rest }) {
+export function Button({ to, href, variant = 'primary', children, className = '', ...rest }) {
   const cls = `${BTN[variant]} ${className}`;
-  const content = (
-    <>
-      <BrandText>{children}</BrandText>
-      {arrow && <ArrowRight size={16} className="transition-transform duration-200 group-hover:translate-x-0.5" />}
-    </>
-  );
+  const content = <BrandText>{children}</BrandText>;
   if (to) return <Link to={to} className={cls} {...rest}>{content}</Link>;
   if (href) return <a href={href} className={cls} {...rest}>{content}</a>;
   return <button type="button" className={cls} {...rest}>{content}</button>;
@@ -182,7 +198,7 @@ export function StatusBadge({ status, onForest = false, className = '' }) {
 
 /* Tiny mono metadata label, e.g. "01 / FLAGSHIP TECHNOLOGY" */
 export function TechLabel({ children, className = '' }) {
-  return <p className={`label-rule text-label text-muted ${className}`}>{children}</p>;
+  return <p className={`script-label text-muted ${className}`}>{children}</p>;
 }
 
 /* Photo with responsive sources. `fill` makes the image cover its box
@@ -250,12 +266,12 @@ export function Photo({ id, alt = '', className = '', imgClassName = '', paralla
 }
 
 /* Content-page header on a dark field with an engineering grid. */
-export function PageHeader({ label, title, lead, children, aside, image }) {
+export function PageHeader({ label, title, lead, children, aside, image, footer, cinematic = false }) {
   return (
-    <header className="on-forest relative overflow-hidden bg-forest text-on-forest">
+    <header className={`on-forest relative overflow-hidden bg-forest text-on-forest ${cinematic ? 'ph-cinematic' : ''}`}>
       {image && (
         <>
-          <Photo id={image} parallax priority className="absolute inset-0" imgClassName="opacity-45" />
+          <Photo id={image} parallax={!cinematic} priority className="ph-photo absolute inset-0" imgClassName="opacity-45" />
           <div className="absolute inset-0 bg-gradient-to-r from-forest via-forest/85 to-forest/40" aria-hidden="true" />
           <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-forest to-transparent" aria-hidden="true" />
         </>
@@ -264,22 +280,23 @@ export function PageHeader({ label, title, lead, children, aside, image }) {
       <div className="relative mx-auto max-w-6xl px-5 pt-28 pb-12 sm:px-6 md:pt-36 md:pb-16">
         <div className={aside ? 'grid gap-12 lg:grid-cols-[1.4fr_1fr] lg:items-end' : ''}>
           <div>
-            {label && <p className="label-rule rise-in text-label text-forest-muted">{label}</p>}
+            {label && <p className="script-label rise-in text-forest-muted">{label}</p>}
             <h1
-              className="split-load font-display mt-5 uppercase leading-[0.95] text-balance"
-              style={{ fontSize: 'clamp(2.25rem, 6vw, 4.75rem)' }}
+              className="split-load font-display mt-4 uppercase leading-[0.95] text-balance"
+              style={{ fontSize: 'clamp(1.05rem, max(6vw, min(8.5vw, 2.25rem)), 4.75rem)' }}
             >
               <SplitWords text={title} />
             </h1>
             {lead && (
-              <p className="rise-in mt-6 max-w-[60ch] text-lg leading-relaxed text-forest-muted md:text-xl" style={{ '--i': 2 }}>
+              <p className="rise-in mt-4 max-w-[60ch] text-lg leading-relaxed text-forest-muted md:text-xl" style={{ '--i': 2 }}>
                 <BrandText>{lead}</BrandText>
               </p>
             )}
-            {children && <div className="rise-in mt-9 flex flex-wrap gap-3" style={{ '--i': 3 }}>{children}</div>}
+            {children && <div className="rise-in mt-6 flex flex-wrap items-center gap-x-6 gap-y-3" style={{ '--i': 3 }}>{children}</div>}
           </div>
           {aside && <div className="rise-in" style={{ '--i': 3 }}>{aside}</div>}
         </div>
+        {footer && <div className="mt-10 md:mt-14">{footer}</div>}
       </div>
     </header>
   );
@@ -289,7 +306,7 @@ export function Section({ id, children, className = '', tone = 'canvas' }) {
   const bg = tone === 'sunken' ? 'bg-sunken' : tone === 'surface' ? 'bg-surface' : 'bg-canvas';
   return (
     <section id={id} className={`${bg} scroll-mt-24 ${className}`}>
-      <div className="mx-auto max-w-6xl px-5 py-16 sm:px-6 md:py-20">{children}</div>
+      <div className="mx-auto max-w-6xl px-5 py-14 sm:px-6 md:py-20">{children}</div>
     </section>
   );
 }
@@ -298,15 +315,15 @@ export function Section({ id, children, className = '', tone = 'canvas' }) {
 export function SectionHeading({ label, title, lead, className = '', as = 'h2' }) {
   const H = as;
   return (
-    <Reveal className={`mb-8 md:mb-12 ${className}`}>
+    <Reveal className={`mb-10 ${className}`}>
       {label && <TechLabel className="mb-4">{label}</TechLabel>}
       <H
         className="font-display uppercase leading-[0.98] text-ink text-balance"
-        style={{ fontSize: 'clamp(1.75rem, 3.6vw, 2.9rem)' }}
+        style={{ fontSize: 'clamp(1.05rem, max(3.6vw, min(8.5vw, 1.75rem)), 2.9rem)' }}
       >
         <SplitWords text={title} />
       </H>
-      {lead && <p className="mt-5 max-w-[62ch] text-base leading-relaxed text-muted md:text-lg"><BrandText>{lead}</BrandText></p>}
+      {lead && <p className="mt-4 max-w-[62ch] text-base leading-relaxed text-muted md:text-lg"><BrandText>{lead}</BrandText></p>}
     </Reveal>
   );
 }
@@ -322,17 +339,17 @@ export function CTABand({ label, title, body, children, image }) {
         </>
       )}
       <div className="field-glow pointer-events-none absolute inset-0" aria-hidden="true" />
-      <div className="relative mx-auto max-w-6xl px-5 py-16 sm:px-6 md:py-24">
+      <div className="relative mx-auto max-w-6xl px-5 py-14 sm:px-6 md:py-20">
         <Reveal className="max-w-3xl">
-          {label && <p className="text-label text-forest-muted">{label}</p>}
+          {label && <p className="script-label text-forest-muted">{label}</p>}
           <h2
-            className="font-display mt-5 uppercase leading-[0.95] text-balance"
-            style={{ fontSize: 'clamp(2rem, 5vw, 4rem)' }}
+            className="font-display mt-4 uppercase leading-[0.95] text-balance"
+            style={{ fontSize: 'clamp(1.05rem, max(5vw, min(8.5vw, 2rem)), 4rem)' }}
           >
             <SplitWords text={title} />
           </h2>
-          {body && <p className="mt-6 max-w-[56ch] text-lg leading-relaxed text-forest-muted"><BrandText>{body}</BrandText></p>}
-          {children && <div className="mt-10 flex flex-wrap gap-3">{children}</div>}
+          {body && <p className="mt-4 max-w-[56ch] text-lg leading-relaxed text-forest-muted"><BrandText>{body}</BrandText></p>}
+          {children && <div className="mt-6 flex flex-wrap items-center gap-x-6 gap-y-3">{children}</div>}
         </Reveal>
       </div>
     </section>

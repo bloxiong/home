@@ -17,6 +17,10 @@
          below is a no-JS fallback; React inserts each page's <title> ahead of it. -->
     <title>BLOXio · Engineering tomorrow</title>
     <meta name="twitter:card" content="summary_large_image" />
+    <link rel="preload" href="/fonts/lucida-handwriting.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preconnect" href="https://api.fontshare.com" />
+    <link rel="preconnect" href="https://cdn.fontshare.com" crossorigin />
+    <link href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700,900&display=swap" rel="stylesheet" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100..125,400..800&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
@@ -29,8 +33,41 @@
         document.documentElement.classList.toggle('dark', t === 'dark');
       } catch (e) {}
     </script>
+    <style>
+      /* Site loader, shown before any JS runs. It is the same curtain as the
+         page transition: a panel whose bottom edge is the planet's curved,
+         gold-rimmed horizon. When the site is ready it lifts away. */
+      #boot {
+        position: fixed; left: 0; right: 0; top: 0; z-index: 80; height: calc(100vh + 18vh);
+        display: grid; place-items: center; padding-bottom: 18vh;
+        background: #0B0D0C;
+        border-radius: 0 0 50% 50% / 0 0 18vh 18vh;
+        box-shadow: 0 1.5px 0 rgba(255, 238, 205, 0.9), 0 8px 30px rgba(242, 208, 150, 0.45), 0 30px 90px rgba(111, 211, 157, 0.22);
+      }
+      html:not(.dark) #boot { background: #D2D7CA; box-shadow: 0 1.5px 0 rgba(168, 110, 26, 0.95), 0 8px 30px rgba(236, 178, 90, 0.45), 0 30px 90px rgba(95, 190, 140, 0.25); }
+      #boot .boot-mark { display: flex; flex-direction: column; align-items: center; gap: 18px; }
+      #boot .boot-star { width: 112px; height: auto; filter: drop-shadow(0 0 18px rgba(242, 208, 150, 0.7)); animation: bootGlint 1.8s ease-in-out infinite; }
+      #boot .boot-word { width: 168px; height: auto; opacity: 0; animation: bootIn 0.6s ease 0.15s forwards; }
+      #boot .boot-tag { width: 190px; height: auto; clip-path: inset(-10% 100% -10% 0); animation: bootWrite 1s cubic-bezier(0.65, 0, 0.35, 1) 0.35s forwards; }
+      html:not(.dark) #boot .boot-tag { filter: brightness(0.5) saturate(1.4) contrast(1.2); }
+      #boot.boot-done { translate: 0 -125%; transition: translate 0.95s cubic-bezier(0.7, 0, 0.2, 1); }
+      @keyframes bootGlint { 0%, 100% { scale: 1; } 50% { scale: 1.06; filter: drop-shadow(0 0 30px rgba(242, 208, 150, 0.95)); } }
+      @keyframes bootIn { to { opacity: 1; } }
+      @keyframes bootWrite { to { clip-path: inset(-10% -2% -10% 0); } }
+      @media (prefers-reduced-motion: reduce) {
+        #boot .boot-star, #boot .boot-word, #boot .boot-tag { animation: none; opacity: 1; clip-path: none; }
+        #boot.boot-done { translate: none; opacity: 0; transition: opacity 0.3s ease; }
+      }
+    </style>
   </head>
   <body>
+    <div id="boot" aria-hidden="true">
+      <div class="boot-mark">
+        <img class="boot-star" src="/brand/star-cluster.png" alt="" width="220" height="192" />
+        <img class="boot-word" src="/bloxio-logo.png" alt="" width="400" height="75" />
+        <img class="boot-tag" src="/brand/tagline.png" alt="" width="785" height="70" />
+      </div>
+    </div>
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
   </body>

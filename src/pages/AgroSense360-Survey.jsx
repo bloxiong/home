@@ -1,9 +1,10 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowLeft, ArrowRight, Check, CheckCircle2, Eye, Loader2, Pencil, RotateCcw } from 'lucide-react';
+import { Check, CheckCircle2, Eye, Loader2, Pencil, RotateCcw } from 'lucide-react';
 import { Button, Brand, BrandText } from '../components/ui';
 import { card, inputCls } from '../lib/ui-utils';
 import { COMPANY } from '../content/site';
+import { postJSON } from '../lib/api';
 
 /* Answers go to a Google Sheet through an Apps Script web app. Field names
    below are the sheet's columns: keep them unchanged. */
@@ -265,12 +266,12 @@ function ThankYou({ onReset }) {
       <span className="flex h-16 w-16 items-center justify-center rounded-full bg-accent text-on-accent shadow-[0_18px_40px_-16px_var(--bx-accent)]">
         <CheckCircle2 size={32} />
       </span>
-      <h2 className="font-display mt-8 uppercase leading-none text-ink" style={{ fontSize: 'clamp(1.75rem, 4vw, 2.5rem)' }}>Thank you</h2>
+      <h2 className="font-display mt-8 uppercase leading-none text-ink" style={{ fontSize: 'clamp(1.05rem, max(4vw, min(8.5vw, 1.75rem)), 2.5rem)' }}>Thank you</h2>
       <p className="mt-4 max-w-md leading-relaxed text-muted">
         Your answers go straight to the founders and directly shape what AgroSense360 does first.
       </p>
       <div className="mt-8 flex flex-wrap justify-center gap-3">
-        <Button to="/products/agrosense360" arrow>See AgroSense360</Button>
+        <Button to="/products/agrosense360" variant="text">See AgroSense360</Button>
         <Button variant="secondary" onClick={onReset}><RotateCcw size={15} /> Submit another response</Button>
       </div>
     </div>
@@ -293,6 +294,7 @@ export default function AgroSense360Survey() {
   const [dir, setDir] = useState(1);
   const [submitted, setSubmitted] = useState(() => load('submitted', false) === true);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [honeypot, setHoneypot] = useState(''); // bots fill hidden fields; people never see it
   const [error, setError] = useState('');
   const [data, setData] = useState(() => ({ ...initialFormData, ...load('formData', {}) }));
   const topRef = useRef(null);
@@ -321,8 +323,14 @@ export default function AgroSense360Survey() {
     setError('');
     const body = new URLSearchParams();
     Object.entries(data).forEach(([k, v]) => (Array.isArray(v) ? v.forEach((x) => body.append(k, x)) : body.append(k, v)));
+    // Answers go to the BLOXio API (Neon) and, as a backup, to the Google
+    // Sheet. It counts as sent if either one gets it.
+    const results = await Promise.allSettled([
+      postJSON('/public/survey', { data, website: honeypot }),
+      fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', body }),
+    ]);
     try {
-      await fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', body });
+      if (results.every((r) => r.status === 'rejected')) throw new Error('both failed');
       setSubmitted(true);
       setData(initialFormData);
       setStep(1);
@@ -339,6 +347,8 @@ export default function AgroSense360Survey() {
 
   return (
     <div ref={topRef} className="scroll-mt-24">
+      <input type="text" name="website" tabIndex={-1} autoComplete="off" aria-hidden="true" value={honeypot}
+        onChange={(e) => setHoneypot(e.target.value)} className="absolute -left-[9999px] h-0 w-0 opacity-0" />
       <div className={`${card()} above-stars overflow-hidden`}>
         {/* header */}
         <div className="flex flex-wrap items-center justify-between gap-3 border-b border-line px-5 py-4 sm:px-8">
@@ -361,7 +371,7 @@ export default function AgroSense360Survey() {
             <ThankYou onReset={reset} />
           ) : (
             <div key={step} className="survey-step" style={{ '--dir': dir }}>
-              <h2 className="font-display uppercase leading-none text-ink" style={{ fontSize: 'clamp(1.4rem, 3vw, 1.9rem)' }}>
+              <h2 className="font-display uppercase leading-none text-ink" style={{ fontSize: 'clamp(1.05rem, max(3vw, min(8.5vw, 1.4rem)), 1.9rem)' }}>
                 {step <= TOTAL ? current.title : 'Review your answers'}
               </h2>
               <p className="mt-3 text-muted">
@@ -383,9 +393,9 @@ export default function AgroSense360Survey() {
 
               <div className="mt-10 flex items-center justify-between gap-3 border-t border-line pt-6">
                 {step > 1 ? (
-                  <Button variant="secondary" onClick={() => go(step - 1)}><ArrowLeft size={16} /> Back</Button>
+                  <Button variant="secondary" onClick={() => go(step - 1)}>Back</Button>
                 ) : <span />}
-                {step < TOTAL && <Button onClick={() => go(step + 1)}>Next <ArrowRight size={16} /></Button>}
+                {step < TOTAL && <Button onClick={() => go(step + 1)}>Next</Button>}
                 {step === TOTAL && <Button onClick={() => go(REVIEW)}><Eye size={16} /> Review answers</Button>}
                 {step === REVIEW && (
                   <Button onClick={submit} disabled={isSubmitting}>
@@ -407,7 +417,7 @@ export default function AgroSense360Survey() {
         <div className={`${card()} p-5`}>
           <p className="font-semibold text-ink">About <Brand /></p>
           <p className="mt-1 text-sm text-muted">Who we are and what we are building.</p>
-          <Link to="/about" className="mt-3 inline-flex text-sm font-semibold text-accent hover:underline">Meet the company</Link>
+          <Link to="/about" className="link-line mt-3">Meet the company</Link>
         </div>
       </div>
       <p className="mt-6 text-center text-xs text-muted">Responses are confidential and used only to improve our products.</p>

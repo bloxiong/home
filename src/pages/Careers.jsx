@@ -1,6 +1,6 @@
 import React from 'react';
 import {
-  PageMeta, PageHeader, Button, Section, SectionHeading, CTABand, Reveal,
+  PageMeta, PageHeader, Button, Section, SectionHeading, CTABand, Reveal, StarBullet,
 } from '../components/ui';
 import { COMPANY, IMG } from '../content/site';
 
@@ -8,14 +8,14 @@ const AREAS = [
   { title: 'Embedded systems and firmware', body: 'Microcontrollers, sensors, low-power design and the code that runs on them.' },
   { title: 'Electronics and PCB design', body: 'Schematics, layout, power supplies and getting boards from prototype to production.' },
   { title: 'Machine learning and computer vision', body: 'Models that read crop images and sensor data, and run where connectivity is poor.' },
-  { title: 'Mobile and web software', body: 'Apps and dashboards that farmers and clients actually use every day.' },
+  { title: 'Mobile and web software', body: 'Dashboards, alerts and remote control that work from a phone in the field.' },
   { title: 'Agronomy and field operations', body: 'People who know farms and can run pilots, train users and bring back what works.' },
   { title: 'Product and industrial design', body: 'Enclosures, usability and making hardware that survives the field.' },
 ];
 
 const EXPECT = [
   { title: 'Work directly with the founders', body: 'A small team means no layers. You will design, build and decide alongside the people who started the company.' },
-  { title: 'Real hardware, real conditions', body: 'Your work ends up on boards, in enclosures and on farms, not only in slides.' },
+  { title: 'Real hardware, real conditions', body: 'Your work ends up on boards, in enclosures and, as pilots begin, on farms.' },
   { title: 'Broad responsibility early', body: 'At this stage everyone touches more than one part of the product. Curiosity matters as much as experience.' },
 ];
 
@@ -31,18 +31,19 @@ export default function Careers() {
       />
 
       <PageHeader
-        image={IMG.parts}
+        image={IMG.soldering}
         label="Careers"
         title="Build hardware made in Nigeria"
         lead="A small, founder-led team. No open roles yet, but we always want to meet builders."
       >
-        <Button href={mailto} variant="light" arrow>Introduce yourself</Button>
+        <Button href={mailto} variant="text">Introduce yourself</Button>
       </PageHeader>
 
       <Section>
         <SectionHeading
+          label="Who we need"
           title="Who we would like to hear from"
-          lead="Skills we will need as AgroSense360 moves to pilot."
+          lead="Skills we will need as AgroSense360 moves to field testing and new product lines move into development."
         />
         <div className="grid gap-x-12 md:grid-cols-2 lg:grid-cols-3">
           {AREAS.map((a) => (
@@ -57,7 +58,7 @@ export default function Careers() {
       <Section tone="sunken">
         <div className="grid gap-12 lg:grid-cols-2 lg:gap-20 items-center">
           <div>
-            <SectionHeading className="mb-8!" title="What to expect" />
+            <SectionHeading className="mb-8!" label="The work" title="What to expect" />
             <div className="border-t border-line">
               {EXPECT.map((e) => (
                 <div key={e.title} className="border-b border-line py-5">
@@ -70,9 +71,9 @@ export default function Careers() {
           <Reveal className="on-forest relative overflow-hidden bg-forest p-8 text-on-forest md:p-10">
             <div className="field-glow pointer-events-none absolute inset-0" aria-hidden="true" />
             <p className="relative text-label text-forest-muted">What you would work on</p>
-            <ul className="relative mt-6 space-y-3 text-lg">
-              {['Firmware and embedded control', 'Crop-disease models', 'Backend services and dashboards', 'Field testing with real farms'].map((t) => (
-                <li key={t} className="flex items-center gap-3"><span className="h-1.5 w-1.5 bg-signal" aria-hidden="true" />{t}</li>
+            <ul className="relative mt-4 space-y-3 text-lg">
+              {['Firmware and embedded control', 'Crop-disease models', 'Backend services and dashboards', 'Field testing with real farms'].map((t, i) => (
+                <li key={t} className="flex items-center gap-3"><StarBullet i={i} />{t}</li>
               ))}
             </ul>
           </Reveal>
@@ -81,7 +82,7 @@ export default function Careers() {
 
       <Section>
         <div className="grid gap-10 lg:grid-cols-[1fr_1.3fr] lg:gap-20">
-          <SectionHeading title="How to get in touch" />
+          <SectionHeading label="Apply" title="How to get in touch" />
           <ol className="space-y-6 text-lg leading-relaxed text-muted">
             <li>
               <span className="font-semibold text-ink">Email {COMPANY.email}</span> with “Careers” in the subject.
@@ -102,8 +103,8 @@ export default function Careers() {
       </Section>
 
       <CTABand title="Not an engineer, but want to help?" body="Investors, partners, farms and distributors: we would like to hear from you too.">
-        <Button to="/contact?topic=invest" variant="light" arrow>Get in touch</Button>
-        <Button href={mailto} variant="ghost">Careers email</Button>
+        <Button to="/contact?topic=invest" variant="text">Get in touch</Button>
+        <Button href={mailto} variant="text">Careers email</Button>
       </CTABand>
     </>
   );

@@ -1,5 +1,6 @@
 import { useEffect, useState, useCallback } from 'react';
 import { ChevronUp } from 'lucide-react';
+import { useLocation } from 'react-router-dom';
 
 const SHOW_AFTER = 320;
 
@@ -13,6 +14,9 @@ const scrollToTop = () => {
 
 export default function ScrollToTopButton() {
   const [visible, setVisible] = useState(false);
+  // the survey has its own Back/Next bar where this button would sit
+  const { pathname } = useLocation();
+  const hidden = pathname.endsWith('/survey');
 
   useEffect(() => {
     const update = () => {
@@ -34,6 +38,8 @@ export default function ScrollToTopButton() {
     e.stopPropagation();
     scrollToTop();
   }, []);
+
+  if (hidden) return null;
 
   return (
     <button

@@ -1,6 +1,5 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight } from 'lucide-react';
 import {
   PageMeta, PageHeader, Button, Section, SectionHeading, CTABand, Reveal, StatusBadge, Photo,
 } from '../components/ui';
@@ -22,7 +21,7 @@ export default function Research() {
         image={IMG.network}
         label="Research & development"
         title="What we are exploring"
-        lead="Where the next products come from. None are for sale; each shows its real stage."
+        lead="Six areas where our next products come from. None are for sale, and each carries its real stage."
       />
 
       <Section>
@@ -34,21 +33,22 @@ export default function Research() {
         <div className="grid gap-4 md:grid-cols-2">
           {RESEARCH.map((r, i) => (
             <Reveal key={r.id} i={i % 2}>
-              <article id={r.id} className={`${card(true)} group flex h-full scroll-mt-28 flex-col overflow-hidden`}>
+              <article id={r.id} className={`${card(true)} group relative flex h-full scroll-mt-28 flex-col overflow-hidden`}>
                 <Photo id={r.img} zoom className="aspect-[16/9]" sizes="(min-width: 768px) 50vw, 100vw" />
                 <div className="flex flex-1 flex-col p-7 md:p-9">
                 <div className="flex items-center justify-between gap-4">
                   <span className="text-label text-muted">R-{String(i + 1).padStart(2, '0')}</span>
                   <StatusBadge status={r.status} />
                 </div>
-                <h2 className="mt-8 text-2xl font-bold tracking-tight text-ink">{r.title}</h2>
+                <h2 className="mt-6 text-2xl font-bold tracking-tight text-ink">
+                  <Link to={r.links?.[0]?.to ?? '/contact?topic=invest'} className="after:absolute after:inset-0 after:content-['']">{r.title}</Link>
+                </h2>
                 <p className="mt-3 leading-relaxed text-muted">{r.body}</p>
                 {r.links && (
                   <div className="mt-auto pt-6">
                     {r.links.map((l) => (
-                      <Link key={l.to} to={l.to} className="group inline-flex items-center gap-2 text-sm font-semibold text-accent">
+                      <Link key={l.to} to={l.to} className="link-line relative z-10">
                         {l.label}
-                        <ArrowRight size={15} className="transition-transform group-hover:translate-x-0.5" />
                       </Link>
                     ))}
                   </div>
@@ -63,7 +63,7 @@ export default function Research() {
       <Section tone="sunken">
         <SectionHeading
           label="What the labels mean"
-          title="Honest stages"
+          title="What each stage means"
         />
         <dl className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {[
@@ -83,9 +83,9 @@ export default function Research() {
       <CTABand
         label="Collaborate"
         title="Research with us."
-        body="Universities, farms and companies on the same problems: let’s compare notes."
+        body="Universities, farms and companies working on field robotics, crop vision or low-power sensing: let’s compare notes."
       >
-        <Button to="/contact?topic=invest" variant="light" arrow>Propose a collaboration</Button>
+        <Button to="/contact?topic=invest" variant="text">Propose a collaboration</Button>
       </CTABand>
     </>
   );

@@ -1,8 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, NavLink, useLocation } from 'react-router-dom';
-import { Sun, Moon, ArrowRight } from 'lucide-react';
+import { Sun, Moon } from 'lucide-react';
 import { useTheme } from '../contexts/ThemeContext';
 import { COMPANY } from '../content/site';
+import { isAgroHost, MAIN_URL } from '../lib/hosts';
+
+import { StarBullet } from './ui';
 
 const NAV_LINKS = [
   { label: 'Products',    to: '/products' },
@@ -20,7 +23,10 @@ function ThemeToggle({ overDark }) {
   return (
     <button
       type="button"
-      onClick={toggleTheme}
+      onClick={(e) => {
+        const r = e.currentTarget.getBoundingClientRect();
+        toggleTheme({ x: r.left + r.width / 2, y: r.top + r.height / 2 });
+      }}
       aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
       title={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
       className={`relative flex h-11 w-11 items-center justify-center overflow-hidden rounded-full border transition-colors duration-200 ${
@@ -132,7 +138,7 @@ export default function Navigation() {
         ref={navRef}
         className={`fixed inset-x-0 top-0 z-50 transition-[background-color,border-color] duration-300 ${
           isOpen
-            ? 'border-b border-forest-line bg-forest'
+            ? 'border-b border-transparent bg-transparent'
             : scrolled
               ? 'border-b border-transparent bg-transparent backdrop-blur-md'
               : 'border-b border-transparent bg-transparent shadow-none'
@@ -141,9 +147,16 @@ export default function Navigation() {
       >
         <div className="mx-auto max-w-7xl px-4 sm:px-6">
           <div className="flex h-[68px] items-center justify-between gap-6">
-            <Link to="/" className="flex shrink-0 items-center" aria-label="BLOXio home">
-              <img src="/bloxio-logo.png" alt="BLOXio" width="400" height="75" className="h-auto w-[96px] object-contain" />
-            </Link>
+            {/* on the AgroSense360 subdomain the logo goes home to bloxio.tech */}
+            {isAgroHost ? (
+              <a href={MAIN_URL} className="flex shrink-0 items-center" aria-label="BLOXio home">
+                <img src="/bloxio-logo.png" alt="BLOXio" width="400" height="75" className="h-auto w-[96px] object-contain" />
+              </a>
+            ) : (
+              <Link to="/" className="flex shrink-0 items-center" aria-label="BLOXio home">
+                <img src="/bloxio-logo.png" alt="BLOXio" width="400" height="75" className="h-auto w-[96px] object-contain" />
+              </Link>
+            )}
 
             <div className="hidden items-center gap-1 lg:flex">
               {NAV_LINKS.map((l) => (
@@ -166,12 +179,11 @@ export default function Navigation() {
               <ThemeToggle overDark={overDark} />
               <Link
                 to="/contact?topic=project"
-                className={`group hidden min-h-11 items-center gap-2 rounded-full px-5 text-sm font-semibold transition-all duration-200 lg:inline-flex ${
+                className={`group hidden min-h-11 items-center gap-2 rounded-xl px-5 text-sm font-semibold transition-all duration-200 lg:inline-flex ${
                   overDark ? 'bg-on-forest text-forest hover:bg-white' : 'bg-accent text-on-accent hover:brightness-110'
                 }`}
               >
                 Start a project
-                <ArrowRight size={15} className="transition-transform group-hover:translate-x-0.5" />
               </Link>
               <button
                 ref={buttonRef}
@@ -195,7 +207,7 @@ export default function Navigation() {
       {/* Mobile menu: grows out of the button as a circle, links follow */}
       <div
         id="mobile-menu"
-        className="menu-panel on-forest fixed inset-0 z-40 bg-forest text-on-forest lg:hidden"
+        className="menu-panel on-forest fixed inset-0 z-[46] bg-forest text-on-forest lg:hidden"
         data-open={isOpen}
         style={{ '--mx': origin.x, '--my': origin.y }}
         aria-hidden={!isOpen}
@@ -203,29 +215,29 @@ export default function Navigation() {
       >
         <div className="field-glow pointer-events-none absolute inset-0" aria-hidden="true" />
         <div className="relative flex h-full flex-col overflow-y-auto px-5 pt-24 pb-10 sm:px-6">
-          <nav className="flex flex-col border-t border-forest-line" aria-label="Mobile">
-            {[{ label: 'Home', to: '/' }, ...NAV_LINKS].map((l, i) => (
+          <nav className="flex flex-col gap-1" aria-label="Mobile">
+            {[{ label: 'Home', to: isAgroHost ? '/__home' : '/' }, ...NAV_LINKS].map((l, i) => (
               <NavLink
                 key={l.to}
                 ref={i === 0 ? firstLinkRef : undefined}
                 to={l.to}
                 end={l.to === '/'}
                 className={({ isActive }) =>
-                  `menu-item group flex items-center justify-between border-b border-forest-line py-4 ${isActive ? 'text-signal' : 'text-on-forest'}`
+                  `menu-item menu-link group flex items-center gap-3 py-2.5 ${isActive ? 'is-active text-signal' : 'text-on-forest'}`
                 }
                 style={{ '--k': i }}
               >
-                <span className="font-display text-2xl uppercase transition-transform duration-300 group-hover:translate-x-1">{l.label}</span>
-                <ArrowRight size={20} className="text-forest-muted transition-all duration-300 group-hover:translate-x-1 group-hover:text-signal" />
+                <StarBullet i={i} className="menu-star h-4 w-4" />
+                <span className="font-display text-[1.75rem] uppercase leading-none transition-transform duration-300 group-hover:translate-x-1">{l.label}</span>
               </NavLink>
             ))}
           </nav>
           <Link
             to="/contact?topic=project"
-            className="menu-item mt-8 inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-on-forest px-6 font-semibold text-forest"
+            className="menu-item mt-8 inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-on-forest px-6 font-semibold text-forest"
             style={{ '--k': NAV_LINKS.length + 1 }}
           >
-            Start a project <ArrowRight size={16} />
+            Start a project
           </Link>
           <div className="menu-item mt-auto space-y-1 pt-10 text-sm text-forest-muted" style={{ '--k': NAV_LINKS.length + 2 }}>
             <a href={`mailto:${COMPANY.email}`} className="block font-semibold text-signal">{COMPANY.email}</a>

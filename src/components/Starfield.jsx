@@ -33,7 +33,7 @@ export default function Starfield() {
     const ctx = canvas.getContext('2d');
     const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     const dpr = Math.min(window.devicePixelRatio || 1, 1.5);
-    let W = 0, H = 0, stars = [], shooting = null, nextShot = 4, raf = 0, last = performance.now(), t = 0;
+    let W = 0, H = 0, stars = [], shooting = null, nextShot = 1.5, raf = 0, last = performance.now(), t = 0;
 
     const build = () => {
       W = window.innerWidth; H = window.innerHeight;
@@ -93,7 +93,7 @@ export default function Starfield() {
             vy: 260 + Math.random() * 160,
             life: 0,
           };
-          nextShot = 6 + Math.random() * 8;
+          nextShot = 2.5 + Math.random() * 3.5;
         }
         if (shooting) {
           const s = shooting;
