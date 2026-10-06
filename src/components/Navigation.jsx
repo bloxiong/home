@@ -61,6 +61,8 @@ export default function Navigation() {
       const nav = navRef.current;
       const y = (nav?.offsetHeight ?? 68) / 2;
       const stack = document.elementsFromPoint(window.innerWidth / 2, y);
+      // mid theme-switch only the root is hit: keep the current tone, no flicker
+      if (stack.every((el) => el === document.documentElement)) return;
       for (const el of stack) {
         if (nav?.contains(el) || el.tagName === 'CANVAS') continue;
         // sections can state their tone (gradients and images have no
@@ -87,12 +89,20 @@ export default function Navigation() {
     const onScroll = () => { if (!raf) raf = requestAnimationFrame(sample); };
     // sample after the new page has painted, and whenever the theme flips
     const t = setTimeout(sample, 80);
-    const mo = new MutationObserver(onScroll);
+    // while the theme's circle reveal plays the page underneath can't be
+    // read, so look again once it has finished (and after the loader lifts)
+    const later = [];
+    const resample = () => { onScroll(); later.push(setTimeout(sample, 1000)); };
+    const mo = new MutationObserver(resample);
+    window.addEventListener('load', resample);
+    window.addEventListener('bx:page-ready', resample);
     mo.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
     window.addEventListener('scroll', onScroll, { passive: true });
     window.addEventListener('resize', onScroll);
     return () => {
-      clearTimeout(t); cancelAnimationFrame(raf); mo.disconnect();
+      clearTimeout(t); later.forEach(clearTimeout); cancelAnimationFrame(raf); mo.disconnect();
+      window.removeEventListener('load', resample);
+      window.removeEventListener('bx:page-ready', resample);
       window.removeEventListener('scroll', onScroll);
       window.removeEventListener('resize', onScroll);
     };
