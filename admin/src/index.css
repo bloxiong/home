@@ -19,6 +19,7 @@
   --bx-signal:    #1E7A4A;
   --bx-danger:    #A3271C;
   --bx-warn:      #8A5A00;
+  --bx-gold-ink:  #7A5418;
 }
 html.dark {
   --bx-canvas:    #0B0D0C;
@@ -32,6 +33,7 @@ html.dark {
   --bx-signal:    #6FD39D;
   --bx-danger:    #F08A7E;
   --bx-warn:      #E5C08A;
+  --bx-gold-ink:  #E5C08A;
 }
 
 @theme inline {
@@ -49,6 +51,7 @@ html.dark {
   --color-danger:    var(--bx-danger);
   --color-warn:      var(--bx-warn);
   --color-gold:      #E5C08A;
+  --color-gold-ink:  var(--bx-gold-ink);
 }
 
 html, body {
@@ -82,7 +85,8 @@ button, input, textarea, select { font-family: inherit; }
 ::selection { background: color-mix(in oklab, var(--bx-accent) 30%, transparent); }
 :focus-visible { outline: 2px solid var(--bx-accent); outline-offset: 2px; }
 
-/* form controls */
+/* form controls (in the components layer so utilities like pl-9 still win) */
+@layer components {
 .field {
   width: 100%;
   border-radius: 0.75rem;
@@ -99,6 +103,8 @@ button, input, textarea, select { font-family: inherit; }
 select.field { appearance: none; padding-right: 2rem;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%239BA39E' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
   background-repeat: no-repeat; background-position: right 0.7rem center; }
+
+}
 
 .skeleton {
   background: linear-gradient(90deg, var(--bx-sunken) 0%, color-mix(in oklab, var(--bx-line) 60%, var(--bx-sunken)) 50%, var(--bx-sunken) 100%);

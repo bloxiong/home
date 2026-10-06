@@ -27,12 +27,20 @@ export function itemTitle(item) {
     const v = item[k]
     if (typeof v === 'string' && v.trim()) {
       const t = v.length > 80 ? `${v.slice(0, 80)}…` : v
-      return k === 'type' && typeof item.text === 'string' ? `${v} · ${item.text.slice(0, 60)}` : t
+      if (k === 'type') {
+        const name = BLOCK_NAMES[v] || v
+        if (typeof item.text === 'string') return `${name} · ${item.text.slice(0, 60)}`
+        if (Array.isArray(item.items)) return `${name} · ${item.items.length} items`
+        return name
+      }
+      return t
     }
     if (typeof v === 'number' && k === 'value') return `${v}${item.label ? ` ${item.label}` : ''}`
   }
   return ''
 }
+
+const BLOCK_NAMES = { p: 'Paragraph', h: 'Heading', h2: 'Heading', h3: 'Subheading', list: 'List', quote: 'Quote', img: 'Image' }
 
 /**
  * Distinct item shapes in a list, so "Add" can offer each kind
@@ -46,7 +54,7 @@ export function templatesFor(list) {
       const keys = Object.keys(item).sort().join(',')
       const disc = typeof item.type === 'string' ? item.type : typeof item.kind === 'string' ? item.kind : ''
       sig = `${keys}|${disc}`
-      label = disc || `${Object.keys(item).slice(0, 3).join(' / ')}`
+      label = BLOCK_NAMES[disc] || disc || `${Object.keys(item).slice(0, 3).join(' / ')}`
     } else {
       sig = typeof item
       label = typeof item

@@ -35,10 +35,10 @@ export function Button({ variant = 'secondary', size = 'md', loading, icon: Icon
   return <button type="button" className={cls} disabled={loading || rest.disabled} {...rest}>{inner}</button>
 }
 
-export function IconButton({ icon: Icon, label, className, ...rest }) {
+export function IconButton({ icon: Icon, label, className, compact, ...rest }) {
   return (
     <button type="button" aria-label={label} title={label}
-      className={cx('inline-flex h-8 w-8 items-center justify-center rounded-lg text-muted transition hover:bg-sunken hover:text-ink disabled:opacity-40 disabled:pointer-events-none', className)}
+      className={cx('inline-flex items-center', compact ? 'h-7 w-7 sm:h-8 sm:w-8' : 'h-8 w-8', ' justify-center rounded-lg text-muted transition hover:bg-sunken hover:text-ink disabled:opacity-40 disabled:pointer-events-none', className)}
       {...rest}>
       <Icon className="h-4 w-4" aria-hidden />
     </button>
@@ -85,7 +85,7 @@ const TONES = {
   accent: 'border-accent/40 text-accent bg-accent/10',
   warn: 'border-warn/40 text-warn bg-warn/10',
   danger: 'border-danger/40 text-danger bg-danger/10',
-  gold: 'border-gold/50 text-gold bg-gold/10',
+  gold: 'border-gold/60 text-gold-ink bg-gold/15',
 }
 export function Badge({ tone = 'neutral', children, className }) {
   return (
@@ -238,12 +238,12 @@ export function Modal({ open, onClose, title, children, footer, wide }) {
   )
 }
 
-export function ConfirmDialog({ open, title, children, confirmLabel = 'Confirm', danger, loading, onConfirm, onClose }) {
+export function ConfirmDialog({ open, title, children, confirmLabel = 'Confirm', cancelLabel = 'Cancel', hideCancel, danger, loading, onConfirm, onClose }) {
   return (
     <Modal open={open} onClose={onClose} title={title}
       footer={(
         <>
-          <Button variant="ghost" onClick={onClose}>Cancel</Button>
+          {!hideCancel && <Button variant="ghost" onClick={onClose}>{cancelLabel}</Button>}
           <Button variant={danger ? 'danger' : 'primary'} loading={loading} onClick={onConfirm}>{confirmLabel}</Button>
         </>
       )}>
