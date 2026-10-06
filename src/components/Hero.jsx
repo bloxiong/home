@@ -33,7 +33,7 @@ function useParticles(canvasRef) {
 
     const draw = () => {
       const w = canvas.clientWidth, h = canvas.clientHeight;
-      const dark = document.documentElement.classList.contains('dark');
+      const dark = true; // the hero looks the same in light mode as in dark mode
       const dot = dark ? '143,211,168' : '27,122,75';
       const line = dark ? '93,187,132' : '27,122,75';
       ctx.clearRect(0, 0, w, h);
@@ -172,6 +172,7 @@ export default function Hero() {
   return (
     <section
       ref={sectionRef}
+      data-nav-tone="dark"
       className="hero relative flex flex-col overflow-hidden bg-canvas text-ink"
       aria-labelledby="hero-title"
     >
