@@ -115,7 +115,7 @@ function Editor({ sectionKey }) {
       )}
 
       {dirty && (
-        <div className="sticky bottom-4 z-20 mt-4 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-accent/40 bg-surface/95 px-4 py-3 shadow-xl backdrop-blur">
+        <div className="sticky bottom-20 z-20 mt-5 md:bottom-4 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-accent/40 bg-surface/95 px-4 py-3 shadow-xl backdrop-blur">
           <p className="text-sm"><b>Unsaved edits</b> <span className="text-muted">· ⌘/Ctrl S to save</span></p>
           <div className="flex gap-2">
             <Button variant="ghost" size="sm" icon={Undo2} onClick={() => setEdit(null)}>Revert edits</Button>

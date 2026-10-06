@@ -88,7 +88,7 @@ function RecipientGroup({ title, icon: Icon, people, selected, onToggle, onAll }
           <ul className="max-h-60 overflow-y-auto border-t border-line py-1">
             {people.map((p) => (
               <li key={p.email}>
-                <label className="flex cursor-pointer items-center gap-3 px-3 py-1.5 text-sm hover:bg-sunken">
+                <label className="flex cursor-pointer items-center gap-3 px-3 py-1.5 text-sm hover:bg-ink/[0.035]">
                   <input type="checkbox" className="h-4 w-4 accent-[var(--bx-accent)]" checked={selected.has(norm(p.email))} onChange={() => onToggle(p.email)} />
                   <span className="min-w-0 flex-1 truncate">{p.email}</span>
                   <span className="hidden truncate text-xs text-muted sm:block">{p.label}</span>
@@ -148,7 +148,7 @@ function Compose({ onSent }) {
   return (
     <Card>
       <CardHeader title="Compose" sub="Sent from the shared no-reply address. Replies go to the BLOXio inbox." />
-      <div className="grid gap-5 p-4 sm:p-5 lg:grid-cols-[1fr_18rem]">
+      <div className="grid gap-5 p-5 sm:p-6 lg:grid-cols-[1fr_18rem]">
         <div className="min-w-0 space-y-3">
           <Field label={`To${to.length ? ` (${to.length})` : ''}`}>
             <AddressInput value={to} onChange={setTo} />
@@ -183,7 +183,7 @@ function Compose({ onSent }) {
       </div>
 
       {result && (
-        <div className="border-t border-line p-4 sm:p-5">
+        <div className="border-t border-line p-5 sm:p-6">
           <div className="mb-2 flex items-center justify-between">
             <p className="text-sm font-bold">{result.sent} sent / logged · {result.failed} failed</p>
             <Button size="sm" variant="ghost" onClick={() => setResult(null)}>Dismiss</Button>
@@ -220,7 +220,7 @@ function LogRow({ m }) {
   return (
     <li>
       <button type="button" onClick={() => setOpen((o) => !o)} aria-expanded={open}
-        className="flex w-full items-center gap-3 px-4 py-3 text-left transition hover:bg-sunken sm:px-5">
+        className="flex w-full items-center gap-3 px-5 py-4 text-left transition hover:bg-ink/[0.035] sm:px-6">
         <div className="min-w-0 flex-1">
           <p className="truncate text-sm font-bold">{m.subject}</p>
           <p className="truncate text-xs text-muted">To {m.to.join(', ')}</p>
@@ -234,7 +234,7 @@ function LogRow({ m }) {
         <ChevronDown className={`h-4 w-4 shrink-0 text-muted transition ${open ? 'rotate-180' : ''}`} aria-hidden />
       </button>
       {open && (
-        <div className="space-y-2 px-4 pb-4 sm:px-5">
+        <div className="space-y-2 px-5 pb-5 sm:px-6">
           <p className="text-xs text-muted">{m.kind} · {fmtDate(m.created_at)} · by {m.sent_by || 'system'}</p>
           {m.error && <p className="rounded-xl border border-danger/40 bg-danger/10 p-2 font-mono text-xs text-danger">{m.error}</p>}
           <EmailPreview html={m.body} />

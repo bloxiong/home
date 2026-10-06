@@ -1,6 +1,6 @@
 import { useState } from 'react'
-import { Globe2 } from 'lucide-react'
-import BarList from '../components/BarList'
+import { Eye, Globe2, Layers, Users } from 'lucide-react'
+import { Delta, Donut, LegendKey, RankList, TrendChart } from '../components/charts'
 import { Card, CardHeader, Empty, ErrorNote, PageHeader, Select, Skeleton, Stat } from '../components/ui'
 import { useApi } from '../lib/hooks'
 
@@ -19,49 +19,13 @@ const flag = (code) => (code && code.length === 2
 
 const toMap = (pairs, label = (k) => k || 'Unknown') =>
   Object.fromEntries((pairs || []).map(([k, v]) => [label(k), v]))
+const toRows = (pairs, label = (k) => k || 'Unknown', icon) =>
+  (pairs || []).map(([k, v]) => ({ key: k || '—', label: label(k), value: v, icon: icon?.(k) }))
 
 function change(cur, prev) {
   if (!prev) return cur ? 'New this period' : 'No visits yet'
   const pct = Math.round(((cur - prev) / prev) * 100)
   return `${pct >= 0 ? '+' : ''}${pct}% vs previous period`
-}
-
-/* Daily views (bars) and unique visitors (line), plain SVG */
-function DailyChart({ series }) {
-  const W = 720, H = 180, pad = 24
-  const max = Math.max(1, ...series.map((d) => d.views))
-  const bw = (W - pad * 2) / series.length
-  const y = (v) => H - pad - (v / max) * (H - pad * 2)
-  const line = series.map((d, i) => `${pad + bw * i + bw / 2},${y(d.visitors)}`).join(' ')
-  const ticks = [0, Math.ceil(max / 2), max]
-  const label = (d) => new Date(`${d}T12:00:00Z`).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })
-  const every = Math.ceil(series.length / 7)
-  return (
-    <div className="p-4 sm:p-5">
-      <svg viewBox={`0 0 ${W} ${H}`} className="h-auto w-full" role="img" aria-label="Views and visitors per day">
-        {ticks.map((t) => (
-          <g key={t}>
-            <line x1={pad} x2={W - pad} y1={y(t)} y2={y(t)} className="stroke-line" strokeWidth="1" />
-            <text x={0} y={y(t) + 4} className="fill-muted" fontSize="10">{t}</text>
-          </g>
-        ))}
-        {series.map((d, i) => (
-          <rect key={d.date} x={pad + bw * i + bw * 0.18} width={bw * 0.64} y={y(d.views)} height={H - pad - y(d.views)}
-            rx="2" className="fill-accent/35">
-            <title>{`${label(d.date)}: ${d.views} views, ${d.visitors} visitors`}</title>
-          </rect>
-        ))}
-        <polyline points={line} fill="none" className="stroke-accent" strokeWidth="2" strokeLinejoin="round" />
-        {series.map((d, i) => (i % every === 0 || i === series.length - 1) && (
-          <text key={d.date} x={pad + bw * i + bw / 2} y={H - 6} textAnchor="middle" className="fill-muted" fontSize="10">{label(d.date)}</text>
-        ))}
-      </svg>
-      <div className="mt-2 flex gap-4 text-xs text-muted">
-        <span className="inline-flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded-sm bg-accent/35" /> Page views</span>
-        <span className="inline-flex items-center gap-1.5"><span className="h-0.5 w-4 bg-accent" /> Visitors</span>
-      </div>
-    </div>
-  )
 }
 
 export default function Traffic() {
@@ -93,45 +57,65 @@ export default function Traffic() {
       <ErrorNote error={error} onRetry={reload} />
 
       {!a && !error ? (
-        <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+        <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
           {Array.from({ length: 4 }, (_, i) => <Skeleton key={i} className="h-28 rounded-2xl" />)}
         </div>
       ) : a && (
         <>
-          <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-            <Stat label="Page views" value={views.toLocaleString()} sub={change(views, a.previous.views)} />
-            <Stat label="Visitors" value={a.current.visitors.toLocaleString()} sub={change(a.current.visitors, a.previous.visitors)} />
-            <Stat label="Pages per visitor" value={a.current.visitors ? (views / a.current.visitors).toFixed(1) : '—'} />
-            <Stat label="Countries" value={a.countries.filter(([c]) => c).length} sub={a.countries[0]?.[0] ? `Most from ${countryName(a.countries[0][0])}` : undefined} />
+          <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
+            <Stat icon={Eye} label="Page views" value={views.toLocaleString()} sub={change(views, a.previous.views)} />
+            <Stat icon={Users} label="Visitors" value={a.current.visitors.toLocaleString()} sub={change(a.current.visitors, a.previous.visitors)} />
+            <Stat icon={Layers} label="Pages per visitor" value={a.current.visitors ? (views / a.current.visitors).toFixed(1) : '—'} />
+            <Stat icon={Globe2} label="Countries" value={a.countries.filter(([c]) => c).length} sub={a.countries[0]?.[0] ? `Most from ${countryName(a.countries[0][0])}` : undefined} />
           </div>
 
           {!views ? (
-            <Card className="mt-4">
+            <Card className="mt-5">
               <Empty icon={Globe2} title="No visits recorded yet">
                 Visits are counted on the live sites once VISIT_SECRET is set in Vercel and Render.
               </Empty>
             </Card>
           ) : (
             <>
-              <Card className="mt-4"><CardHeader title="Views and visitors per day" /><DailyChart series={a.series} /></Card>
+              <Card className="mt-5">
+                <div className="flex flex-wrap items-end justify-between gap-x-8 gap-y-4 border-b border-line px-5 py-5 sm:px-6">
+                  <div>
+                    <h2 className="text-label text-muted">Views and visitors per day</h2>
+                    <div className="mt-3 flex flex-wrap items-end gap-x-8 gap-y-3">
+                      <div>
+                        <p className="flex items-center gap-2"><span className="tnum font-display text-3xl leading-none">{views.toLocaleString()}</span><Delta cur={views} prev={a.previous.views} /></p>
+                        <p className="mt-1.5"><LegendKey color="var(--viz-1)" label="Page views" shape="box" /></p>
+                      </div>
+                      <div>
+                        <p className="flex items-center gap-2"><span className="tnum font-display text-3xl leading-none">{a.current.visitors.toLocaleString()}</span><Delta cur={a.current.visitors} prev={a.previous.visitors} /></p>
+                        <p className="mt-1.5"><LegendKey color="var(--viz-2)" label="Visitors" /></p>
+                      </div>
+                    </div>
+                  </div>
+                  <p className="text-xs text-muted">vs the previous {days} days · weekends shaded</p>
+                </div>
+                <div className="px-2 pb-3 pt-4 sm:px-4"><TrendChart series={a.series} /></div>
+              </Card>
 
-              <div className="mt-4 grid gap-4 lg:grid-cols-2">
+              <div className="mt-5 grid gap-5 lg:grid-cols-2">
                 <Card>
                   <CardHeader title="Countries" />
-                  <BarList data={toMap(a.countries, (c) => `${flag(c)}  ${countryName(c)}`)} />
+                  <RankList rows={toRows(a.countries, countryName, flag)} />
                 </Card>
                 <Card>
                   <CardHeader title="Cities" sub="Approximate, from the visitor's connection" />
-                  <BarList data={Object.fromEntries(a.cities.map((c) =>
-                    [`${c.city}${c.region ? `, ${c.region}` : ''} ${flag(c.country)}`, c.views]))} emptyText="No city data yet." />
+                  <RankList emptyText="No city data yet." rows={a.cities.map((c) => ({
+                    key: `${c.city}|${c.region}|${c.country}`, label: c.city || 'Unknown', sub: [c.region, countryName(c.country)].filter(Boolean).join(', '),
+                    value: c.views, icon: flag(c.country),
+                  }))} />
                 </Card>
-                <Card><CardHeader title="Top pages" /><BarList data={toMap(a.pages)} /></Card>
+                <Card><CardHeader title="Top pages" /><RankList rows={toRows(a.pages)} /></Card>
                 <Card>
                   <CardHeader title="Where they came from" sub="Direct = typed the address, bookmarks or apps" />
-                  <BarList data={toMap(a.referrers, (r) => r || 'Direct')} />
+                  <RankList rows={toRows(a.referrers, (r) => r || 'Direct')} />
                 </Card>
-                <Card><CardHeader title="Devices" /><BarList data={toMap(a.devices)} /></Card>
-                <Card><CardHeader title="Browsers" /><BarList data={toMap(a.browsers)} /></Card>
+                <Card><CardHeader title="Devices" /><Donut data={toMap(a.devices)} /></Card>
+                <Card><CardHeader title="Browsers" /><Donut data={toMap(a.browsers)} /></Card>
               </div>
             </>
           )}

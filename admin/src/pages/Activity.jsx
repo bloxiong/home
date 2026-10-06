@@ -82,7 +82,7 @@ function Row({ x, who }) {
 
   return (
     <li>
-      <div className="flex items-start gap-3 px-4 py-3 sm:px-5">
+      <div className="flex items-start gap-3 px-5 py-4 sm:px-6">
         <span className="mt-1 flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-line bg-sunken font-mono text-[11px] font-medium uppercase">
           {(who.name || x.admin_email).slice(0, 2)}
         </span>
@@ -101,7 +101,7 @@ function Row({ x, who }) {
         </div>
         {hasData && (
           <button type="button" onClick={() => setOpen((o) => !o)} aria-expanded={open}
-            className="inline-flex shrink-0 items-center gap-1 rounded-lg px-2 py-1 text-xs font-bold text-muted hover:bg-sunken hover:text-ink">
+            className="inline-flex shrink-0 items-center gap-1 rounded-lg px-2 py-1 text-xs font-bold text-muted hover:bg-ink/[0.035] hover:text-ink">
             Changes <ChevronDown className={cx('h-3.5 w-3.5 transition', open && 'rotate-180')} aria-hidden />
           </button>
         )}
@@ -141,7 +141,7 @@ export default function ActivityPage() {
     <>
       <PageHeader title="Activity" sub="Every change made in the admin, by whom and when. Times are Lagos time (WAT)." />
       <Card>
-        <div className="grid gap-2 border-b border-line p-3 sm:grid-cols-2 sm:p-4 lg:grid-cols-[16rem_12rem]">
+        <div className="grid gap-3 border-b border-line p-4 sm:grid-cols-2 sm:p-5 lg:grid-cols-[16rem_12rem]">
           <Select aria-label="Admin" value={adminEmail} onChange={(e) => { setAdminEmail(e.target.value); setOffset(0) }}>
             <option value="">All admins</option>
             {(admins.data || []).map((a) => <option key={a.id} value={a.email}>{a.name || a.email}</option>)}

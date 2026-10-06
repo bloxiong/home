@@ -59,12 +59,12 @@ export default function SurveyDetail() {
           </Button>
         )}
       />
-      <div className="grid items-start gap-4 lg:grid-cols-[1fr_20rem]">
+      <div className="grid items-start gap-5 lg:grid-cols-[1fr_20rem]">
         <Card>
           <CardHeader title="Answers" sub={fmtDate(s.created_at)} />
           <dl className="divide-y divide-line">
             {keys.map((k) => (
-              <div key={k} className="grid gap-1 px-4 py-3 sm:grid-cols-[14rem_1fr] sm:gap-4 sm:px-5">
+              <div key={k} className="grid gap-1 px-5 py-4 sm:grid-cols-[14rem_1fr] sm:gap-6 sm:px-6">
                 <dt className="text-sm text-muted">{labels[k] || humanize(k)}</dt>
                 <dd className="text-sm"><Answer value={s.data?.[k]} /></dd>
               </div>
@@ -72,7 +72,7 @@ export default function SurveyDetail() {
           </dl>
         </Card>
 
-        <div className="space-y-4 lg:sticky lg:top-6">
+        <div className="space-y-5 lg:sticky lg:top-6">
           <TriagePanel key={s.id} item={s} statuses={SURVEY_STATUSES} onSave={patch} />
           <Card>
             <CardHeader title="Contact" />

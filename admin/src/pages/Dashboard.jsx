@@ -1,9 +1,9 @@
 import { Link } from 'react-router-dom'
-import { ArrowRight, ClipboardList, Inbox } from 'lucide-react'
-import BarList from '../components/BarList'
+import { ArrowRight, BellRing, ClipboardList, Inbox, Sparkles, ThumbsUp } from 'lucide-react'
+import { AnswerSplit, RankList } from '../components/charts'
 import { Card, CardHeader, Empty, ErrorNote, PageHeader, Skeleton, Stat, StatusBadge } from '../components/ui'
 import { useAuth } from '../lib/contexts'
-import { YES_MAYBE_NO, topicLabel } from '../lib/constants'
+import { topicLabel } from '../lib/constants'
 import { fmtDate, fmtRelative } from '../lib/format'
 import { useApi } from '../lib/hooks'
 
@@ -32,30 +32,33 @@ export default function Dashboard() {
       <ErrorNote error={error} onRetry={reload} />
 
       {!s && !error ? (
-        <div className="grid grid-cols-2 gap-3 lg:grid-cols-5">
+        <div className="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3 xl:grid-cols-5">
           {Array.from({ length: 5 }, (_, i) => <Skeleton key={i} className="h-28 rounded-2xl" />)}
         </div>
       ) : s && (
         <>
-          <div className="grid grid-cols-2 gap-3 lg:grid-cols-5">
-            <Stat label="Survey responses" value={s.surveys} to="/surveys" />
-            <Stat label="New surveys" value={s.surveys_new} sub="Not reviewed yet" to="/surveys?status=new" />
-            <Stat label="Updates list" value={s.wants_updates} sub="Asked to hear from us" to="/email" />
-            <Stat label="Enquiries" value={s.enquiries} sub={`${s.enquiries_new} new`} to="/enquiries" />
-            <Stat label="Avg usefulness" value={s.avg_usefulness != null ? `${s.avg_usefulness}/5` : '—'} sub="AgroSense360 rating" />
+          <div className="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3 xl:grid-cols-5">
+            <Stat icon={ClipboardList} label="Survey responses" value={s.surveys} to="/surveys" />
+            <Stat icon={Sparkles} label="New surveys" value={s.surveys_new} sub="Not reviewed yet" to="/surveys?status=new" />
+            <Stat icon={BellRing} label="Updates list" value={s.wants_updates} sub="Asked to hear from us" to="/email" />
+            <Stat icon={Inbox} label="Enquiries" value={s.enquiries} sub={`${s.enquiries_new} new`} to="/enquiries" />
+            <Stat icon={ThumbsUp} label="Avg usefulness" value={s.avg_usefulness != null ? `${s.avg_usefulness}/5` : '—'} sub="AgroSense360 rating" />
           </div>
 
-          <div className="mt-4 grid gap-4 lg:grid-cols-3">
-            <Card><CardHeader title="Respondents by type" /><BarList data={s.by_type} /></Card>
-            <Card><CardHeader title="Would consider using" /><BarList data={s.by_consider} order={YES_MAYBE_NO} /></Card>
-            <Card><CardHeader title="Willing to pay" /><BarList data={s.by_pay} order={YES_MAYBE_NO} /></Card>
+          <div className="mt-5 grid gap-5 lg:grid-cols-2 xl:grid-cols-3">
+            <Card className="lg:col-span-2 xl:col-span-1">
+              <CardHeader title="Respondents by type" />
+              <RankList unit="responses" emptyText="No answers yet." rows={Object.entries(s.by_type).map(([k, v]) => ({ key: k, label: k, value: v }))} />
+            </Card>
+            <Card><CardHeader title="Would consider using" sub="AgroSense360" /><AnswerSplit data={s.by_consider} question="Would consider using" /></Card>
+            <Card><CardHeader title="Willing to pay" sub="If it delivers real value" /><AnswerSplit data={s.by_pay} question="Willing to pay" /></Card>
           </div>
 
-          <div className="mt-4 grid gap-4 lg:grid-cols-2">
+          <div className="mt-5 grid gap-5 xl:grid-cols-2">
             <RecentList title="Recent surveys" to="/surveys" items={s.recent_surveys} icon={ClipboardList}
               render={(r) => (
                 <li key={r.id}>
-                  <Link to={`/surveys/${r.id}`} className="flex items-center gap-3 px-4 py-3 transition hover:bg-sunken sm:px-5">
+                  <Link to={`/surveys/${r.id}`} className="flex items-center gap-4 px-5 py-4 transition hover:bg-ink/[0.035] sm:px-6">
                     <span className="min-w-0 flex-1">
                       <span className="block truncate text-sm font-bold">{r.respondent_type || 'Respondent'}{r.location ? ` · ${r.location}` : ''}</span>
                       <span className="block truncate text-xs text-muted">{r.email || 'No email given'}</span>
@@ -68,7 +71,7 @@ export default function Dashboard() {
             <RecentList title="Recent enquiries" to="/enquiries" items={s.recent_enquiries} icon={Inbox}
               render={(e) => (
                 <li key={e.id}>
-                  <Link to={`/enquiries/${e.id}`} className="flex items-center gap-3 px-4 py-3 transition hover:bg-sunken sm:px-5">
+                  <Link to={`/enquiries/${e.id}`} className="flex items-center gap-4 px-5 py-4 transition hover:bg-ink/[0.035] sm:px-6">
                     <span className="min-w-0 flex-1">
                       <span className="block truncate text-sm font-bold">{e.name}{e.org ? ` · ${e.org}` : ''}</span>
                       <span className="block truncate text-xs text-muted">{topicLabel(e.topic)} · {e.message}</span>

@@ -65,7 +65,7 @@ function Leaf({ id, name, value, onChange, images }) {
 /* ── objects ───────────────────────────────────────────────────────── */
 function ObjectFields({ value, onChange, images, path }) {
   return (
-    <div className="space-y-4">
+    <div className="space-y-5">
       {Object.entries(value).map(([k, v]) => (
         <Node key={k} name={k} value={v} images={images} path={`${path}.${k}`}
           onChange={(nv) => onChange({ ...value, [k]: nv })} />

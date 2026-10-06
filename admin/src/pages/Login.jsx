@@ -28,7 +28,7 @@ export default function Login() {
 
   return (
     <AuthShell title="Sign in" sub="Use your BLOXio admin email and password.">
-      <form onSubmit={submit} className="space-y-4" noValidate>
+      <form onSubmit={submit} className="space-y-5" noValidate>
         <Field label="Email" htmlFor="email">
           <Input id="email" type="email" autoComplete="username" required autoFocus value={email} onChange={(e) => setEmail(e.target.value)} />
         </Field>
@@ -36,7 +36,7 @@ export default function Login() {
           <Input id="password" type="password" autoComplete="current-password" required value={password} onChange={(e) => setPassword(e.target.value)} />
         </Field>
         {error && <p role="alert" className="rounded-xl border border-danger/40 bg-danger/10 px-3 py-2 text-sm text-danger">{error}</p>}
-        <Button type="submit" variant="primary" className="w-full" loading={busy} disabled={!email || !password}>Sign in</Button>
+        <Button type="submit" variant="primary" className="h-12 w-full" loading={busy} disabled={!email || !password}>Sign in</Button>
         <p className="text-center text-sm">
           <Link to="/forgot" state={{ email }} className="text-muted underline-offset-4 hover:text-ink hover:underline">Forgot password?</Link>
         </p>

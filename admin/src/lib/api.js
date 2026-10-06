@@ -47,19 +47,70 @@ export function query(params = {}) {
   return s ? `?${s}` : ''
 }
 
+/* ── waking the server ─────────────────────────────────────────────
+   The API runs on Render's free plan, which sleeps when idle; the first
+   request after that waits ~30–60s, and while it starts Render may answer
+   with an error page the browser reports as "network error". So:
+   - wake() pings /health (safe to repeat) until the server answers;
+   - GETs are simply retried while it wakes;
+   - anything that changes data (POST/PUT/…) first waits for wake(), then
+     is sent exactly once, so nothing is ever submitted twice. */
+const WAKE_FOR_MS = 75000
+const GATEWAY = new Set([502, 503, 504, 520, 521, 522, 523, 524])
+let awakeUntil = 0
+let waking = null
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms))
+
+function timed(url, init, ms) {
+  return fetch(url, { ...init, signal: AbortSignal.timeout(ms) })
+}
+
+export function wake() {
+  if (Date.now() < awakeUntil) return Promise.resolve(true)
+  if (waking) return waking
+  waking = (async () => {
+    const until = Date.now() + WAKE_FOR_MS
+    let delay = 1500
+    while (Date.now() < until) {
+      try {
+        const r = await timed(`${API_URL}/health`, {}, 20000)
+        if (r.ok) { awakeUntil = Date.now() + 60000; return true }
+      } catch { /* still waking */ }
+      window.dispatchEvent(new Event('bx:waking'))
+      await sleep(delay)
+      delay = Math.min(delay * 1.6, 8000)
+    }
+    return false
+  })().finally(() => { waking = null })
+  return waking
+}
+
 async function raw(path, { method = 'GET', body, params, auth = true } = {}) {
   const headers = {}
   if (body !== undefined) headers['Content-Type'] = 'application/json'
   const token = getToken()
   if (auth && token) headers.Authorization = `Bearer ${token}`
-  let res
-  try {
-    res = await fetch(`${API_URL}${path}${query(params)}`, {
-      method, headers, body: body !== undefined ? JSON.stringify(body) : undefined,
-    })
-  } catch {
-    throw new ApiError('Could not reach the server. Check your connection.', 0)
+  const url = `${API_URL}${path}${query(params)}`
+  const init = { method, headers, body: body !== undefined ? JSON.stringify(body) : undefined }
+  const safe = method === 'GET' || method === 'HEAD'
+
+  if (!safe && !(await wake())) {
+    throw new ApiError('The server is taking too long to respond. Try again in a minute.', 0)
   }
+  let res
+  for (let attempt = 0; ; attempt++) {
+    try {
+      res = await timed(url, init, 30000)
+      if (safe && GATEWAY.has(res.status) && attempt < 3) { awakeUntil = 0; await wake(); continue }
+      break
+    } catch {
+      if (safe && attempt < 3) { awakeUntil = 0; await wake(); continue }
+      throw new ApiError(safe
+        ? 'Could not reach the server. Check your connection and try again.'
+        : 'The connection dropped before the server answered. Check your connection, then try again.', 0)
+    }
+  }
+  if (res.ok) awakeUntil = Date.now() + 60000
   if (res.status === 401 && auth && token) {
     setToken(null)
     window.dispatchEvent(new Event('bx:unauthorized'))

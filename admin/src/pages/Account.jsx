@@ -36,7 +36,7 @@ export default function Account() {
   return (
     <>
       <PageHeader title="Account" sub="Your admin profile and password." />
-      <div className="grid items-start gap-4 lg:grid-cols-2">
+      <div className="grid items-start gap-5 lg:grid-cols-2">
         <Card>
           <CardHeader title="Profile" />
           <dl className="divide-y divide-line text-sm">
@@ -47,17 +47,17 @@ export default function Account() {
               ['Member since', fmtDate(admin.created_at)],
               ['Last sign in', fmtDate(admin.last_login_at)],
             ].map(([k, v]) => (
-              <div key={k} className="grid grid-cols-[8rem_1fr] gap-3 px-4 py-3 sm:px-5">
+              <div key={k} className="grid grid-cols-[8rem_1fr] gap-3 px-5 py-4 sm:px-6">
                 <dt className="text-muted">{k}</dt><dd className="min-w-0 break-words">{v}</dd>
               </div>
             ))}
           </dl>
-          <p className="border-t border-line px-4 py-3 text-xs text-muted sm:px-5">To change your name or email, ask Owen or Austin.</p>
+          <p className="border-t border-line px-5 py-4 text-xs text-muted sm:px-6">To change your name or email, ask Owen or Austin.</p>
         </Card>
 
         <Card>
           <CardHeader title="Change password" sub="Changing it signs you out everywhere else." />
-          <form onSubmit={submit} className="space-y-4 p-4 sm:p-5" noValidate>
+          <form onSubmit={submit} className="space-y-5 p-5 sm:p-6" noValidate>
             <input type="email" autoComplete="username" value={admin.email} readOnly hidden />
             <Field label="Current password" htmlFor="cur" error={touched && !current ? 'Enter your current password.' : null}>
               <Input id="cur" type="password" autoComplete="current-password" value={current} onChange={(e) => setCurrent(e.target.value)} />

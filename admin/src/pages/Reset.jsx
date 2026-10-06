@@ -41,14 +41,14 @@ export default function Reset() {
   if (!token) {
     return (
       <AuthShell title="Link missing" sub="This page needs the link from your invite or reset email.">
-        <Button to="/forgot" variant="primary" className="w-full">Request a new link</Button>
+        <Button to="/forgot" variant="primary" className="h-12 w-full">Request a new link</Button>
       </AuthShell>
     )
   }
 
   return (
     <AuthShell title="Choose a password" sub="Set the password you will use to sign in to the BLOXio admin.">
-      <form onSubmit={submit} className="space-y-4" noValidate>
+      <form onSubmit={submit} className="space-y-5" noValidate>
         <Field label="New password" htmlFor="pw" hint={PASSWORD_HINT} error={touched && passwordProblem(pw)}>
           <Input id="pw" type="password" autoComplete="new-password" autoFocus value={pw} onChange={(e) => setPw(e.target.value)} />
         </Field>
@@ -60,7 +60,7 @@ export default function Reset() {
             {error} <Link to="/forgot" className="underline">Get a new link</Link>
           </p>
         )}
-        <Button type="submit" variant="primary" className="w-full" loading={busy}>Set password and sign in</Button>
+        <Button type="submit" variant="primary" className="h-12 w-full" loading={busy}>Set password and sign in</Button>
       </form>
     </AuthShell>
   )
