@@ -27,7 +27,7 @@ class LoginIn(BaseModel):
 def login(body: LoginIn, db: Session = Depends(get_db)):
     a = db.query(Admin).filter(Admin.email == str(body.email).lower()).first()
     if not a or not a.active or not verify_password(body.password, a.password_hash):
-        raise HTTPException(401, "Wrong email or password.")
+        raise HTTPException(401, "Wrong email or password. If you haven't set a password yet, use the link in your invite email or “Forgot password?”.")
     a.last_login_at = now()
     db.commit()
     return {"token": make_token(a), "admin": admin_out(a)}
@@ -43,17 +43,17 @@ def send_password_link(db: Session, a: Admin, purpose: str, invited_by: str | No
     raw = new_password_token(db, a, purpose)
     link = f"{settings().admin_url}/reset?token={raw}"
     if purpose == "invite":
-        subject, title = "You have been added as a BLOXio admin", "Welcome to the BLOXio admin"
+        subject = "You have been added as a BLOXio admin"
         text = (f"{invited_by or 'A founder'} added you as an admin. Choose your password to sign in.\n\n"
                 "This link works once and expires in 72 hours.")
     else:
-        subject, title = "Reset your BLOXio admin password", "Reset your password"
+        subject = "Reset your BLOXio admin password"
         text = ("Someone asked to reset the password for this admin account. If it was you, choose a new "
                 "password below. The link works once and expires in 1 hour.\n\nIf it wasn't you, ignore this email.")
-    mailer.send(db, to=[a.email], kind=purpose, subject=subject, title=title, sent_by=sent_by,
-                body_html=mailer.text_to_html(text)
-                + f"<p style=\"margin:16px 0\"><a href=\"{link}\" style=\"display:inline-block;background:#5FCB93;color:#0B0D0C;"
-                  f"padding:10px 18px;border-radius:10px;text-decoration:none;font-weight:bold\">Set my password</a></p>")
+    first = (a.name or "").split(" ")[0]
+    mailer.send(db, to=[a.email], kind=purpose, subject=subject, sent_by=sent_by,
+                greeting=f"Dear {first}," if first else "Hello,",
+                body_html=mailer.text_to_html(text), button=("Set my password", link))
 
 
 class ForgotIn(BaseModel):

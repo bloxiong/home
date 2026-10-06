@@ -6,7 +6,7 @@ services:
     name: bloxio-api
     runtime: python
     rootDir: server
-    plan: free               # kept awake by .github/workflows/keep-api-awake.yml (pings /health every 10 min)
+    plan: free               # never sleeps: the API pings itself every 3 min (+ GitHub ping backup)
     region: frankfurt        # closest Render region to Lagos
     buildCommand: pip install -r requirements.txt
     startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT

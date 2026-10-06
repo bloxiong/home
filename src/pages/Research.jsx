@@ -70,7 +70,7 @@ export default function Research() {
             ['prototype', 'A working version exists and has been tested outside a lab bench.'],
             ['development', 'Actively being built toward something deployable.'],
             ['rnd', 'Being investigated. Results may change the direction.'],
-            ['concept', 'An idea we think is worth testing. Nothing built yet.'],
+            ['concept', 'An idea we think is worth testing.'],
           ].map(([k, text], i) => (
             <Reveal key={k} i={i} className={`${card()} p-6`}>
               <dt><StatusBadge status={k} /></dt>

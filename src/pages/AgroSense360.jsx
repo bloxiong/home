@@ -9,7 +9,7 @@ import { AGROSENSE, IMG } from '../content/site';
 const PRODUCT_FAQS = [
   {
     q: 'Can I buy AgroSense360 today?',
-    a: 'Not yet. The core system has worked end to end as a prototype. The next generation is being developed for real field deployment. Join the pilot list and we will contact you when field testing opens.',
+    a: 'It’s in the pilot stage. The core system has worked end to end as a prototype. The next generation is being developed for real field deployment. Join the pilot list and we will contact you when field testing opens.',
   },
   {
     q: 'How much will it cost?',
@@ -117,8 +117,8 @@ export default function AgroSense360() {
                 <dd className="mt-1 font-semibold">Field-ready units and design-partner pilots</dd>
               </div>
               <div>
-                <dt className="text-label text-forest-muted">Available to buy</dt>
-                <dd className="mt-1 font-semibold">Not yet</dd>
+                <dt className="text-label text-forest-muted">Availability</dt>
+                <dd className="mt-1 font-semibold">Pilot programme</dd>
               </div>
             </dl>
           </div>
@@ -236,16 +236,10 @@ export default function AgroSense360() {
               </Reveal>
             ))}
           </dl>
-          <div className="mt-10 grid gap-4 md:grid-cols-2">
-            <Reveal className="border border-forest-line p-6">
-              <p className="text-label text-signal">What we have</p>
-              <p className="mt-3 leading-relaxed">{AGROSENSE.have}</p>
-            </Reveal>
-            <Reveal i={1} className="border border-dashed border-forest-line p-6">
-              <p className="script-label text-forest-muted">What we do not have yet</p>
-              <p className="mt-3 leading-relaxed">{AGROSENSE.haveNot}</p>
-            </Reveal>
-          </div>
+          <Reveal className="mt-10 rounded-2xl border border-forest-line p-6">
+            <p className="script-label text-forest-muted">What is already working</p>
+            <p className="mt-3 leading-relaxed">{AGROSENSE.have}</p>
+          </Reveal>
           <p className="mt-6 text-xs leading-relaxed text-forest-muted">{AGROSENSE.proofNote}</p>
         </div>
       </section>

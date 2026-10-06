@@ -64,7 +64,7 @@ export default function Products() {
         <SectionHeading
           label="In research"
           title="The product line"
-          lead="Concepts in research, none for sale yet. Demand decides what we build next."
+          lead="Concepts in research. Demand decides what we build next."
         />
         <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {pipeline.map((p, i) => (

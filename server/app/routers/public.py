@@ -65,9 +65,12 @@ def _answers_html(data: dict) -> str:
         if v in (None, "", []):
             continue
         val = ", ".join(v) if isinstance(v, list) else str(v)
-        rows.append(f"<tr><td style=\"padding:6px 12px 6px 0;color:#A3ABA6;vertical-align:top\">{html.escape(label)}</td>"
-                    f"<td style=\"padding:6px 0\">{html.escape(val)}</td></tr>")
-    return f"<table cellpadding=\"0\" cellspacing=\"0\" style=\"font-size:14px\">{''.join(rows)}</table>"
+        rows.append(f"<tr><td style=\"padding:7px 14px 7px 0; vertical-align:top; font-size:12px; color:{mailer.color('muted')}; "
+                    f"border-bottom:1px solid {mailer.color('line')};\">{html.escape(label)}</td>"
+                    f"<td style=\"padding:7px 0; font-size:14px; color:{mailer.color('ink')}; border-bottom:1px solid {mailer.color('line')};\">"
+                    f"{html.escape(val)}</td></tr>")
+    return (f"<table role=\"presentation\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" "
+            f"style=\"width:100%; border-collapse:collapse; margin:0 0 8px 0;\">{''.join(rows)}</table>")
 
 
 class SurveyIn(BaseModel):
@@ -89,20 +92,22 @@ def submit_survey(body: SurveyIn, request: Request, db: Session = Depends(get_db
     db.add(resp)
     db.flush()
     s = settings()
+    who = " · ".join(x for x in [d.get("respondentType"), d.get("location")] if x)
     mailer.send(db, to=[s.notify_to], kind="notify", subject=f"New AgroSense360 survey response #{resp.id}",
-                title="New survey response",
-                body_html=f"<p style=\"margin:0 0 16px\">A new AgroSense360 survey response just came in.</p>{_answers_html(d)}"
-                          f"<p style=\"margin:16px 0 0\"><a style=\"color:#6FD39D\" href=\"{s.admin_url}/surveys/{resp.id}\">Open it in the admin</a></p>",
+                greeting="A new survey response just came in.",
+                body_html=(f"<p style=\"margin:0 0 16px 0;\">{html.escape(who) or 'A respondent'}"
+                           + (f", {html.escape(email)}" if email else "") + ".</p>" + _answers_html(d)),
+                button=("Open in the admin", f"{s.admin_url}/surveys/{resp.id}"), sign_name="BLOXio website",
                 reply_to=email)
     if email:
         mailer.send(db, to=[email], kind="confirm", subject="Thanks for your AgroSense360 survey answers",
-                    title="Thank you",
+                    greeting="Thank you,",
                     body_html=mailer.text_to_html(
                         "Thank you for taking the AgroSense360 survey. Your answers go straight to the founders "
-                        "and help decide which problems we solve first.\n\n"
-                        + ("You asked to hear about early access, so we will let you know as the pilot moves forward.\n\n"
-                           if resp.wants_updates else "")
-                        + "If you have questions, reply on our contact page at bloxio.tech/contact.\n\nThe BLOXio team"))
+                        "and help decide which problems we solve first."
+                        + ("\n\nYou asked to hear about early access, so we will let you know as the pilot moves forward."
+                           if resp.wants_updates else "")),
+                    button=("Learn about AgroSense360", "https://agrosense360.bloxio.tech"))
     db.commit()
     return {"ok": True, "id": resp.id}
 
@@ -133,20 +138,22 @@ def submit_contact(body: ContactIn, request: Request, db: Session = Depends(get_
     s = settings()
     topic = TOPICS.get(body.topic, body.topic or "Enquiry")
     e = html.escape
+    first = e(enq.name.split()[0])
     mailer.send(db, to=[s.notify_to], kind="notify", reply_to=enq.email,
                 subject=f"{topic}: {enq.name}" + (f" ({enq.org})" if enq.org else ""),
-                title=f"New enquiry: {topic}",
-                body_html=(f"<p style=\"margin:0 0 6px\"><b>{e(enq.name)}</b> &lt;{e(enq.email)}&gt;</p>"
-                           + (f"<p style=\"margin:0 0 6px;color:#A3ABA6\">{e(enq.org)}</p>" if enq.org else "")
-                           + (f"<p style=\"margin:0 0 6px;color:#A3ABA6\">{e(enq.phone)}</p>" if enq.phone else "")
+                greeting=f"New enquiry: {topic}",
+                body_html=(f"<p style=\"margin:0 0 4px 0; color:{mailer.color('ink')}; font-weight:600;\">{e(enq.name)}</p>"
+                           f"<p style=\"margin:0 0 16px 0; font-size:13px; color:{mailer.color('muted')};\">"
+                           + " · ".join(e(x) for x in [enq.email, enq.org, enq.phone] if x) + "</p>"
                            + mailer.text_to_html(enq.message)
-                           + f"<p style=\"margin:16px 0 0\"><a style=\"color:#6FD39D\" href=\"{s.admin_url}/enquiries/{enq.id}\">Open it in the admin</a> "
-                             f"or reply to this email to answer {e(enq.name.split()[0])} directly.</p>"))
+                           + f"<p style=\"margin:0 0 16px 0; font-size:13px; color:{mailer.color('muted')};\">"
+                             f"Reply to this email to answer {first} directly.</p>"),
+                button=("Open in the admin", f"{s.admin_url}/enquiries/{enq.id}"), sign_name="BLOXio website")
     mailer.send(db, to=[enq.email], kind="confirm", subject="We received your message",
-                title=f"Thanks, {enq.name.split()[0]}",
+                greeting=f"Dear {first},",
                 body_html=mailer.text_to_html(
-                    f"We received your message about “{topic}”. The founders aim to reply within 24 hours "
-                    "on working days.\n\nThe BLOXio team"))
+                    f"Thank you for getting in touch about “{topic}”. Your message has reached the founders, "
+                    "and we aim to reply within 24 hours on working days."))
     db.commit()
     return {"ok": True, "id": enq.id}
 

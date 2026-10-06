@@ -18,6 +18,7 @@ class Settings(BaseSettings):
     resend_api_key: str = ""
     mail_from: str = "BLOXio <no-reply@bloxio.tech>"
     notify_to: str = "contact@bloxio.tech"  # admin notifications
+    mail_theme: str = "light"  # light = the official template; or dark
 
     # Where things live
     site_url: str = "https://bloxio.tech"
