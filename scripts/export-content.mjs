@@ -6,7 +6,7 @@ import * as site from '../src/content/site.js';
 
 // sections admins can edit (IMG and STATUS stay in code; IMG is offered as photo choices)
 export const EDITABLE = ['COMPANY', 'HERO_WORDS', 'AGROSENSE', 'PRODUCTS', 'DISCIPLINES', 'CAPABILITIES',
-  'ENGAGEMENTS', 'PROCESS', 'RESEARCH', 'FOUNDERS', 'NUMBERS', 'MILESTONES', 'ARTICLES', 'FAQS'];
+  'ENGAGEMENTS', 'PROCESS', 'RESEARCH', 'FOUNDERS', 'NUMBERS', 'MILESTONES', 'ARTICLES', 'FAQS', 'APPEARANCE'];
 
 const out = Object.fromEntries(EDITABLE.map((k) => [k, site[k]]));
 out._IMAGES = site.IMG; // read-only list of photo choices for the editor

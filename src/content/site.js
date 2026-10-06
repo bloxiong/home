@@ -430,13 +430,20 @@ export const FAQS = [
   },
 ];
 
+/* Site look, switchable from the admin portal (Site content → Appearance).
+   lightHero: 'night'   = light mode keeps the dark-mode hero (night sky,
+                          gold glow); the light page starts at the planet
+              'morning' = the earlier light hero: a pale morning-glow sky
+                          and a light planet */
+export const APPEARANCE = { lightHero: 'night' };
+
 /* Content published from the admin portal (fetched at build time by
    scripts/fetch-content.mjs) replaces the defaults above, section by
    section. The exports stay the same objects, so every page picks it up. */
 import overrides from './overrides.json' with { type: 'json' };
 
 const SECTIONS = { COMPANY, HERO_WORDS, AGROSENSE, PRODUCTS, DISCIPLINES, CAPABILITIES, ENGAGEMENTS, PROCESS,
-  RESEARCH, FOUNDERS, NUMBERS, MILESTONES, ARTICLES, FAQS };
+  RESEARCH, FOUNDERS, NUMBERS, MILESTONES, ARTICLES, FAQS, APPEARANCE };
 for (const [key, value] of Object.entries(overrides)) {
   const target = SECTIONS[key];
   if (!target || value == null) continue;

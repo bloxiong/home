@@ -66,6 +66,15 @@ def test_content_edit_publish_is_audited(client):
     assert all(x["admin_email"] == CONTACT for x in log if x["entity"] == "content")
 
 
+
+def test_light_hero_can_be_switched_back(client):
+    h = login(client, CONTACT)
+    assert client.get("/admin/content/APPEARANCE", headers=h).json()["published"] == {"lightHero": "night"}
+    assert client.put("/admin/content/APPEARANCE", json={"data": {"lightHero": "sunset"}}, headers=h).status_code == 400
+    assert client.put("/admin/content/APPEARANCE", json={"data": {"lightHero": "morning"}}, headers=h).status_code == 200
+    client.post("/admin/content/publish", headers=h)
+    assert client.get("/public/content").json()["APPEARANCE"] == {"lightHero": "morning"}
+
 def test_password_reset_and_change(client):
     client.post("/auth/forgot", json={"email": CONTACT})
     assert any(k == "reset" for k, *_ in emails())

@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import { useBlocker, useParams } from 'react-router-dom'
 import { Lock, RotateCcw, Save, Undo2 } from 'lucide-react'
+import AppearancePicker from '../components/AppearancePicker'
 import JsonEditor from '../components/JsonEditor'
 import PublishButton from '../components/PublishButton'
 import { Badge, Button, Card, ConfirmDialog, Empty, ErrorNote, PageHeader, SkeletonRows } from '../components/ui'
@@ -110,7 +111,9 @@ function Editor({ sectionKey }) {
 
       {!d ? <Card><SkeletonRows rows={10} /></Card> : (
         <Card className="p-4 sm:p-6">
-          <JsonEditor sectionKey={sectionKey} value={value} images={images} onChange={setEdit} />
+          {sectionKey === 'APPEARANCE'
+            ? <AppearancePicker value={value} onChange={setEdit} />
+            : <JsonEditor sectionKey={sectionKey} value={value} images={images} onChange={setEdit} />}
         </Card>
       )}
 

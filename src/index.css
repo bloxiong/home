@@ -952,12 +952,12 @@ body { overflow-wrap: break-word; }
   50% { box-shadow: 0 0 0 1px rgba(111, 211, 157, 0.8), 0 0 26px rgba(111, 211, 157, 0.65); }
 }
 
-/* ── Light mode: the hero is exactly the dark-mode hero ───────────────
-   Same night sky, dark planet and gold glow as dark mode; light mode
-   starts at "…who we are". The planet's foot fades from dark to the light
-   page so there is no hard line, and that section isn't pulled up over
-   the fade, so its text always sits on the light background. */
-html:not(.dark) .hero {
+/* ── Light mode, "night" hero (the default) ───────────────────────────
+   The sky, gold glow and stars are the dark-mode hero; the light page
+   begins at the planet's edge. Admins can switch back to the earlier
+   "morning glow" light hero (Site content → Appearance), which puts
+   .hero-classic on the hero and leaves the rules above in charge. */
+html:not(.dark) .hero:not(.hero-classic) {
   --bx-canvas: #0B0D0C; --bx-surface: #131615; --bx-sunken: #0F1211;
   --bx-ink: #EEF1EF; --bx-muted: #9BA39E; --bx-line: #232826;
   --bx-accent: #5FCB93; --bx-on-accent: #0B0D0C;
@@ -971,25 +971,25 @@ html:not(.dark) .hero {
   /* the sky is the dark-mode night; the light page begins at the planet's edge */
   background: #0B0D0C;
 }
-html:not(.dark) .hero .hero-ground { -webkit-mask-image: none; mask-image: none; }
-html:not(.dark) .hero-planet {
+html:not(.dark) .hero:not(.hero-classic) .hero-ground { -webkit-mask-image: none; mask-image: none; }
+html:not(.dark) .hero:not(.hero-classic) .hero-planet {
   /* the planet is the light page itself, warmed gold just under the rim */
   background:
     radial-gradient(ellipse 520px 140px at 50% 0%, color-mix(in oklab, #D2D7CA 62%, #F2D096), transparent 100%),
     #D2D7CA;
   box-shadow: inset 0 4px 10px -4px rgba(255, 244, 222, 0.95), inset 0 26px 60px -22px rgba(242, 208, 150, 0.55);
 }
-html:not(.dark) .hero .hero-vignette {
+html:not(.dark) .hero:not(.hero-classic) .hero-vignette {
   display: block;
   /* the dark vignette stays in the sky, never on the planet */
   -webkit-mask-image: linear-gradient(to bottom, #000 40%, transparent 70%);
           mask-image: linear-gradient(to bottom, #000 40%, transparent 70%);
 }
-html:not(.dark) .hero .bx-art { filter: none; }
-html:not(.dark) .hero .bx-wordmark { filter: drop-shadow(0 4px 14px rgba(0, 0, 0, 0.6)); }
-html:not(.dark) .hero .bx-tagline img { filter: none; }
-html:not(.dark) .hero .bx-label { color: #F3E3C4; text-shadow: 0 0 12px rgba(229, 192, 138, 0.6); }
-html:not(.dark) .hero .bx-label::before { background: linear-gradient(90deg, rgba(229, 192, 138, 0.9), rgba(229, 192, 138, 0)); }
-html:not(.dark) .hero .bx-label.is-left::before { background: linear-gradient(270deg, rgba(229, 192, 138, 0.9), rgba(229, 192, 138, 0)); }
-html:not(.dark) .hero .text-shimmer { background-image: linear-gradient(90deg, #8FD3A8 0%, #E9EDE4 30%, #E5C08A 50%, #E9EDE4 70%, #8FD3A8 100%); }
-html:not(.dark) .hero .star-bullet { color: #D9A55B; }
+html:not(.dark) .hero:not(.hero-classic) .bx-art { filter: none; }
+html:not(.dark) .hero:not(.hero-classic) .bx-wordmark { filter: drop-shadow(0 4px 14px rgba(0, 0, 0, 0.6)); }
+html:not(.dark) .hero:not(.hero-classic) .bx-tagline img { filter: none; }
+html:not(.dark) .hero:not(.hero-classic) .bx-label { color: #F3E3C4; text-shadow: 0 0 12px rgba(229, 192, 138, 0.6); }
+html:not(.dark) .hero:not(.hero-classic) .bx-label::before { background: linear-gradient(90deg, rgba(229, 192, 138, 0.9), rgba(229, 192, 138, 0)); }
+html:not(.dark) .hero:not(.hero-classic) .bx-label.is-left::before { background: linear-gradient(270deg, rgba(229, 192, 138, 0.9), rgba(229, 192, 138, 0)); }
+html:not(.dark) .hero:not(.hero-classic) .text-shimmer { background-image: linear-gradient(90deg, #8FD3A8 0%, #E9EDE4 30%, #E5C08A 50%, #E9EDE4 70%, #8FD3A8 100%); }
+html:not(.dark) .hero:not(.hero-classic) .star-bullet { color: #D9A55B; }
