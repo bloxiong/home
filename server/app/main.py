@@ -53,7 +53,7 @@ async def lifespan(_: FastAPI):
 
 app = FastAPI(title="BLOXio API", lifespan=lifespan, docs_url="/docs")
 app.add_middleware(CORSMiddleware, allow_origins=settings().origins, allow_credentials=False,
-                   allow_methods=["*"], allow_headers=["*"])
+                   allow_methods=["*"], allow_headers=["*"], expose_headers=["Content-Disposition"])
 app.include_router(public.router)
 app.include_router(auth.router)
 app.include_router(admin.router)

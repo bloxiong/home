@@ -38,7 +38,8 @@ def me(a: Admin = Depends(current_admin)):
     return admin_out(a)
 
 
-def send_password_link(db: Session, a: Admin, purpose: str, invited_by: str | None = None) -> None:
+def send_password_link(db: Session, a: Admin, purpose: str, invited_by: str | None = None,
+                       sent_by: str | None = None) -> None:
     raw = new_password_token(db, a, purpose)
     link = f"{settings().admin_url}/reset?token={raw}"
     if purpose == "invite":
@@ -49,7 +50,7 @@ def send_password_link(db: Session, a: Admin, purpose: str, invited_by: str | No
         subject, title = "Reset your BLOXio admin password", "Reset your password"
         text = ("Someone asked to reset the password for this admin account. If it was you, choose a new "
                 "password below. The link works once and expires in 1 hour.\n\nIf it wasn't you, ignore this email.")
-    mailer.send(db, to=[a.email], kind=purpose, subject=subject, title=title,
+    mailer.send(db, to=[a.email], kind=purpose, subject=subject, title=title, sent_by=sent_by,
                 body_html=mailer.text_to_html(text)
                 + f"<p style=\"margin:16px 0\"><a href=\"{link}\" style=\"display:inline-block;background:#5FCB93;color:#0B0D0C;"
                   f"padding:10px 18px;border-radius:10px;text-decoration:none;font-weight:bold\">Set my password</a></p>")
@@ -80,6 +81,7 @@ def reset(body: ResetIn, db: Session = Depends(get_db)):
     a = use_password_token(db, body.token)
     a.password_hash = hash_password(body.password)
     a.token_version += 1  # signs out every old session
+    a.last_login_at = now()
     audit.record(db, a, "auth.password_set", entity="admin", entity_id=a.id, summary="Set a new password from an email link")
     db.commit()
     return {"token": make_token(a), "admin": admin_out(a)}

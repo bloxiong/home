@@ -13,7 +13,7 @@ from sqlalchemy.orm import Session
 from .. import audit, mailer
 from ..config import settings
 from ..db import get_db
-from ..models import Admin, AuditLog, ContentDoc, EmailLog, Enquiry, SurveyResponse, now
+from ..models import Admin, AuditLog, ContentDoc, EmailLog, Enquiry, PasswordToken, SurveyResponse, now
 from ..security import current_admin, super_admin
 from .auth import admin_out, send_password_link
 from .public import SURVEY_LABELS
@@ -168,7 +168,8 @@ def get_enquiry(eid: int, db: Session = Depends(get_db)):
     e = db.get(Enquiry, eid)
     if not e:
         raise HTTPException(404, "Enquiry not found.")
-    emails = db.query(EmailLog).filter(cast(EmailLog.to, String).ilike(f"%{e.email}%")).order_by(EmailLog.created_at.desc()).all()
+    candidates = db.query(EmailLog).filter(cast(EmailLog.to, String).ilike(f"%{e.email}%")).order_by(EmailLog.created_at.desc())
+    emails = [m for m in candidates if e.email.lower() in [t.lower() for t in m.to]]
     return {**enquiry_out(e), "emails": [email_out(m) for m in emails]}
 
 
@@ -224,7 +225,9 @@ def send_email(body: ComposeIn, me: Admin = Depends(current_admin), db: Session 
     results = [mailer.send(db, to=t, subject=body.subject, title=body.subject, body_html=html_body, kind="compose",
                            sent_by=me.email, reply_to=settings().notify_to) for t in targets]
     sent = sum(r.status in ("sent", "logged") for r in results)
-    if body.enquiry_id and (e := db.get(Enquiry, body.enquiry_id)) and sent:
+    if body.enquiry_id and (e := db.get(Enquiry, body.enquiry_id)) and sent and e.status != "replied":
+        audit.record(db, me, "enquiry.update", entity="enquiry", entity_id=e.id, before={"status": e.status},
+                     after={"status": "replied"}, summary=f"Marked enquiry from {e.name} replied (email sent)")
         e.status = "replied"
     audit.record(db, me, "email.send", entity="email", entity_id=",".join(str(r.id) for r in results)[:120],
                  summary=f"Sent “{body.subject}” to {len(body.to)} recipient(s)",
@@ -337,7 +340,7 @@ def add_admin(body: NewAdminIn, me: Admin = Depends(super_admin), db: Session = 
         a = Admin(email=email, name=body.name, created_by=me.email)
         db.add(a)
         db.flush()
-    send_password_link(db, a, "invite", invited_by=me.name or me.email)
+    send_password_link(db, a, "invite", invited_by=me.name or me.email, sent_by=me.email)
     audit.record(db, me, "admin.create", entity="admin", entity_id=a.id, after={"email": email, "name": a.name},
                  summary=f"Added {email} as an admin")
     db.commit()
@@ -349,7 +352,7 @@ def resend_invite(aid: int, me: Admin = Depends(super_admin), db: Session = Depe
     a = db.get(Admin, aid)
     if not a or not a.active:
         raise HTTPException(404, "Admin not found.")
-    send_password_link(db, a, "invite", invited_by=me.name or me.email)
+    send_password_link(db, a, "invite", invited_by=me.name or me.email, sent_by=me.email)
     audit.record(db, me, "admin.invite", entity="admin", entity_id=aid, summary=f"Re-sent the set-password link to {a.email}")
     db.commit()
     return {"ok": True}
@@ -363,6 +366,8 @@ def remove_admin(aid: int, me: Admin = Depends(super_admin), db: Session = Depen
     if a.is_super:
         raise HTTPException(400, "Owen's and Austin's accounts can't be removed here.")
     a.active, a.token_version = False, a.token_version + 1
+    for t in db.query(PasswordToken).filter(PasswordToken.admin_id == a.id, PasswordToken.used_at.is_(None)):
+        t.used_at = now()  # old invite/reset links stop working
     audit.record(db, me, "admin.remove", entity="admin", entity_id=aid, before={"email": a.email},
                  summary=f"Removed {a.email} as an admin")
     db.commit()
