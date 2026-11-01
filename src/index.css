@@ -564,6 +564,43 @@ html:not(.dark) .brand-gold:not(.on-forest *) {
 /* ─────────────────────────────────────────────
    Mobile menu and page transitions
    ───────────────────────────────────────────── */
+/* The theme toggle and menu button: no circle, just the icon in the
+   metallic gold of the BLOXio wordmark, the same in every theme and over
+   every section, so they never need to change colour. */
+.nav-gold {
+  color: #C8913F;
+  background: transparent;
+  border: 0;
+  transition: transform 0.2s ease, filter 0.25s ease;
+}
+/* a hairline of shadow keeps the gold crisp over the light sections */
+.nav-gold svg { width: 22px; height: 22px; filter: drop-shadow(0 0 0.7px rgba(60, 38, 8, 0.75)) drop-shadow(0 0 3px rgba(229, 184, 110, 0.45)); }
+.nav-gold .burger-lines { width: 24px; height: 16px; }
+.nav-gold .burger-lines i {
+  height: 2.5px;
+  background: linear-gradient(90deg, #9C6A26 0%, #E9C88A 35%, #F6E2B6 50%, #C8913F 70%, #8E5F20 100%);
+  box-shadow: 0 0 0.7px rgba(60, 38, 8, 0.75), 0 0 4px rgba(229, 184, 110, 0.4);
+}
+.nav-gold .burger-lines i:nth-child(2) { top: 7px; }
+.nav-gold .burger-lines i:nth-child(3) { top: 14px; }
+.nav-gold.burger[data-open='true'] .burger-lines i:nth-child(1),
+.nav-gold.burger[data-open='true'] .burger-lines i:nth-child(3) { top: 7px; }
+.nav-gold:hover { filter: brightness(1.12); }
+.nav-gold:active { transform: scale(0.92); }
+.nav-gold:focus-visible { outline: 2px solid #C8913F; outline-offset: 2px; border-radius: 9999px; }
+
+/* back-to-top: the gold icon inside a transparent gold ring (the ring is a
+   masked layer, so the inside stays see-through) */
+.nav-gold.gold-ring { position: fixed; box-shadow: 0 0 10px rgba(229, 184, 110, 0.28); }
+.nav-gold.gold-ring::before {
+  content: ''; position: absolute; inset: 0; border-radius: inherit; padding: 1.5px;
+  background: linear-gradient(135deg, #F3D9A4, #C8913F 45%, #9C6A26 75%, #E5C08A);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+          mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0);
+  pointer-events: none;
+}
+
 /* three lines that fold into an X */
 .burger-lines { position: relative; width: 20px; height: 14px; display: block; }
 .burger-lines i {

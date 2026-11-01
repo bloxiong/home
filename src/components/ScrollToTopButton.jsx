@@ -48,16 +48,17 @@ export default function ScrollToTopButton() {
       aria-label="Scroll to top"
       title="Scroll to top"
       tabIndex={visible ? 0 : -1}
-      className={`group fixed bottom-6 right-5 z-[45] flex h-12 w-12 cursor-pointer items-center justify-center rounded-full
-        border border-line bg-surface/90 text-accent backdrop-blur-md transition-all duration-300 ease-out
-        hover:border-accent sm:bottom-8 sm:right-8
+      className={`nav-gold gold-ring group fixed bottom-6 right-5 z-[45] flex h-12 w-12 cursor-pointer items-center justify-center rounded-full
+        transition-all duration-300 ease-out sm:bottom-8 sm:right-8
         ${visible
           ? 'pointer-events-auto translate-y-0 opacity-100'
           : 'pointer-events-none translate-y-3 opacity-0'}`}
     >
       <ChevronUp
-        size={20}
+        size={26}
         strokeWidth={2.5}
+        // the same metallic gold as the nav icons (gradient defined in Navigation)
+        stroke="url(#bx-nav-gold)"
         className="relative pointer-events-none transition-transform duration-300 group-hover:-translate-y-0.5"
       />
     </button>

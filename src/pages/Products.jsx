@@ -31,11 +31,8 @@ export default function Products() {
           <Link to={flagship.href} className={`${card(true)} group grid overflow-hidden lg:grid-cols-[1.1fr_1fr]`}>
             <Photo id={flagship.img} zoom fill className="aspect-[16/10] lg:aspect-auto lg:h-full lg:min-h-[320px]" sizes="(min-width: 1024px) 55vw, 100vw" caption="Illustrative photo" />
             <div className="flex flex-col p-7 md:p-10">
-              <div className="flex flex-wrap items-center gap-3">
-                <TechLabel>Flagship · 01</TechLabel>
-                <StatusBadge status={flagship.status} />
-              </div>
-              <h2 className="font-display mt-4 uppercase leading-none text-ink transition-colors group-hover:text-accent" style={{ fontSize: 'clamp(1.05rem, max(4vw, min(8.5vw, 2rem)), 3.2rem)' }}>
+              <TechLabel>Flagship · 01</TechLabel>
+              <h2 className="font-display mt-4 uppercase leading-none text-ink transition-colors group-hover:text-accent" style={{ fontSize: 'clamp(1.05rem, max(4vw, min(calc((100vw - 7rem) / 9.6), 2rem)), 3.2rem)' }}>
                 {flagship.name}
               </h2>
               <p className="mt-2 text-label text-muted">{flagship.category}</p>

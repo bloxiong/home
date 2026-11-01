@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import {
-  PageMeta, PageHeader, Button, StatusBadge, Section, SectionHeading, CTABand, Reveal, CountUp, TechLabel, StarTag,
+  PageMeta, PageHeader, Button, Section, SectionHeading, CTABand, Reveal, CountUp, TechLabel, StarTag,
 } from '../components/ui';
 import { card } from '../lib/ui-utils';
 import FAQList from '../components/FAQList';
@@ -107,10 +107,7 @@ export default function AgroSense360() {
         aside={
           /* where AgroSense360 is: done → now → next, on a gold-star path */
           <div className="stage-card rounded-2xl border border-white/10 bg-white/[0.05] p-6 backdrop-blur-md md:p-7">
-            <div className="flex items-center justify-between gap-3">
-              <p className="script-label text-forest-muted">where it stands</p>
-              <StatusBadge status={AGROSENSE.status} onForest />
-            </div>
+            <p className="script-label text-forest-muted">where it stands</p>
             <ol className="stage-path mt-5">
               {[
                 { state: 'done', label: 'Built', text: 'Integrated prototype, worked end to end' },

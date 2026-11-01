@@ -31,10 +31,6 @@ export const COMPANY = {
   positioning: 'We build intelligent hardware and software for the physical world.',
   email: 'contact@bloxio.tech',
   url: 'https://bloxio.tech',
-  phones: [
-    { display: '[removed]', tel: '[removed]' },
-    { display: '[removed]', tel: '[removed]' },
-  ],
   address: ['Plot AV 27B, 251 Road Festac Phase II', 'Abule Ado, Lagos State, Nigeria'],
   hours: 'Mon–Fri · 9AM – 6PM WAT',
 };

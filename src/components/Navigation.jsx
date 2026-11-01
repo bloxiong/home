@@ -17,7 +17,7 @@ const NAV_LINKS = [
 ];
 
 
-function ThemeToggle({ overDark }) {
+function ThemeToggle() {
   const { theme, toggleTheme } = useTheme();
   const isDark = theme === 'dark';
   return (
@@ -29,12 +29,21 @@ function ThemeToggle({ overDark }) {
       }}
       aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
       title={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
-      className={`relative flex h-11 w-11 items-center justify-center overflow-hidden rounded-full border transition-colors duration-200 ${
-        overDark ? 'border-forest-line text-on-forest hover:border-signal' : 'border-line text-ink hover:border-accent'
-      }`}
+      className="nav-gold relative flex h-11 w-11 items-center justify-center overflow-hidden rounded-full"
     >
-      <Moon size={17} className={`absolute transition-all duration-500 ${isDark ? 'scale-50 -rotate-90 opacity-0' : 'scale-100 rotate-0 opacity-100'}`} />
-      <Sun  size={17} className={`absolute transition-all duration-500 ${isDark ? 'scale-100 rotate-0 opacity-100' : 'scale-50 rotate-90 opacity-0'}`} />
+      {/* metallic gold, like the BLOXio wordmark */}
+      <svg width="0" height="0" className="absolute" aria-hidden="true">
+        <defs>
+          <linearGradient id="bx-nav-gold" gradientUnits="userSpaceOnUse" x1="2" y1="2" x2="22" y2="22">
+            <stop offset="0%" stopColor="#F3D9A4" />
+            <stop offset="45%" stopColor="#D4A055" />
+            <stop offset="75%" stopColor="#A87428" />
+            <stop offset="100%" stopColor="#E5C08A" />
+          </linearGradient>
+        </defs>
+      </svg>
+      <Moon size={22} stroke="url(#bx-nav-gold)" strokeWidth={2} className={`absolute transition-all duration-500 ${isDark ? 'scale-50 -rotate-90 opacity-0' : 'scale-100 rotate-0 opacity-100'}`} />
+      <Sun  size={22} stroke="url(#bx-nav-gold)" strokeWidth={2} className={`absolute transition-all duration-500 ${isDark ? 'scale-100 rotate-0 opacity-100' : 'scale-50 rotate-90 opacity-0'}`} />
     </button>
   );
 }
@@ -190,7 +199,7 @@ export default function Navigation() {
             </div>
 
             <div className="flex shrink-0 items-center gap-2 sm:gap-3">
-              <ThemeToggle overDark={overDark} />
+              <ThemeToggle />
               <Link
                 to="/contact?topic=project"
                 className={`group hidden min-h-11 items-center gap-2 rounded-xl px-5 text-sm font-semibold transition-all duration-200 lg:inline-flex ${
@@ -203,9 +212,7 @@ export default function Navigation() {
                 ref={buttonRef}
                 type="button"
                 onClick={toggleMenu}
-                className={`burger flex h-11 w-11 items-center justify-center rounded-full border transition-colors duration-200 lg:hidden ${
-                  overDark ? 'border-forest-line text-on-forest' : 'border-line text-ink'
-                }`}
+                className="burger nav-gold flex h-11 w-11 items-center justify-center rounded-full lg:hidden"
                 data-open={isOpen}
                 aria-label={isOpen ? 'Close menu' : 'Open menu'}
                 aria-expanded={isOpen}

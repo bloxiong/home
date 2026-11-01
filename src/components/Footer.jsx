@@ -53,9 +53,6 @@ export default function Footer() {
             <p className="max-w-xs text-sm leading-relaxed text-forest-muted">{COMPANY.positioning} Designed and engineered in Nigeria.</p>
             <ul className="mt-6 space-y-1.5 text-sm">
               <li><a href={`mailto:${COMPANY.email}`} className="text-on-forest transition-colors hover:text-signal">{COMPANY.email}</a></li>
-              {COMPANY.phones.map((p) => (
-                <li key={p.tel}><a href={`tel:${p.tel}`} className="tabular-nums text-on-forest transition-colors hover:text-signal">{p.display}</a></li>
-              ))}
               <li className="pt-1.5 text-forest-muted">{COMPANY.address.join(', ')}</li>
             </ul>
           </div>

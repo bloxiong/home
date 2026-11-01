@@ -1,5 +1,5 @@
 import React from 'react';
-import { GraduationCap, BadgeCheck, Building2, MapPin, Mail, Phone, Clock } from 'lucide-react';
+import { GraduationCap, BadgeCheck, Building2, MapPin, Mail, Clock } from 'lucide-react';
 import {
   PageMeta, PageHeader, Button, Section, SectionHeading, CTABand, Reveal, TechLabel, Brand, BrandText, BrandLine, StarBullet,
 } from '../components/ui';
@@ -44,7 +44,7 @@ export default function About() {
       <PageMeta
         title="Company"
         path="/about"
-        description="BLOXio Nigeria Limited is a CAC-registered engineering and technology company in Lagos developing intelligent hardware and software systems. Meet the founders."
+        description="BLOXio Nigeria Limited is an engineering and technology company in Lagos developing intelligent hardware and software systems. Meet the founders."
       />
 
       <PageHeader
@@ -203,22 +203,14 @@ export default function About() {
               </div>
               <div className="mt-4"><a href={MAP_URL} target="_blank" rel="noreferrer" className="link-line">Open in Google Maps</a></div>
             </Reveal>
-            <Reveal i={2} as="div" className="h-full">
+            <Reveal i={2} as="div" className="h-full sm:col-span-2">
               <a href={`mailto:${COMPANY.email}`} className={`${card(true)} detail-card block h-full`}>
                 <p className="detail-key"><span className="detail-icon"><Mail size={16} /></span>Email</p>
                 <div className="mt-3 break-all font-semibold text-ink">{COMPANY.email}</div>
                 <div className="mt-1 text-sm text-muted">We aim to reply within 24 hours.</div>
               </a>
             </Reveal>
-            <Reveal i={3} className={`${card()} detail-card`}>
-              <p className="detail-key"><span className="detail-icon"><Phone size={16} /></span>Phone</p>
-              {COMPANY.phones.map((ph) => (
-                <div key={ph.tel} className="mt-3 mt-1 first-of-type:mt-3">
-                  <a href={`tel:${ph.tel}`} className="font-semibold tabular-nums text-ink transition-colors hover:text-accent">{ph.display}</a>
-                </div>
-              ))}
-            </Reveal>
-            <Reveal i={4} className={`${card()} detail-card sm:col-span-2`}>
+            <Reveal i={3} className={`${card()} detail-card sm:col-span-2`}>
               <p className="detail-key"><span className="detail-icon"><Clock size={16} /></span>Office hours</p>
               <div className="mt-3 font-semibold text-ink">{COMPANY.hours}</div>
             </Reveal>

@@ -33,7 +33,7 @@ export default function Home() {
               style={{ fontSize: 'clamp(1.05rem, max(3.2vw, min(8.5vw, 1.5rem)), 2.6rem)' }}
             />
             <p className="mt-4 max-w-[52ch] text-lg leading-relaxed text-muted">
-              Circuits, firmware, cloud services and AI under one roof, from a CAC-registered company in Lagos.
+              Circuits, firmware, cloud services and AI under one roof.
             </p>
             <div className="mt-6">
               <Button to="/about" variant="text">About the company</Button>

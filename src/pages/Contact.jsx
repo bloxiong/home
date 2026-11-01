@@ -1,6 +1,6 @@
 import React, { useId, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { Mail, Phone, MapPin, Clock, Send, CheckCircle2, Loader2 } from 'lucide-react';
+import { Mail, MapPin, Clock, Send, CheckCircle2, Loader2 } from 'lucide-react';
 import { PageMeta, PageHeader, Section, SectionHeading } from '../components/ui';
 import FAQList from '../components/FAQList';
 import { inputCls } from '../lib/ui-utils';
@@ -199,15 +199,6 @@ export default function Contact() {
                   <div>
                     <p className="text-sm text-muted">Email</p>
                     <a href={`mailto:${COMPANY.email}`} className="font-semibold text-ink hover:text-accent transition-colors">{COMPANY.email}</a>
-                  </div>
-                </li>
-                <li className="flex gap-4">
-                  <Phone size={18} className="mt-0.5 shrink-0 text-accent" />
-                  <div>
-                    <p className="text-sm text-muted">Phone</p>
-                    {COMPANY.phones.map((p) => (
-                      <a key={p.tel} href={`tel:${p.tel}`} className="block font-semibold text-ink tabular-nums hover:text-accent transition-colors">{p.display}</a>
-                    ))}
                   </div>
                 </li>
                 <li className="flex gap-4">
