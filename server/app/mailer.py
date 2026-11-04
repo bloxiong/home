@@ -58,10 +58,13 @@ def render(*, subject: str, greeting: str | None, body_html: str, button: tuple[
         label, url = button
         btn = "\n          " + _template(f"{t}-button").replace("{{BUTTON_LABEL}}", html.escape(label)) \
             .replace("{{BUTTON_URL}}", html.escape(url)) + "\n"
-    if not greeting:  # drop the whole greeting paragraph
-        start = page.rindex("<p ", 0, page.index("{{GREETING}}"))
-        end = page.index("</p>", page.index("{{GREETING}}")) + 4
-        page = page[:start] + page[end:]
+    # an empty greeting or subject drops its whole paragraph (the heading
+    # above the message), rather than leaving a blank line
+    for token, value in (("{{GREETING}}", greeting), ("{{EYEBROW}}", subject)):
+        if not value:
+            start = page.rindex("<p ", 0, page.index(token))
+            end = page.index("</p>", page.index(token)) + 4
+            page = page[:start] + page[end:]
     return (page.replace("{{SUBJECT}}", html.escape(subject))
                 .replace("{{EYEBROW}}", html.escape(subject))
                 .replace("{{GREETING}}", html.escape(greeting or ""))

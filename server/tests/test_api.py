@@ -80,6 +80,7 @@ def test_email_template_for_copying(client):
     h = login(client, CONTACT)
     light = client.get("/admin/email/template", params={"sign_name": "Owen Anyakie"}, headers=h).json()["html"]
     assert "Owen Anyakie" in light and "Write your message here" in light and "{{" not in light
+    assert "Your subject" not in light and "<title></title>" in light
     dark = client.get("/admin/email/template", params={"theme": "dark", "button": True}, headers=h).json()["html"]
     assert dark != light and "Button label" in dark
     assert client.get("/admin/email/template", params={"theme": "pink"}, headers=h).status_code == 422

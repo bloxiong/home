@@ -1,6 +1,6 @@
 import { useRef, useState } from 'react'
 import { Code2, Copy, Download } from 'lucide-react'
-import { Button, Card, CardHeader, ErrorNote, Field, Input, Skeleton, Toggle } from './ui'
+import { Button, Card, CardHeader, ErrorNote, Skeleton, Toggle } from './ui'
 import { useToast } from '../lib/contexts'
 import { useApi, useDebounced } from '../lib/hooks'
 
@@ -40,9 +40,7 @@ export default function EmailTemplate() {
   const toast = useToast()
   const [theme, setTheme] = useState('light')
   const [button, setButton] = useState(false)
-  const [signName, setSignName] = useState('')
-  const [signTitle, setSignTitle] = useState('')
-  const params = useDebounced({ theme, button, sign_name: signName, sign_title: signTitle }, 350)
+  const params = useDebounced({ theme, button }, 150)
   const { data, error, reload } = useApi('/admin/email/template', params)
   const html = data?.html || ''
   const frame = useRef(null)
@@ -87,27 +85,12 @@ export default function EmailTemplate() {
               ))}
             </div>
           </div>
-          <Field label="Sign-off name" htmlFor="tpl-name" hint="Leave blank to use your admin name.">
-            <Input id="tpl-name" value={signName} maxLength={120} onChange={(e) => setSignName(e.target.value)} placeholder="e.g. Owen Anyakie" />
-          </Field>
-          <Field label="Sign-off title" htmlFor="tpl-title">
-            <Input id="tpl-title" value={signTitle} maxLength={120} onChange={(e) => setSignTitle(e.target.value)} placeholder="BLOXio Nigeria Limited" />
-          </Field>
           <Toggle checked={button} onChange={setButton} label="Include a button" />
 
           <div className="flex flex-col gap-2 pt-1">
             <Button variant="primary" icon={Copy} disabled={!html} onClick={copyDesign}>Copy for Gmail / Outlook</Button>
             <Button variant="secondary" icon={Code2} disabled={!html} onClick={copyCode}>Copy HTML code</Button>
             <Button variant="ghost" icon={Download} disabled={!html} onClick={download}>Download .html</Button>
-          </div>
-
-          <div className="rounded-xl border border-line bg-sunken p-3 text-xs leading-relaxed text-muted">
-            <p className="font-semibold text-ink">Save it as a Gmail template (once)</p>
-            <ol className="mt-1.5 list-decimal space-y-1 pl-4">
-              <li>Gmail → Settings → See all settings → Advanced → Templates: <b>Enable</b> → Save.</li>
-              <li>Compose, click in the message, paste.</li>
-              <li>⋮ menu → Templates → Save draft as template.</li>
-            </ol>
           </div>
         </div>
 

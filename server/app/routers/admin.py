@@ -246,7 +246,8 @@ def email_template(theme: str = Query("light", pattern="^(light|dark)$"), button
     body = ("<p style=\"margin:0 0 16px 0;\">Write your message here. Keep paragraphs short; "
             "a blank line between them reads best.</p>"
             "<p style=\"margin:0 0 16px 0;\">Add a second paragraph if you need one, or delete it.</p>")
-    html = mailer.render(subject="Your subject", greeting="Hello [Name],", body_html=body,
+    # no subject or heading is set: the admin writes their own in their mail app
+    html = mailer.render(subject="", greeting="Hello [Name],", body_html=body,
                          button=("Button label", "https://bloxio.tech") if button else None,
                          sign_name=sign_name.strip() or me.name or "The BLOXio team",
                          sign_title=sign_title.strip() or "BLOXio Nigeria Limited", theme_name=theme)
