@@ -49,8 +49,9 @@ def link(url: str, label: str) -> str:
 
 
 def render(*, subject: str, greeting: str | None, body_html: str, button: tuple[str, str] | None = None,
-           sign_name: str = "The BLOXio team", sign_title: str = "BLOXio Nigeria Limited") -> str:
-    t = theme()
+           sign_name: str = "The BLOXio team", sign_title: str = "BLOXio Nigeria Limited",
+           theme_name: str | None = None) -> str:
+    t = theme_name if theme_name in PALETTE else theme()
     page = _template(t)
     btn = ""
     if button:

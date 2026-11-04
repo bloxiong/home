@@ -237,6 +237,22 @@ def send_email(body: ComposeIn, me: Admin = Depends(current_admin), db: Session 
     return {"sent": sent, "failed": len(results) - sent, "results": [email_out(r) for r in results]}
 
 
+@router.get("/email/template")
+def email_template(theme: str = Query("light", pattern="^(light|dark)$"), button: bool = False,
+                   sign_name: str = Query("", max_length=120), sign_title: str = Query("", max_length=120),
+                   me: Admin = Depends(current_admin)):
+    """The official email design with placeholder text, for admins to copy into
+    Gmail, Outlook or anywhere else and write their own message."""
+    body = ("<p style=\"margin:0 0 16px 0;\">Write your message here. Keep paragraphs short; "
+            "a blank line between them reads best.</p>"
+            "<p style=\"margin:0 0 16px 0;\">Add a second paragraph if you need one, or delete it.</p>")
+    html = mailer.render(subject="Your subject", greeting="Hello [Name],", body_html=body,
+                         button=("Button label", "https://bloxio.tech") if button else None,
+                         sign_name=sign_name.strip() or me.name or "The BLOXio team",
+                         sign_title=sign_title.strip() or "BLOXio Nigeria Limited", theme_name=theme)
+    return {"html": html}
+
+
 @router.get("/email/log")
 def email_log(kind: str | None = None, limit: int = 50, offset: int = 0, db: Session = Depends(get_db)):
     query = db.query(EmailLog)

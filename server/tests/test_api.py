@@ -75,6 +75,16 @@ def test_light_hero_can_be_switched_back(client):
     client.post("/admin/content/publish", headers=h)
     assert client.get("/public/content").json()["APPEARANCE"] == {"lightHero": "morning"}
 
+
+def test_email_template_for_copying(client):
+    h = login(client, CONTACT)
+    light = client.get("/admin/email/template", params={"sign_name": "Owen Anyakie"}, headers=h).json()["html"]
+    assert "Owen Anyakie" in light and "Write your message here" in light and "{{" not in light
+    dark = client.get("/admin/email/template", params={"theme": "dark", "button": True}, headers=h).json()["html"]
+    assert dark != light and "Button label" in dark
+    assert client.get("/admin/email/template", params={"theme": "pink"}, headers=h).status_code == 422
+    assert client.get("/admin/email/template").status_code == 401
+
 def test_password_reset_and_change(client):
     client.post("/auth/forgot", json={"email": CONTACT})
     assert any(k == "reset" for k, *_ in emails())

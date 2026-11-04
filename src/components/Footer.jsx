@@ -50,7 +50,7 @@ export default function Footer() {
               <img src="/bloxio-logo.png" alt="BLOXio" width="400" height="75" className="mb-6 h-auto w-28" />
             </Link>
             )}
-            <p className="max-w-xs text-sm leading-relaxed text-forest-muted">{COMPANY.positioning} Designed and engineered in Nigeria.</p>
+            <p className="max-w-xs text-sm leading-relaxed text-forest-muted">{COMPANY.positioning}</p>
             <ul className="mt-6 space-y-1.5 text-sm">
               <li><a href={`mailto:${COMPANY.email}`} className="text-on-forest transition-colors hover:text-signal">{COMPANY.email}</a></li>
               <li className="pt-1.5 text-forest-muted">{COMPANY.address.join(', ')}</li>

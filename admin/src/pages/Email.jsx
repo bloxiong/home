@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { CheckCircle2, ChevronDown, Inbox, Mail, Send, Users, X, XCircle } from 'lucide-react'
 import EmailPreview from '../components/EmailPreview'
+import EmailTemplate from '../components/EmailTemplate'
 import {
   Badge, Button, Card, CardHeader, ConfirmDialog, Empty, ErrorNote, Field, Input, PageHeader, Pagination, Select,
   SkeletonRows, StatusBadge, Textarea, Toggle,
@@ -279,6 +280,7 @@ export default function Email() {
     <>
       <PageHeader title="Email" sub="Write to people who asked to hear from BLOXio." />
       <Compose onSent={() => setTick((t) => t + 1)} />
+      <EmailTemplate />
       <Log tick={tick} />
     </>
   )
