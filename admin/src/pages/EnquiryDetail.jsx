@@ -94,7 +94,7 @@ export default function EnquiryDetail() {
     return (
       <>
         <PageHeader title="Enquiry" back={back} />
-        <div className="grid gap-4 lg:grid-cols-[1fr_20rem]"><Card><SkeletonRows rows={8} /></Card><Skeleton className="h-64 rounded-2xl" /></div>
+        <div className="grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,1fr)_20rem]"><Card><SkeletonRows rows={8} /></Card><Skeleton className="h-64 rounded-2xl" /></div>
       </>
     )
   }
@@ -104,7 +104,7 @@ export default function EnquiryDetail() {
       <PageHeader title={e.name} back={back}
         sub={<>{topicLabel(e.topic)} · received <span title={fmtDate(e.created_at)}>{fmtRelative(e.created_at)}</span></>}
         actions={<StatusBadge status={e.status} />} />
-      <div className="grid items-start gap-5 lg:grid-cols-[1fr_20rem]">
+      <div className="grid grid-cols-1 items-start gap-5 lg:grid-cols-[minmax(0,1fr)_20rem]">
         <div className="min-w-0 space-y-5">
           <Card>
             <CardHeader title="Message" sub={fmtDate(e.created_at)} />
@@ -123,8 +123,8 @@ export default function EnquiryDetail() {
             <CardHeader title="Contact" />
             <ul className="space-y-2.5 p-4 text-sm sm:p-5">
               <li className="flex items-center gap-2.5"><Mail className="h-4 w-4 shrink-0 text-muted" aria-hidden /><a className="break-all hover:underline" href={`mailto:${e.email}`}>{e.email}</a></li>
-              {e.phone && <li className="flex items-center gap-2.5"><Phone className="h-4 w-4 shrink-0 text-muted" aria-hidden /><a className="hover:underline" href={`tel:${e.phone.replace(/\s+/g, '')}`}>{e.phone}</a></li>}
-              {e.org && <li className="flex items-center gap-2.5"><Building2 className="h-4 w-4 shrink-0 text-muted" aria-hidden />{e.org}</li>}
+              {e.phone && <li className="flex items-center gap-2.5"><Phone className="h-4 w-4 shrink-0 text-muted" aria-hidden /><a className="min-w-0 break-all hover:underline" href={`tel:${e.phone.replace(/\s+/g, '')}`}>{e.phone}</a></li>}
+              {e.org && <li className="flex items-center gap-2.5"><Building2 className="h-4 w-4 shrink-0 text-muted" aria-hidden /><span className="min-w-0 break-words">{e.org}</span></li>}
               <li><Badge>{topicLabel(e.topic)}</Badge></li>
             </ul>
           </Card>

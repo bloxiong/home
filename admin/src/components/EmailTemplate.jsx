@@ -72,7 +72,7 @@ export default function EmailTemplate() {
   return (
     <Card className="mt-4">
       <CardHeader title="Email template" sub="The official BLOXio email design. Copy it into your own mail app and write over the placeholder text." />
-      <div className="grid gap-6 p-5 sm:p-6 lg:grid-cols-[18rem_1fr]">
+      <div className="grid grid-cols-1 gap-6 p-5 sm:p-6 lg:grid-cols-[18rem_minmax(0,1fr)]">
         <div className="space-y-4">
           <div>
             <p className="text-label mb-1.5 text-muted">Version</p>
@@ -88,7 +88,7 @@ export default function EmailTemplate() {
           <Toggle checked={button} onChange={setButton} label="Include a button" />
 
           <div className="flex flex-col gap-2 pt-1">
-            <Button variant="primary" icon={Copy} disabled={!html} onClick={copyDesign}>Copy for Gmail / Outlook</Button>
+            <Button variant="primary" icon={Copy} disabled={!html} onClick={copyDesign} className="whitespace-normal!">Copy for Gmail / Outlook</Button>
             <Button variant="secondary" icon={Code2} disabled={!html} onClick={copyCode}>Copy HTML code</Button>
             <Button variant="ghost" icon={Download} disabled={!html} onClick={download}>Download .html</Button>
           </div>

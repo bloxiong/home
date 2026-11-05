@@ -81,7 +81,7 @@ export function PageHeader({ title, sub, actions, back, eyebrow }) {
         )}
         {brow && !back && <p className="script-label mb-2">{brow}</p>}
         <h1 className="font-display text-[1.75rem] leading-[1.05] break-words sm:text-4xl">{title}</h1>
-        {sub && <p className="mt-3 max-w-2xl text-[15px] leading-relaxed text-muted">{sub}</p>}
+        {sub && <p className="mt-3 max-w-2xl break-words text-[15px] leading-relaxed text-muted">{sub}</p>}
       </div>
       {actions && <div className="flex flex-wrap items-center gap-2.5">{actions}</div>}
     </div>

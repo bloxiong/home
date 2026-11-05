@@ -262,7 +262,7 @@ export default function Navigation() {
           </Link>
           <div className="menu-item mt-auto space-y-1 pt-10 text-sm text-forest-muted" style={{ '--k': NAV_LINKS.length + 2 }}>
             <a href={`mailto:${COMPANY.email}`} className="block font-semibold text-signal">{COMPANY.email}</a>
-            <p>Festac, Lagos, Nigeria</p>
+            <p>Nigeria</p>
           </div>
         </div>
       </div>

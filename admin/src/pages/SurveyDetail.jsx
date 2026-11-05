@@ -11,7 +11,7 @@ import { useApi } from '../lib/hooks'
 function Answer({ value }) {
   if (Array.isArray(value)) return value.length ? <Chips items={value} /> : <span className="text-muted">—</span>
   if (value === null || value === undefined || value === '') return <span className="text-muted">—</span>
-  if (typeof value === 'object') return <pre className="whitespace-pre-wrap font-mono text-xs">{JSON.stringify(value, null, 2)}</pre>
+  if (typeof value === 'object') return <pre className="whitespace-pre-wrap break-words font-mono text-xs">{JSON.stringify(value, null, 2)}</pre>
   return <span className="whitespace-pre-wrap break-words">{String(value)}</span>
 }
 
@@ -38,7 +38,7 @@ export default function SurveyDetail() {
     return (
       <>
         <PageHeader title={`Survey #${id}`} back={back} />
-        <div className="grid gap-4 lg:grid-cols-[1fr_20rem]"><Card><SkeletonRows rows={10} /></Card><Skeleton className="h-64 rounded-2xl" /></div>
+        <div className="grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,1fr)_20rem]"><Card><SkeletonRows rows={10} /></Card><Skeleton className="h-64 rounded-2xl" /></div>
       </>
     )
   }
@@ -59,12 +59,12 @@ export default function SurveyDetail() {
           </Button>
         )}
       />
-      <div className="grid items-start gap-5 lg:grid-cols-[1fr_20rem]">
+      <div className="grid grid-cols-1 items-start gap-5 lg:grid-cols-[minmax(0,1fr)_20rem]">
         <Card>
           <CardHeader title="Answers" sub={fmtDate(s.created_at)} />
           <dl className="divide-y divide-line">
             {keys.map((k) => (
-              <div key={k} className="grid gap-1 px-5 py-4 sm:grid-cols-[14rem_1fr] sm:gap-6 sm:px-6">
+              <div key={k} className="grid grid-cols-1 gap-1 px-5 py-4 sm:grid-cols-[14rem_minmax(0,1fr)] sm:gap-6 sm:px-6">
                 <dt className="text-sm text-muted">{labels[k] || humanize(k)}</dt>
                 <dd className="text-sm"><Answer value={s.data?.[k]} /></dd>
               </div>

@@ -346,7 +346,7 @@ export const NUMBERS = [
 ];
 
 export const MILESTONES = [
-  { title: 'Incorporated', body: 'BLOXio Nigeria Limited registered with the CAC, with a registered office in Festac, Lagos.', done: true },
+  { title: 'Incorporated', body: 'BLOXio Nigeria Limited, a registered company in Nigeria.', done: true },
   { title: 'First integrated prototype', body: 'AgroSense360 worked end to end, from the field to an alert on the farmer’s phone.', done: true },
   { title: 'Farmer research', body: 'Surveying farmers and agribusinesses about monitoring problems and what they would pay for.', now: true },
   { title: 'Field-ready units', body: 'The next AgroSense360 generation, developed for real field deployment.', now: true },
@@ -414,7 +414,7 @@ export const FAQS = [
   },
   {
     q: 'Is BLOXio a registered company?',
-    a: 'Yes. BLOXio Nigeria Limited is registered with the Corporate Affairs Commission (CAC). Our registered office is at Plot AV 27B, 251 Road Festac Phase II, Abule Ado, Lagos State.',
+    a: 'Yes. BLOXio Nigeria Limited is a registered company in Nigeria.',
   },
   {
     q: 'Can I invest in or partner with BLOXio?',

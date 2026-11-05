@@ -32,12 +32,12 @@ export default function Dashboard() {
       <ErrorNote error={error} onRetry={reload} />
 
       {!s && !error ? (
-        <div className="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3 xl:grid-cols-5">
+        <div className="grid grid-cols-1 gap-3 min-[300px]:grid-cols-2 sm:gap-4 md:grid-cols-3 xl:grid-cols-5">
           {Array.from({ length: 5 }, (_, i) => <Skeleton key={i} className="h-28 rounded-2xl" />)}
         </div>
       ) : s && (
         <>
-          <div className="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3 xl:grid-cols-5">
+          <div className="grid grid-cols-1 gap-3 min-[300px]:grid-cols-2 sm:gap-4 md:grid-cols-3 xl:grid-cols-5">
             <Stat icon={ClipboardList} label="Survey responses" value={s.surveys} to="/surveys" />
             <Stat icon={Sparkles} label="New surveys" value={s.surveys_new} sub="Not reviewed yet" to="/surveys?status=new" />
             <Stat icon={BellRing} label="Updates list" value={s.wants_updates} sub="Asked to hear from us" to="/email" />
@@ -54,7 +54,7 @@ export default function Dashboard() {
             <Card><CardHeader title="Willing to pay" sub="If it delivers real value" /><AnswerSplit data={s.by_pay} question="Willing to pay" /></Card>
           </div>
 
-          <div className="mt-5 grid gap-5 xl:grid-cols-2">
+          <div className="mt-5 grid grid-cols-1 gap-5 xl:grid-cols-2">
             <RecentList title="Recent surveys" to="/surveys" items={s.recent_surveys} icon={ClipboardList}
               render={(r) => (
                 <li key={r.id}>

@@ -179,6 +179,8 @@ html:not(.dark) .bx-sky::after { opacity: 0.18; }
 @layer components {
 /* ── surfaces ─────────────────────────────────────────────────────── */
 .bx-card {
+  /* a grid item must be able to shrink, or long unbroken text widens the whole page */
+  min-width: 0;
   border: 1px solid var(--bx-line);
   background: var(--bx-surface);
   border-radius: 1.25rem;

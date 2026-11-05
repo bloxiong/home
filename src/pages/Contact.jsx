@@ -86,7 +86,7 @@ export default function Contact() {
       <PageMeta
         title="Contact"
         path="/contact"
-        description="Contact BLOXio Nigeria Limited in Festac, Lagos: start a project, join the AgroSense360 pilot, discuss investment or partnerships, or ask about careers."
+        description="Contact BLOXio Nigeria Limited: start a project, join the AgroSense360 pilot, discuss investment or partnerships, or ask about careers."
       />
 
       <PageHeader

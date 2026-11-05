@@ -33,7 +33,7 @@ const PRINCIPLES = [
 
 const TRUST = [
   ['Name', 'BLOXio Nigeria Limited'],
-  ['Based in', 'Festac, Lagos, Nigeria'],
+  ['Based in', 'Nigeria'],
   ['Works in', 'Electronics, embedded, cloud & AI'],
   ['Founded by', 'Two electrical and electronics engineers'],
 ];

@@ -30,7 +30,7 @@ An engineer-founded Nigerian company building its own hardware products from the
 - **AgroSense360** (flagship): AI + cameras + IoT sensors to monitor crop health, soil and farm environment, with mobile alerts and recommendations. **Stage: prototype in progress** (confirmed Oct 2026). Not yet piloting or for sale. Farmer research survey at `/survey` feeds a Google Apps Script sheet.
 - **Pipeline categories** (from the survey and footer, no products yet): smart electronic devices, agricultural drones and accessories, smart lighting, security and surveillance devices, energy and power systems.
 - **Services**: R&D and engineering; product design and manufacturing; smart device ecosystems; technical consulting; innovation solutions; support and maintenance.
-- Contact form is mailto-based (no backend). Email: contact@bloxio.tech. Phones: [removed], [removed].
+- Contact form is mailto-based (no backend). Email: contact@bloxio.tech.
 - Open: founding date, pilot timeline, pricing, team size beyond founders, client list.
 
 ## Brand Commitments

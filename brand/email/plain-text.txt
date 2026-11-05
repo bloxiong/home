@@ -10,7 +10,6 @@ as the text alternative when a client blocks HTML or images.
 [Your Title] | Bloxio Nigeria Limited
 
 contact@bloxio.tech | bloxio.tech
-[removed] | [removed]
 Festac Phase II, Lagos State, Nigeria
 
 ...one step ahead of tech
@@ -19,7 +18,7 @@ Festac Phase II, Lagos State, Nigeria
 -- SHORTER SIGNATURE (very small screens) ----------------------------
 
 [Your Name] — Bloxio Nigeria Limited
-contact@bloxio.tech | [removed]
+contact@bloxio.tech
 ...one step ahead of tech
 
 
@@ -44,6 +43,5 @@ Kind regards,
 ---------------------------------------------------------------
 BLOXIO NIGERIA LIMITED
 Plot AV 27B, 251 Road, Festac Phase II, Abule Ado, Lagos State, Nigeria
-[removed] | [removed]
 contact@bloxio.tech | bloxio.tech
 ...one step ahead of tech
