@@ -1,3 +1,4 @@
+import { useEffect, useRef } from 'react'
 import { useParams } from 'react-router-dom'
 import { Mail } from 'lucide-react'
 import TriagePanel from '../components/TriagePanel'
@@ -20,6 +21,16 @@ export default function SurveyDetail() {
   const toast = useToast()
   const { refresh } = useCounts()
   const { data: s, error, reload, setData } = useApi(`/admin/surveys/${id}`)
+
+  // opening a new response counts as reviewing it; once per open, so it can still be set back to New
+  const opened = useRef(null)
+  useEffect(() => {
+    if (s?.id !== Number(id) || s.status !== 'new' || opened.current === id) return
+    opened.current = id
+    api(`/admin/surveys/${id}`, { method: 'PATCH', body: { status: 'reviewed' } })
+      .then((out) => { setData((d) => ({ ...d, ...out })); refresh() })
+      .catch(() => { /* it stays New and can be set by hand */ })
+  }, [s, id, setData, refresh])
 
   async function patch(body) {
     try {
@@ -62,9 +73,9 @@ export default function SurveyDetail() {
       <div className="grid grid-cols-1 items-start gap-5 lg:grid-cols-[minmax(0,1fr)_20rem]">
         <Card>
           <CardHeader title="Answers" sub={fmtDate(s.created_at)} />
-          <dl className="divide-y divide-line">
+          <dl className="@container divide-y divide-line">
             {keys.map((k) => (
-              <div key={k} className="grid grid-cols-1 gap-1 px-5 py-4 sm:grid-cols-[14rem_minmax(0,1fr)] sm:gap-6 sm:px-6">
+              <div key={k} className="grid grid-cols-1 gap-1 px-5 py-4 @lg:grid-cols-[14rem_minmax(0,1fr)] @lg:gap-6 sm:px-6">
                 <dt className="text-sm text-muted">{labels[k] || humanize(k)}</dt>
                 <dd className="text-sm"><Answer value={s.data?.[k]} /></dd>
               </div>

@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { Building2, ChevronDown, Mail, Phone, Send } from 'lucide-react'
 import EmailPreview from '../components/EmailPreview'
@@ -76,6 +76,16 @@ export default function EnquiryDetail() {
   const toast = useToast()
   const { refresh } = useCounts()
   const { data: e, error, reload, setData } = useApi(`/admin/enquiries/${id}`)
+
+  // opening a new enquiry counts as reviewing it; once per open, so it can still be set back to New
+  const opened = useRef(null)
+  useEffect(() => {
+    if (e?.id !== Number(id) || e.status !== 'new' || opened.current === id) return
+    opened.current = id
+    api(`/admin/enquiries/${id}`, { method: 'PATCH', body: { status: 'reviewed' } })
+      .then((out) => { setData((d) => ({ ...d, ...out })); refresh() })
+      .catch(() => { /* it stays New and can be set by hand */ })
+  }, [e, id, setData, refresh])
 
   async function patch(body) {
     try {

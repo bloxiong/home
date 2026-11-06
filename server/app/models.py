@@ -58,7 +58,7 @@ class Enquiry(Base):
     org: Mapped[str] = mapped_column(String(200), default="")
     topic: Mapped[str] = mapped_column(String(60), default="")
     message: Mapped[str] = mapped_column(Text)
-    status: Mapped[str] = mapped_column(String(20), default="new")  # new | replied | closed
+    status: Mapped[str] = mapped_column(String(20), default="new")  # new | reviewed | replied | closed
     notes: Mapped[str] = mapped_column(Text, default="")
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=now, index=True)
 

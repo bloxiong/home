@@ -1,6 +1,6 @@
-import { useEffect, useId, useRef } from 'react'
+import { useEffect, useId, useRef, useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
-import { AlertCircle, AlertTriangle, ChevronLeft, ChevronRight, Loader2, Search, X } from 'lucide-react'
+import { AlertCircle, AlertTriangle, ChevronLeft, ChevronRight, Eye, EyeOff, Loader2, Search, X } from 'lucide-react'
 import { cx } from '../lib/cx'
 
 /* ── brand ─────────────────────────────────────────────────────────── */
@@ -137,6 +137,20 @@ export function Field({ label, hint, error, children, className, htmlFor }) {
 
 export function Input({ className, ...rest }) {
   return <input className={cx('field', className)} {...rest} />
+}
+/** Password box with an eye button to show or hide what was typed. */
+export function PasswordInput({ className, ...rest }) {
+  const [shown, setShown] = useState(false)
+  const Icon = shown ? EyeOff : Eye
+  return (
+    <div className={cx('relative', className)}>
+      <input {...rest} type={shown ? 'text' : 'password'} className="field pr-12" />
+      <button type="button" onClick={() => setShown((v) => !v)} aria-label={shown ? 'Hide password' : 'Show password'} aria-pressed={shown}
+        className="absolute right-1 top-1/2 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-lg text-muted transition hover:text-ink">
+        <Icon className="h-4 w-4" aria-hidden />
+      </button>
+    </div>
+  )
 }
 /** Search box with a leading icon and a clear button. */
 export function SearchInput({ value, onChange, className, ...rest }) {

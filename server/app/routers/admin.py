@@ -21,7 +21,7 @@ from .public import SURVEY_LABELS
 router = APIRouter(prefix="/admin", tags=["admin"], dependencies=[Depends(current_admin)])
 
 SURVEY_STATUSES = {"new", "reviewed", "contacted", "archived"}
-ENQUIRY_STATUSES = {"new", "replied", "closed"}
+ENQUIRY_STATUSES = {"new", "reviewed", "replied", "closed"}
 
 
 def page(q, limit: int, offset: int):

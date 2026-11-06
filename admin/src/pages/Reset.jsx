@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import AuthShell from '../components/AuthShell'
-import { Button, Field, Input } from '../components/ui'
+import { Button, Field, PasswordInput } from '../components/ui'
 import { api } from '../lib/api'
 import { useAuth, useToast } from '../lib/contexts'
 import { PASSWORD_HINT, passwordProblem } from '../lib/format'
@@ -50,10 +50,10 @@ export default function Reset() {
     <AuthShell title="Choose a password" sub="Set the password you will use to sign in to the BLOXio admin.">
       <form onSubmit={submit} className="space-y-5" noValidate>
         <Field label="New password" htmlFor="pw" hint={PASSWORD_HINT} error={touched && passwordProblem(pw)}>
-          <Input id="pw" type="password" autoComplete="new-password" autoFocus value={pw} onChange={(e) => setPw(e.target.value)} />
+          <PasswordInput id="pw" autoComplete="new-password" autoFocus value={pw} onChange={(e) => setPw(e.target.value)} />
         </Field>
         <Field label="Repeat password" htmlFor="pw2" error={touched && pw2 !== pw ? 'The two passwords do not match.' : null}>
-          <Input id="pw2" type="password" autoComplete="new-password" value={pw2} onChange={(e) => setPw2(e.target.value)} />
+          <PasswordInput id="pw2" autoComplete="new-password" value={pw2} onChange={(e) => setPw2(e.target.value)} />
         </Field>
         {error && (
           <p role="alert" className="rounded-xl border border-danger/40 bg-danger/10 px-3 py-2 text-sm text-danger">
