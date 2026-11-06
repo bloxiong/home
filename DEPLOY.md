@@ -70,3 +70,14 @@ createdb bloxio_test && .venv/bin/python -m pytest      # API tests
 Site: `npm run dev` (localhost:5173; http://agrosense360.localhost:5173 for the subdomain).
 Admin: `cd admin && npm install && npm run dev` (localhost:5174).
 If you change `src/content/site.js` by hand, run `npm run content:export` so a fresh database starts from it. Once the site is live, edit content in the admin instead: published admin content takes priority over the code.
+
+## Portal inbox (mail to contact@bloxio.tech)
+
+Incoming mail: Cloudflare runs `workers/inbox`, which forwards to Gmail first and then copies the email to `POST /public/inbound`. Replies from Gmail go through Resend's SMTP server (Gmail → Settings → Accounts → Send mail as), and Resend's webhook reports them to `POST /public/resend-webhook`.
+
+1. Render: set `INBOUND_SECRET` to a long random string.
+2. Resend → Webhooks: add `https://api.bloxio.tech/public/resend-webhook` with the `email.sent` event, then set its signing secret on Render as `RESEND_WEBHOOK_SECRET`.
+3. In `workers/inbox`: `npx wrangler login`, `npx wrangler kv namespace create bloxio-inbox-pending` (put the id in `wrangler.toml`), `npx wrangler secret put INBOUND_SECRET` (same value as Render), `npx wrangler secret put FORWARD_TO` (a verified Cloudflare destination), `npx wrangler deploy`.
+4. Cloudflare → Email Routing → Routing rules: point a test address at the Worker and try it. Then point `contact@bloxio.tech` at it. To undo, point the rule back at your Gmail address.
+
+The server's Resend key needs read access to store the text of Gmail replies. With a sending-only key they are still tracked, without their text.

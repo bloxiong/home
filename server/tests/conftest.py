@@ -5,6 +5,8 @@ os.environ["DATABASE_URL"] = os.environ.get("TEST_DATABASE_URL", "postgresql+psy
 os.environ["JWT_SECRET"] = "test-secret-that-is-long-enough-for-hs256-signing"
 os.environ["RESEND_API_KEY"] = ""
 os.environ["RATE_LIMIT"] = "1000"
+os.environ["INBOUND_SECRET"] = "test-inbound"
+os.environ["RESEND_WEBHOOK_SECRET"] = "whsec_dGVzdC13ZWJob29rLXNlY3JldA=="
 
 import pytest  # noqa: E402
 from fastapi.testclient import TestClient  # noqa: E402

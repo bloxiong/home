@@ -12,6 +12,8 @@ import Surveys from './pages/Surveys'
 import SurveyDetail from './pages/SurveyDetail'
 import Enquiries from './pages/Enquiries'
 import EnquiryDetail from './pages/EnquiryDetail'
+import Inbox from './pages/Inbox'
+import InboxThread from './pages/InboxThread'
 import Email from './pages/Email'
 import Content from './pages/Content'
 import ContentEditor from './pages/ContentEditor'
@@ -82,6 +84,8 @@ const router = createBrowserRouter([
           { path: 'surveys/:id', element: <SurveyDetail /> },
           { path: 'enquiries', element: <Enquiries /> },
           { path: 'enquiries/:id', element: <EnquiryDetail /> },
+          { path: 'inbox', element: <Inbox /> },
+          { path: 'inbox/:id', element: <InboxThread /> },
           { path: 'email', element: <Email /> },
           { path: 'content', element: <Content /> },
           { path: 'content/:key', element: <ContentEditor /> },

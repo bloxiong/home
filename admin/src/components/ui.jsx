@@ -65,7 +65,7 @@ export function CardHeader({ title, action, sub }) {
 // gold-script eyebrow per section, like the site's "…what we engineer"
 const EYEBROWS = {
   '': 'good to see you', traffic: 'who is visiting', surveys: 'what people told us', enquiries: 'people who wrote in',
-  email: 'write to people', content: 'what the site says', admins: 'the team', activity: 'who did what', account: 'just you',
+  inbox: 'who wrote to us', email: 'write to people', content: 'what the site says', admins: 'the team', activity: 'who did what', account: 'just you',
 }
 
 export function PageHeader({ title, sub, actions, back, eyebrow }) {

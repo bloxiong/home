@@ -13,7 +13,7 @@ from sqlalchemy.orm import Session
 from .. import audit, mailer
 from ..config import settings
 from ..db import get_db
-from ..models import Admin, AuditLog, ContentDoc, EmailLog, Enquiry, PasswordToken, SurveyResponse, now
+from ..models import Admin, AuditLog, ContentDoc, EmailLog, Enquiry, MailThread, PasswordToken, SurveyResponse, now
 from ..security import current_admin, super_admin
 from .auth import admin_out, send_password_link
 from .public import SURVEY_LABELS
@@ -49,6 +49,7 @@ def stats(db: Session = Depends(get_db)):
         "wants_updates": surveys.filter(SurveyResponse.wants_updates.is_(True)).count(),
         "enquiries": db.query(Enquiry).count(),
         "enquiries_new": db.query(Enquiry).filter(Enquiry.status == "new").count(),
+        "inbox_new": db.query(MailThread).filter(MailThread.status == "new").count(),
         "avg_usefulness": round(sum(ratings) / len(ratings), 2) if ratings else None,
         "by_type": {k or "—": v for k, v in by_type.items()},
         "by_consider": by_consider,

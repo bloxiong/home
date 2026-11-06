@@ -64,7 +64,7 @@ export function CountsProvider({ children }) {
   const [counts, setCounts] = useState(null)
   const refresh = useCallback(() => {
     api('/admin/stats')
-      .then((s) => setCounts({ surveys_new: s.surveys_new, enquiries_new: s.enquiries_new, stats: s }))
+      .then((s) => setCounts({ surveys_new: s.surveys_new, enquiries_new: s.enquiries_new, inbox_new: s.inbox_new, stats: s }))
       .catch(() => { /* badges are best effort */ })
   }, [])
   useEffect(() => {

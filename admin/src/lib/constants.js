@@ -1,5 +1,6 @@
 export const SURVEY_STATUSES = ['new', 'reviewed', 'contacted', 'archived']
 export const ENQUIRY_STATUSES = ['new', 'reviewed', 'replied', 'closed']
+export const MAIL_STATUSES = ['new', 'reviewed', 'replied', 'closed']
 export const EMAIL_KINDS = ['notify', 'confirm', 'compose', 'invite', 'reset']
 
 // Options on the public AgroSense360 survey (src/pages/AgroSense360-Survey.jsx)

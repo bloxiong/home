@@ -14,7 +14,7 @@ from sqlalchemy import select
 from .config import settings
 from .db import Base, SessionLocal, engine
 from .models import Admin, AuditLog, ContentDoc
-from .routers import admin, analytics, auth, public
+from .routers import admin, analytics, auth, inbox, public
 from .routers.auth import send_password_link
 
 logging.basicConfig(level=logging.INFO)
@@ -116,6 +116,8 @@ app.include_router(auth.router)
 app.include_router(admin.router)
 app.include_router(analytics.public)
 app.include_router(analytics.admin)
+app.include_router(inbox.public)
+app.include_router(inbox.admin)
 
 
 @app.get("/health")

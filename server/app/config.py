@@ -33,6 +33,13 @@ class Settings(BaseSettings):
     # Shared with the site's /api/visit function so only it can record visits
     visit_secret: str = ""
 
+    # Portal inbox: the address it tracks, the secret shared with the Cloudflare
+    # Worker that copies incoming mail, and the Resend webhook's signing secret
+    inbox_address: str = "contact@bloxio.tech"
+    inbox_from: str = "BLOXio <contact@bloxio.tech>"
+    inbound_secret: str = ""
+    resend_webhook_secret: str = ""
+
     # Public form submissions allowed per visitor per 10 minutes
     rate_limit: int = 6
 

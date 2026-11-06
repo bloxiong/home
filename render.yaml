@@ -31,5 +31,9 @@ services:
         value: https://admin.bloxio.tech
       - key: VERCEL_DEPLOY_HOOK    # Vercel → main site project → Settings → Git → Deploy Hooks
         sync: false
+      - key: INBOUND_SECRET        # any long random string; set the SAME value on the Cloudflare Worker (workers/inbox)
+        sync: false
+      - key: RESEND_WEBHOOK_SECRET # Resend → Webhooks → signing secret (starts whsec_)
+        sync: false
       - key: VISIT_SECRET          # any long random string; set the SAME value in Vercel (main site)
         sync: false
