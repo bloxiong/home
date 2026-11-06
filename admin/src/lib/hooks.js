@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
-import { api } from './api'
+import { api, cached, remember } from './api'
 
 /**
  * Load JSON from the API; reloads whenever `path` or `params` change.
@@ -8,21 +8,32 @@ import { api } from './api'
 export function useApi(path, params) {
   const [tick, setTick] = useState(0)
   const key = path ? JSON.stringify([path, params || {}, tick]) : null
-  const [state, setState] = useState({ data: null, error: null, key: null })
+  const cacheKey = path ? JSON.stringify([path, params || {}]) : null
+  // what was last seen shows at once while the fresh copy loads
+  const [state, setState] = useState(() => ({ data: cached(cacheKey) ?? null, error: null, key: null, cacheKey }))
 
   useEffect(() => {
     if (!key) return
     let alive = true
     const [p, ps] = JSON.parse(key)
     api(p, { params: ps })
-      .then((data) => { if (alive) setState({ data, error: null, key }) })
+      .then((data) => {
+        remember(cacheKey, data)
+        if (alive) setState({ data, error: null, key, cacheKey })
+      })
       .catch((error) => { if (alive) setState((s) => ({ ...s, error, key })) })
     return () => { alive = false }
-  }, [key])
+  }, [key, cacheKey])
 
   const reload = useCallback(() => setTick((t) => t + 1), [])
-  const setData = useCallback((fn) => setState((s) => ({ ...s, data: typeof fn === 'function' ? fn(s.data) : fn })), [])
-  return { data: state.data, error: state.error, loading: !!key && state.key !== key, reload, setData }
+  const setData = useCallback((fn) => setState((s) => {
+    const data = typeof fn === 'function' ? fn(s.data) : fn
+    remember(s.cacheKey, data)
+    return { ...s, data }
+  }), [])
+  // moving between lists: the new one's last copy, or nothing rather than the wrong list
+  const shown = state.cacheKey === cacheKey ? state.data : (cached(cacheKey) ?? (state.key === key ? state.data : null))
+  return { data: shown, error: state.error, loading: !!key && state.key !== key, reload, setData }
 }
 
 /** Debounce a value (search boxes). */

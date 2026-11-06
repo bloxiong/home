@@ -8,7 +8,18 @@ const TOKEN_KEY = 'bx-admin-token'
 export function getToken() {
   try { return localStorage.getItem(TOKEN_KEY) } catch { return null }
 }
+// answers already seen this session, so going back to a page is instant
+const seen = new Map()
+export const cached = (key) => (key ? seen.get(key) : undefined)
+export const remember = (key, data) => {
+  if (!key) return
+  seen.delete(key)
+  seen.set(key, data)
+  if (seen.size > 60) seen.delete(seen.keys().next().value)
+}
+
 export function setToken(token) {
+  seen.clear() // never show one admin's mail to the next
   try {
     if (token) localStorage.setItem(TOKEN_KEY, token)
     else localStorage.removeItem(TOKEN_KEY)
@@ -143,4 +154,11 @@ export async function download(path, params, fallbackName = 'download') {
   a.click()
   a.remove()
   setTimeout(() => URL.revokeObjectURL(url), 1000)
+}
+
+/** Loads a page's data ahead of the click, once. Failures don't matter here. */
+export function prefetch(path, params) {
+  const key = JSON.stringify([path, params || {}])
+  if (seen.has(key)) return
+  api(path, params ? { params } : undefined).then((data) => remember(key, data)).catch(() => {})
 }

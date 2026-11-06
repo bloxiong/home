@@ -18,13 +18,14 @@ import httpx
 from fastapi import APIRouter, Depends, Header, HTTPException, Request
 from pydantic import BaseModel, Field
 from sqlalchemy import func, or_
+from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from .. import audit, mailer
 from ..config import settings
 from ..db import get_db
-from ..inbox_access import is_shared, tracked_mailboxes, visible_mailboxes
+from ..inbox_access import is_platform_thread, is_shared, tracked_mailboxes, visible_mailboxes
 from ..models import Admin, AuditLog, Enquiry, MailContact, MailMessage, MailSection, MailThread, now
 from ..security import current_admin
 from .admin import StatusNotesIn, page
@@ -148,19 +149,83 @@ def is_ours(sender: str, mailbox: str) -> bool:
     return sender in (address(settings().mail_from), mailbox) or sender.endswith("@send.bloxio.tech")
 
 
-AUTOMATED_SENDER = re.compile(r"^(no[-_.]?reply|do[-_.]?not[-_.]?reply|mailer[-_.]?daemon|postmaster|bounces?|notifications?|newsletters?|alerts?|updates?|security|support\+|info\+)|[-_.+](no[-_.]?reply|bounces?|notifications?)", re.I)
+AUTOMATED_SENDER = re.compile(
+    r"^(no[-_.]?reply|do[-_.]?not[-_.]?reply|mailer[-_.]?daemon|postmaster|bounces?|notifications?|notify|newsletters?|news|alerts?|updates?|security|"
+    r"verify|verification|accounts?|billing|invoices?|receipts?|orders?|marketing|promotions?|mailer|automated|digest|support\+|info\+)($|[-_.+@])"
+    r"|[-_.+](no[-_.]?reply|bounces?|notifications?|newsletters?|alerts?)($|[-_.+])", re.I)
+PLATFORM_SUBJECT = re.compile(
+    r"\b(verification code|security code|login code|one[- ]time (pass)?code|otp|verify your (email|account)|confirm your (email|account|registration)|"
+    r"reset your password|password reset|security alert|new (login|sign[- ]in|device)|sign[- ]in attempt|unsubscribe|your receipt|your invoice|"
+    r"payment (received|successful|failed)|welcome to|invited you to|mentioned you|new follower|started following|liked your|commented on)\b", re.I)
+
+
+PLATFORM_DOMAINS = ("instagram.com", "facebookmail.com", "meta.com", "x.com", "twitter.com", "linkedin.com", "tiktok.com", "youtube.com",
+                    "pinterest.com", "snapchat.com", "whatsapp.com", "telegram.org", "accounts.google.com", "github.com", "gitlab.com", "vercel.com",
+                    "render.com", "resend.com", "neon.tech", "cloudflare.com", "stripe.com", "paystack.com", "flutterwave.com", "notion.so", "slack.com",
+                    "zoom.us", "canva.com", "figma.com", "mailchimp.com", "substack.com", "medium.com", "quora.com")
+BULK_HEADERS = ("List-Id", "List-Unsubscribe", "X-Autoreply", "X-Auto-Response-Suppress", "Feedback-ID", "X-Campaign", "X-Mailchimp-Campaign",
+                "X-SG-EID", "X-Mailgun-Tag", "X-SES-Outgoing", "X-MC-User", "X-Marketo-Mail")
+
+
+def platform_subject(subject: str) -> bool:
+    return bool(PLATFORM_SUBJECT.search(subject or ""))
+
+
+def platform_address(sender: str) -> bool:
+    """The address alone says it's a service, not a person. All an import has to go on."""
+    local, _, domain = sender.partition("@")
+    if domain.endswith("bloxio.tech"):
+        return False
+    return bool(AUTOMATED_SENDER.search(local)) or any(domain == d or domain.endswith(f".{d}") for d in PLATFORM_DOMAINS)
+
+
+def platform_mail(msg, sender: str) -> bool:
+    """The address, or the headers bulk and automated mail carries."""
+    if sender.endswith("bloxio.tech"):
+        return False
+    return platform_address(sender) or str(msg.get("Auto-Submitted", "no")).strip().lower() != "no" or any(msg.get(h) for h in BULK_HEADERS) \
+        or str(msg.get("Precedence", "")).strip().lower() in ("bulk", "list", "junk", "auto_reply") \
+        or str(msg.get("Return-Path", "")).strip() == "<>" or platform_subject(str(msg.get("Subject", "")))
 
 
 def is_automated(msg, sender: str) -> bool:
     """Never answer a machine, a mailing list, or a colleague: two auto-repliers can
     write to each other forever, and spoofed senders would get mail from us."""
-    if sender.endswith("bloxio.tech") or AUTOMATED_SENDER.search(sender.split("@")[0]):
-        return True
-    if str(msg.get("Auto-Submitted", "no")).strip().lower() != "no" or msg.get("List-Id") or msg.get("List-Unsubscribe") \
-            or str(msg.get("Precedence", "")).strip().lower() in ("bulk", "list", "junk", "auto_reply") \
-            or msg.get("X-Autoreply") or msg.get("X-Auto-Response-Suppress") or str(msg.get("Return-Path", "")).strip() == "<>":
+    if sender.endswith("bloxio.tech") or platform_mail(msg, sender):
         return True
     return bool(re.search(r"\b(dmarc|spf)=fail", str(msg.get("Authentication-Results", "")), re.I))
+
+
+def mark_platform(db: Session, mailbox: str, email: str) -> None:
+    """Files a sender under Platforms, unless an admin has said otherwise. Committed on
+    its own, so two emails arriving together can't cost either of them."""
+    db.execute(insert(MailContact).values(mailbox=mailbox, email=email, kind="platform", kind_manual=False).on_conflict_do_nothing(
+        index_elements=["mailbox", "email"]))
+    db.query(MailContact).filter(MailContact.mailbox == mailbox, MailContact.email == email, MailContact.kind_manual.is_(False)).update({"kind": "platform"})
+    db.commit()
+
+
+def sort_existing_senders(db: Session) -> None:
+    subjects: dict[tuple[str, str], list[str]] = {}
+    for mailbox, email, subject in db.query(MailMessage.mailbox, MailThread.contact_email, MailMessage.subject).join(MailThread, MailThread.id == MailMessage.thread_id) \
+            .filter(MailMessage.direction == "in").all():
+        subjects.setdefault((mailbox, email), []).append(subject)
+    for mailbox, email in db.query(MailThread.mailbox, MailThread.contact_email).distinct().all():
+        seen = subjects.get((mailbox, email), [])
+        if platform_address(email) or (seen and all(platform_subject(x) for x in seen)):
+            mark_platform(db, mailbox, email)
+
+
+def mark_imports_read(db: Session) -> int:
+    """Conversations whose newest incoming email came from an import, not live."""
+    latest = db.query(MailMessage.thread_id, MailMessage.source).filter(MailMessage.direction == "in") \
+        .distinct(MailMessage.thread_id).order_by(MailMessage.thread_id, MailMessage.created_at.desc(), MailMessage.id.desc()).all()
+    ids = [tid for tid, source in latest if source == "log"]
+    if not ids:
+        return 0
+    n = db.query(MailThread).filter(MailThread.id.in_(ids), MailThread.status == "new").update({"status": "reviewed"}, synchronize_session=False)
+    db.commit()
+    return n
 
 
 def acknowledge(db: Session, thread: MailThread, message_id: str, subject: str, name: str) -> None:
@@ -217,12 +282,15 @@ def store_inbound(db: Session, mailbox: str, raw: bytes, live: bool = False) -> 
     if thread.status == "closed":  # an import landing in a closed conversation leaves it closed
         touch(thread, when)
     else:
-        apply_status(thread, "new", when, had_messages)  # they wrote again, so it needs looking at again
+        # they wrote again, so it needs looking at again; imported mail arrives already read
+        apply_status(thread, "new" if live else "reviewed", when, had_messages)
     to = [a for _, a in getaddresses([str(v) for v in msg.get_all("To", [])]) if a][:50]
     db.add(MailMessage(thread_id=thread.id, mailbox=mailbox, direction="in", message_id=message_id, from_email=sender, from_name=name[:200],
                        to=to, subject=subject, body=text, html=markup, attachments=read_attachments(msg), source="worker",
                        created_at=when))
     saved = save(db)
+    if saved and platform_mail(msg, sender):
+        mark_platform(db, mailbox, sender)
     if saved and greet:
         acknowledge(db, thread, message_id, subject, name)
     return saved
@@ -333,12 +401,29 @@ def message_out(m: MailMessage) -> dict:
             "sent_by": m.sent_by, "created_at": m.created_at}
 
 
-def thread_out(db: Session, t: MailThread) -> dict:
-    last = db.query(MailMessage).filter(MailMessage.thread_id == t.id).order_by(MailMessage.created_at.desc()).first()
+def thread_summaries(db: Session, ids: list[int]) -> dict[int, dict]:
+    """Counts and previews for many threads in two queries, without pulling each
+    email's stored HTML across the network. Automatic replies aren't anyone's last word."""
+    if not ids:
+        return {}
+    counts = dict(db.query(MailMessage.thread_id, func.count()).filter(MailMessage.thread_id.in_(ids)).group_by(MailMessage.thread_id).all())
+    latest = db.query(MailMessage.thread_id, MailMessage.direction, func.left(MailMessage.body, 4000)) \
+        .filter(MailMessage.thread_id.in_(ids), MailMessage.source != "auto").distinct(MailMessage.thread_id) \
+        .order_by(MailMessage.thread_id, MailMessage.created_at.desc(), MailMessage.id.desc()).all()
+    last = {tid: (direction, body) for tid, direction, body in latest}
+    return {i: {"count": counts.get(i, 0), "last_direction": last[i][0] if i in last else None,
+                "snippet": strip_quoted(last[i][1])[:160] if i in last else ""} for i in ids}
+
+
+def thread_out(db: Session, t: MailThread, summary: dict | None = None) -> dict:
     return {"id": t.id, "mailbox": t.mailbox, "contact_email": t.contact_email, "contact_name": t.contact_name, "subject": t.subject,
             "status": t.status, "notes": t.notes, "last_message_at": t.last_message_at, "created_at": t.created_at,
-            "count": db.query(MailMessage).filter(MailMessage.thread_id == t.id).count(),
-            "last_direction": last.direction if last else None, "snippet": (strip_quoted(last.body)[:160] if last else "")}
+            **(summary or thread_summaries(db, [t.id])[t.id])}
+
+
+def threads_out(db: Session, threads: list[MailThread]) -> list[dict]:
+    summaries = thread_summaries(db, [t.id for t in threads])
+    return [thread_out(db, t, summaries[t.id]) for t in threads]
 
 
 def get_thread(tid: int, me: Admin, db: Session) -> MailThread:
@@ -361,7 +446,9 @@ class SenderSectionIn(BaseModel):
 
 def visible_threads(db: Session, me: Admin, mailbox: str | None, q: str | None):
     mine = visible_mailboxes(db, me)
-    query = db.query(MailThread).filter(MailThread.mailbox.in_([mailbox] if mailbox in mine else mine))
+    # one mailbox at a time; asking for one you can't see falls back to your first
+    chosen = mine if mailbox is None else [mailbox] if mailbox in mine else mine[:1]
+    query = db.query(MailThread).filter(MailThread.mailbox.in_(chosen))
     if q:
         like = f"%{q}%"
         match = db.query(MailMessage.thread_id).filter(MailMessage.body.ilike(like))
@@ -370,11 +457,18 @@ def visible_threads(db: Session, me: Admin, mailbox: str | None, q: str | None):
     return mine, query
 
 
-def section_ids(db: Session, mailboxes: list[str]) -> dict[tuple[str, str], int | None]:
-    return {(c.mailbox, c.email): c.section_id for c in db.query(MailContact).filter(MailContact.mailbox.in_(mailboxes))}
+def mailbox_counts(db: Session, mine: list[str]) -> dict[str, int]:
+    """New conversations with people, for the tab of each mailbox."""
+    rows = dict(db.query(MailThread.mailbox, func.count()).filter(MailThread.mailbox.in_(mine), MailThread.status == "new", ~is_platform_thread())
+                .group_by(MailThread.mailbox).all())
+    return {m: rows.get(m, 0) for m in mine}
 
 
-def sender_rows(db: Session, threads: list[MailThread], sections: dict) -> list[dict]:
+def contact_rows(db: Session, mailboxes: list[str]) -> dict[tuple[str, str], MailContact]:
+    return {(c.mailbox, c.email): c for c in db.query(MailContact).filter(MailContact.mailbox.in_(mailboxes))}
+
+
+def sender_rows(db: Session, threads: list[MailThread], contacts: dict) -> list[dict]:
     """One row per person, newest first. Threads arrive newest first."""
     ids = [t.id for t in threads]
     counts = dict(db.query(MailMessage.thread_id, func.count()).filter(MailMessage.thread_id.in_(ids)).group_by(MailMessage.thread_id)) if ids else {}
@@ -383,7 +477,9 @@ def sender_rows(db: Session, threads: list[MailThread], sections: dict) -> list[
         key = (t.mailbox, t.contact_email)
         r = rows.get(key)
         if not r:
-            r = rows[key] = {"mailbox": t.mailbox, "email": t.contact_email, "name": t.contact_name, "section_id": sections.get(key),
+            c = contacts.get(key)
+            r = rows[key] = {"mailbox": t.mailbox, "email": t.contact_email, "name": t.contact_name, "section_id": c.section_id if c else None,
+                             "kind": c.kind if c else "person",
                              "conversations": 0, "emails": 0, "new": 0, "last_subject": t.subject, "last_at": t.last_message_at, "status": t.status}
         r["name"] = r["name"] or t.contact_name
         r["conversations"] += 1
@@ -396,15 +492,18 @@ def sender_rows(db: Session, threads: list[MailThread], sections: dict) -> list[
 
 
 @admin.get("/inbox/senders")
-def list_senders(q: str | None = None, status: str | None = None, mailbox: str | None = None, section: str | None = None, limit: int = 25, offset: int = 0,
+def list_senders(q: str | None = None, status: str | None = None, mailbox: str | None = None, section: str | None = None, kind: str | None = None, limit: int = 25, offset: int = 0,
                  me: Admin = Depends(current_admin), db: Session = Depends(get_db)):
     mine, query = visible_threads(db, me, mailbox, q)
     threads = query.order_by(MailThread.last_message_at.desc()).all()
-    sections = section_ids(db, mine)
+    contacts = contact_rows(db, mine)
     if status:
         wanted = {(t.mailbox, t.contact_email) for t in threads if t.status == status}
         threads = [t for t in threads if (t.mailbox, t.contact_email) in wanted]
-    rows = sender_rows(db, threads, sections)
+    rows = sender_rows(db, threads, contacts)
+    people, platforms = sum(r["kind"] == "person" for r in rows), sum(r["kind"] == "platform" for r in rows)
+    if kind in ("person", "platform"):
+        rows = [r for r in rows if r["kind"] == kind]
     tally: dict[int | None, int] = {}
     for r in rows:
         tally[r["section_id"]] = tally.get(r["section_id"], 0) + 1
@@ -413,7 +512,7 @@ def list_senders(q: str | None = None, status: str | None = None, mailbox: str |
     elif section:
         rows = [r for r in rows if str(r["section_id"]) == section]
     limit = max(1, min(limit, 200))
-    return {"total": len(rows), "mailboxes": mine, "all": sum(tally.values()), "uncategorised": tally.get(None, 0),
+    return {"total": len(rows), "mailboxes": mine, "mailbox_new": mailbox_counts(db, mine), "people": people, "platforms": platforms, "all": sum(tally.values()), "uncategorised": tally.get(None, 0),
             "sections": [{"id": s.id, "name": s.name, "count": tally.get(s.id, 0)} for s in db.query(MailSection).order_by(MailSection.name)],
             "items": rows[offset:offset + limit]}
 
@@ -425,8 +524,8 @@ def read_sender(mailbox: str, email: str, me: Admin = Depends(current_admin), db
         .order_by(MailThread.last_message_at.desc()).all()
     if not threads:
         raise HTTPException(404, "Sender not found.")
-    row = sender_rows(db, threads, section_ids(db, [mailbox]))[0]
-    return {**row, "threads": [thread_out(db, t) for t in threads],
+    row = sender_rows(db, threads, contact_rows(db, [mailbox]))[0]
+    return {**row, "threads": threads_out(db, threads),
             "sections": [{"id": s.id, "name": s.name} for s in db.query(MailSection).order_by(MailSection.name)]}
 
 
@@ -444,6 +543,30 @@ def file_sender(body: SenderSectionIn, me: Admin = Depends(current_admin), db: S
     c.section_id = body.section_id
     db.commit()
     return {"mailbox": c.mailbox, "email": c.email, "section_id": c.section_id}
+
+
+class SenderKindIn(BaseModel):
+    mailbox: str
+    email: str
+    kind: str
+
+
+@admin.put("/inbox/sender/kind")
+def sort_sender(body: SenderKindIn, me: Admin = Depends(current_admin), db: Session = Depends(get_db)):
+    if body.kind not in ("person", "platform"):
+        raise HTTPException(400, "Unknown kind.")
+    if body.mailbox not in visible_mailboxes(db, me) or \
+            not db.query(MailThread).filter(MailThread.mailbox == body.mailbox, MailThread.contact_email == body.email).first():
+        raise HTTPException(404, "Sender not found.")
+    c = db.query(MailContact).filter(MailContact.mailbox == body.mailbox, MailContact.email == body.email).first()
+    if not c:
+        c = MailContact(mailbox=body.mailbox, email=body.email)
+        db.add(c)
+    c.kind, c.kind_manual = body.kind, True
+    if is_shared(body.mailbox):
+        audit.record(db, me, "inbox.sort", entity="mail", summary=f"Moved {body.email} to {'Platforms' if body.kind == 'platform' else 'People'}")
+    db.commit()
+    return {"mailbox": c.mailbox, "email": c.email, "kind": c.kind}
 
 
 def clean_section_name(db: Session, name: str, keep: int | None = None) -> str:
@@ -488,11 +611,20 @@ def delete_section(sid: int, me: Admin = Depends(current_admin), db: Session = D
 
 
 @admin.get("/inbox")
-def list_threads(q: str | None = None, status: str | None = None, state: str | None = None, mailbox: str | None = None, limit: int = 25, offset: int = 0,
+def list_threads(q: str | None = None, status: str | None = None, state: str | None = None, kind: str | None = None, mailbox: str | None = None, limit: int = 25, offset: int = 0,
                  me: Admin = Depends(current_admin), db: Session = Depends(get_db)):
     mine, query = visible_threads(db, me, mailbox, q)
-    open_count = query.filter(MailThread.status != "closed").count()
-    closed_count = query.filter(MailThread.status == "closed").count()
+    # every tab's number from one query: each trip to the database costs real time
+    closed_col, platform_col = (MailThread.status == "closed").label("closed"), is_platform_thread().label("platform")
+    tally = query.with_entities(closed_col, platform_col, func.count()).group_by(closed_col, platform_col).all()
+    people, platforms = sum(n for _, p, n in tally if not p), sum(n for _, p, n in tally if p)
+    wanted = {"person": False, "platform": True}.get(kind)
+    open_count = sum(n for c, p, n in tally if not c and wanted in (None, p))
+    closed_count = sum(n for c, p, n in tally if c and wanted in (None, p))
+    if kind == "platform":
+        query = query.filter(is_platform_thread())
+    elif kind == "person":
+        query = query.filter(~is_platform_thread())
     if state == "open":
         query = query.filter(MailThread.status != "closed")
     elif state == "closed":
@@ -500,15 +632,17 @@ def list_threads(q: str | None = None, status: str | None = None, state: str | N
     if status:
         query = query.filter(MailThread.status == status)
     query = query.order_by(MailThread.last_message_at.desc())
-    return {"total": query.count(), "open": open_count, "closed": closed_count, "mailboxes": mine,
-            "items": [thread_out(db, t) for t in page(query, limit, offset)]}
+    return {"total": query.count(), "open": open_count, "closed": closed_count, "people": people, "platforms": platforms, "mailboxes": mine,
+            "mailbox": mailbox if mailbox in mine else None, "mailbox_new": mailbox_counts(db, mine),
+            "items": threads_out(db, page(query, limit, offset))}
 
 
 @admin.get("/inbox/{tid}")
 def read_thread(tid: int, me: Admin = Depends(current_admin), db: Session = Depends(get_db)):
     t = get_thread(tid, me, db)
     msgs = db.query(MailMessage).filter(MailMessage.thread_id == tid).order_by(MailMessage.created_at, MailMessage.id).all()
-    return {**thread_out(db, t), "messages": [message_out(m) for m in msgs]}
+    c = db.query(MailContact).filter(MailContact.mailbox == t.mailbox, MailContact.email == t.contact_email).first()
+    return {**thread_out(db, t), "kind": c.kind if c else "person", "messages": [message_out(m) for m in msgs]}
 
 
 @admin.patch("/inbox/{tid}")

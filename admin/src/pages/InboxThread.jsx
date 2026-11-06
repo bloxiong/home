@@ -147,7 +147,18 @@ export default function InboxThread() {
     }
   }
 
-  const back = { to: t?.status === 'closed' ? '/inbox?state=closed' : '/inbox', label: 'Inbox' }
+  const backQuery = new URLSearchParams({ ...(t?.mailbox ? { mailbox: t.mailbox } : {}), ...(t?.status === 'closed' ? { state: 'closed' } : {}), ...(t?.kind === 'platform' ? { kind: 'platform' } : {}) }).toString()
+  const back = { to: backQuery ? `/inbox?${backQuery}` : '/inbox', label: 'Inbox' }
+  async function sort(kind) {
+    try {
+      await api('/admin/inbox/sender/kind', { method: 'PUT', body: { mailbox: t.mailbox, email: t.contact_email, kind } })
+      setData((d) => ({ ...d, kind }))
+      toast.success(kind === 'platform' ? 'Moved to Platforms.' : 'Moved to People.')
+      refresh()
+    } catch (e) {
+      toast.error(e)
+    }
+  }
   if (error) return <><PageHeader title="Conversation" back={back} /><ErrorNote error={error} onRetry={reload} /></>
   if (!t) {
     return (
@@ -181,6 +192,7 @@ export default function InboxThread() {
               {t.status !== 'replied' && t.status !== 'closed' && (
                 <Button variant="secondary" icon={CheckCircle2} className="w-full" onClick={() => patch({ status: 'replied' })}>Mark as replied</Button>
               )}
+              <Button variant="ghost" className="w-full" onClick={() => sort(t.kind === 'platform' ? 'person' : 'platform')}>{t.kind === 'platform' ? 'Move to People' : 'Move to Platforms'}</Button>
               {t.status === 'closed'
                 ? <Button variant="secondary" icon={RotateCcw} className="w-full" onClick={() => patch({ status: 'reviewed' })}>Reopen conversation</Button>
                 : <Button variant="ghost" icon={Archive} className="w-full" onClick={() => patch({ status: 'closed' })}>Close conversation</Button>}

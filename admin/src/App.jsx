@@ -1,3 +1,4 @@
+import { lazy } from 'react'
 import { createBrowserRouter, Navigate, Outlet, RouterProvider, useLocation } from 'react-router-dom'
 import { AuthProvider, CountsProvider, ThemeProvider, ToastProvider } from './components/Providers'
 import ErrorBoundary from './components/ErrorBoundary'
@@ -6,23 +7,32 @@ import { useAuth } from './lib/contexts'
 import Login from './pages/Login'
 import Forgot from './pages/Forgot'
 import Reset from './pages/Reset'
-import Dashboard from './pages/Dashboard'
-import Traffic from './pages/Traffic'
-import Surveys from './pages/Surveys'
-import SurveyDetail from './pages/SurveyDetail'
-import Enquiries from './pages/Enquiries'
-import EnquiryDetail from './pages/EnquiryDetail'
-import Inbox from './pages/Inbox'
-import Contacts from './pages/Contacts'
-import Contact from './pages/Contact'
-import InboxThread from './pages/InboxThread'
-import Email from './pages/Email'
-import Content from './pages/Content'
-import ContentEditor from './pages/ContentEditor'
-import Admins from './pages/Admins'
-import ActivityPage from './pages/Activity'
-import Account from './pages/Account'
 import NotFound from './pages/NotFound'
+
+/* Each page loads when it's opened. After a new deploy an old tab can ask for a
+   file that has gone, so it reloads once to pick up the new ones. */
+const page = (load) => lazy(() => load().then((m) => { try { sessionStorage.removeItem('bx-reloaded') } catch { /* blocked */ } return m }).catch((e) => {
+  let again = true
+  try { again = !sessionStorage.getItem('bx-reloaded'); sessionStorage.setItem('bx-reloaded', '1') } catch { again = false }
+  if (again) window.location.reload()
+  throw e
+}))
+const Dashboard = page(() => import('./pages/Dashboard'))
+const Traffic = page(() => import('./pages/Traffic'))
+const Surveys = page(() => import('./pages/Surveys'))
+const SurveyDetail = page(() => import('./pages/SurveyDetail'))
+const Enquiries = page(() => import('./pages/Enquiries'))
+const EnquiryDetail = page(() => import('./pages/EnquiryDetail'))
+const Inbox = page(() => import('./pages/Inbox'))
+const Contacts = page(() => import('./pages/Contacts'))
+const Contact = page(() => import('./pages/Contact'))
+const InboxThread = page(() => import('./pages/InboxThread'))
+const Email = page(() => import('./pages/Email'))
+const Content = page(() => import('./pages/Content'))
+const ContentEditor = page(() => import('./pages/ContentEditor'))
+const Admins = page(() => import('./pages/Admins'))
+const ActivityPage = page(() => import('./pages/Activity'))
+const Account = page(() => import('./pages/Account'))
 
 function Splash() {
   return (

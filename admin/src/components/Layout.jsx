@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { Suspense, useEffect, useState } from 'react'
 import { NavLink, Outlet, useLocation } from 'react-router-dom'
 import {
   Activity, BookUser, ChevronsLeft, ChevronsRight, ClipboardList, FileText, Globe2, Inbox, LayoutDashboard, LogOut, Mail, MailOpen,
@@ -6,7 +6,7 @@ import {
 } from 'lucide-react'
 import { useAuth, useCounts, useTheme } from '../lib/contexts'
 import { cx } from '../lib/cx'
-import { IconButton, Star } from './ui'
+import { IconButton, Skeleton, Star } from './ui'
 import ErrorBoundary from './ErrorBoundary'
 
 const GROUPS = [
@@ -201,7 +201,7 @@ export default function Layout() {
       <main className="relative z-10 min-w-0 flex-1">
         <div className="mx-auto w-full max-w-6xl px-4 pb-32 pt-7 sm:px-8 sm:pt-10 md:pb-16 lg:px-12 lg:pt-12">
           <ErrorBoundary key={pathname}>
-            <div className="page-in"><Outlet /></div>
+            <div className="page-in"><Suspense fallback={<div className="py-10" aria-busy="true"><Skeleton className="h-64 rounded-2xl" /></div>}><Outlet /></Suspense></div>
           </ErrorBoundary>
         </div>
       </main>

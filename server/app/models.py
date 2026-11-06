@@ -106,6 +106,8 @@ class MailContact(Base):
     mailbox: Mapped[str] = mapped_column(String(255))
     email: Mapped[str] = mapped_column(String(255))
     section_id: Mapped[int | None] = mapped_column(ForeignKey("mail_sections.id", ondelete="SET NULL"), nullable=True, index=True)
+    kind: Mapped[str] = mapped_column(String(10), default="person", server_default="person")  # person | platform
+    kind_manual: Mapped[bool] = mapped_column(Boolean, default=False, server_default="false")  # an admin's choice always wins
 
 
 class MailThread(Base):

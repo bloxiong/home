@@ -193,8 +193,8 @@ def boxes(client, who):
 def test_each_admin_sees_only_their_mailboxes(client):
     for box, mid in ((OWEN, "<o@x>"), (AUSTIN, "<u@x>"), (CONTACT, "<c@x>")):
         to_mailbox(client, box, mid)
-    assert boxes(client, OWEN) == ([CONTACT, OWEN], [CONTACT, OWEN])
-    assert boxes(client, AUSTIN) == ([CONTACT, AUSTIN], [AUSTIN, CONTACT])
+    assert boxes(client, OWEN) == ([OWEN, CONTACT], [CONTACT, OWEN])
+    assert boxes(client, AUSTIN) == ([AUSTIN, CONTACT], [AUSTIN, CONTACT])
     assert boxes(client, CONTACT) == ([CONTACT], [CONTACT])
     assert client.get("/admin/stats", headers=login(client, CONTACT)).json()["inbox_new"] == 1
     assert client.get("/admin/stats", headers=login(client, OWEN)).json()["inbox_new"] == 2
@@ -566,3 +566,172 @@ def test_an_automatic_reply_is_shown_and_does_not_count_as_answered(client, monk
     to_mailbox(client, CONTACT, "<a@x>", subject="One")
     d = client.get("/admin/inbox/1", headers=h).json()
     assert d["status"] == "new" and [m["source"] for m in d["messages"]] == ["worker", "auto"]
+
+
+def kinds(client, h, **params):
+    d = client.get("/admin/inbox", params=params, headers=h).json()
+    return d["people"], d["platforms"], d["total"]
+
+
+def test_platform_mail_is_sorted_out_of_people_and_the_new_count(client):
+    h = login(client, OWEN)
+    inbound(client, raw_mail())
+    inbound(client, raw_mail(sender="Instagram <security@mail.instagram.com>", msg_id="<i@x>"))
+    inbound(client, raw_mail(sender="Newsletter <hello@shop.example.com>", msg_id="<n@x>", List_Unsubscribe="<mailto:u@x.com>"))
+    inbound(client, raw_mail(sender="X <info@x.com>", msg_id="<xx@x>"))
+    assert kinds(client, h, kind="person") == (1, 3, 1)
+    assert kinds(client, h, kind="platform") == (1, 3, 3)
+    assert client.get("/admin/stats", headers=h).json()["inbox_new"] == 1
+    s = client.get("/admin/inbox/senders", params={"kind": "person"}, headers=h).json()
+    assert s["people"] == 1 and s["platforms"] == 3 and s["total"] == 1 and s["all"] == 1
+    assert client.get("/admin/inbox/senders", params={"kind": "platform"}, headers=h).json()["total"] == 3
+
+
+def test_real_people_at_lookalike_domains_stay_people(client):
+    from app.routers.inbox import platform_address
+    for person in ("ada@gmail.com", "ada@notx.com", "ada@google.com", "owen@bloxio.tech", "notifications@bloxio.tech", "newsman@example.com"):
+        assert not platform_address(person), person
+    for service in ("no-reply@accounts.google.com", "a@mail.instagram.com", "drive-shares-noreply@google.com", "a@e.linkedin.com", "notifications@github.com"):
+        assert platform_address(service), service
+
+
+def test_moving_a_sender_wins_over_later_mail(client):
+    h = login(client, OWEN)
+    box = {"mailbox": CONTACT, "email": "notifications@acme.example"}
+    inbound(client, raw_mail(sender="Acme <notifications@acme.example>", msg_id="<1@x>"))
+    assert kinds(client, h, kind="platform")[2] == 1
+    assert client.put("/admin/inbox/sender/kind", json={**box, "kind": "person"}, headers=h).status_code == 200
+    inbound(client, raw_mail(sender="Acme <notifications@acme.example>", subject="Again", msg_id="<2@x>"))
+    assert kinds(client, h, kind="platform")[2] == 0 and kinds(client, h, kind="person")[2] == 2
+    assert client.get("/admin/inbox/1", headers=h).json()["kind"] == "person"
+    assert client.get("/admin/stats", headers=h).json()["inbox_new"] == 2
+    # and the other way
+    inbound(client, raw_mail(msg_id="<3@x>"))
+    client.put("/admin/inbox/sender/kind", json={"mailbox": CONTACT, "email": "ada@example.com", "kind": "platform"}, headers=h)
+    inbound(client, raw_mail(subject="Later", msg_id="<4@x>"))
+    assert kinds(client, h, kind="platform")[2] == 2
+
+
+def test_sorting_keeps_to_the_mailbox_rules_and_stays_in_one_mailbox(client):
+    to_mailbox(client, OWEN, "<o@x>")
+    to_mailbox(client, CONTACT, "<o@x>")
+    ha, ho = login(client, AUSTIN), login(client, OWEN)
+    body = {"mailbox": OWEN, "email": "ada@example.com", "kind": "platform"}
+    assert client.put("/admin/inbox/sender/kind", json=body, headers=ha).status_code == 404
+    assert client.put("/admin/inbox/sender/kind", json={**body, "kind": "nope"}, headers=ho).status_code == 400
+    assert client.put("/admin/inbox/sender/kind", json=body, headers=ho).status_code == 200
+    assert client.get("/admin/inbox", params={"kind": "platform", "mailbox": CONTACT}, headers=ho).json()["total"] == 0
+    assert "ada@example.com" not in client.get("/admin/audit", headers=ha).text
+
+
+def test_sorting_existing_senders_runs_once_and_deletes_nothing(client):
+    from app.main import seed
+    from app.models import AuditLog, MailContact
+    from app.routers.inbox import sort_existing_senders
+    with SessionLocal() as db:
+        for email in ("alerts@service.example", "ada@example.com"):
+            db.add(MailThread(mailbox=CONTACT, contact_email=email, subject="Old", status="new"))
+        db.commit()
+        sort_existing_senders(db)
+        assert [c.email for c in db.query(MailContact).filter_by(kind="platform")] == ["alerts@service.example"]
+        assert db.query(MailThread).count() == 2
+    seed()
+    with SessionLocal() as db:
+        assert db.query(AuditLog).filter_by(action="system.mail_kinds").count() == 1
+
+
+def test_cloudflare_import_sorts_by_address(client):
+    from app.inbox_sync import store_cloudflare_rows
+    h = login(client, OWEN)
+    with SessionLocal() as db:
+        store_cloudflare_rows(db, [cf_row(), cf_row(messageId="i", subject="Login", **{"from": "Instagram <security@mail.instagram.com>"})])
+    assert kinds(client, h, kind="platform")[2] == 1 and kinds(client, h, kind="person")[2] == 1
+
+
+def test_lists_never_load_stored_html(client):
+    from sqlalchemy import event
+    from app.db import engine
+    inbound(client, raw_mail())
+    h = login(client, OWEN)
+    seen = []
+
+    def capture(conn, cursor, statement, *_):
+        seen.append(statement)
+
+    event.listen(engine, "before_cursor_execute", capture)
+    try:
+        assert client.get("/admin/inbox", params={"mailbox": CONTACT}, headers=h).status_code == 200
+        assert client.get("/admin/inbox/senders", params={"mailbox": CONTACT}, headers=h).status_code == 200
+    finally:
+        event.remove(engine, "before_cursor_execute", capture)
+    assert not [q for q in seen if "mail_messages.html" in q]
+
+
+def test_query_count_stays_flat_as_the_list_grows(client):
+    from sqlalchemy import event
+    from app.db import engine
+    for i in range(12):
+        inbound(client, raw_mail(subject=f"Topic {i}", msg_id=f"<g{i}@x>"))
+    h = login(client, OWEN)
+    seen = []
+
+    def capture(conn, cursor, statement, *_):
+        seen.append(statement)
+
+    event.listen(engine, "before_cursor_execute", capture)
+    try:
+        assert len(client.get("/admin/inbox", params={"mailbox": CONTACT}, headers=h).json()["items"]) == 12
+    finally:
+        event.remove(engine, "before_cursor_execute", capture)
+    assert len(seen) <= 9
+
+
+def test_each_mailbox_is_shown_on_its_own(client):
+    for box, mid in ((OWEN, "<o@x>"), (AUSTIN, "<u@x>"), (CONTACT, "<c@x>")):
+        to_mailbox(client, box, mid)
+    h = login(client, OWEN)
+    d = client.get("/admin/inbox", params={"mailbox": OWEN}, headers=h).json()
+    assert [t["mailbox"] for t in d["items"]] == [OWEN] and d["mailboxes"] == [OWEN, CONTACT] and d["mailbox_new"] == {OWEN: 1, CONTACT: 1}
+    assert [t["mailbox"] for t in client.get("/admin/inbox", params={"mailbox": CONTACT}, headers=h).json()["items"]] == [CONTACT]
+    # asking for someone else's falls back to your own, never a mix
+    assert [t["mailbox"] for t in client.get("/admin/inbox", params={"mailbox": AUSTIN}, headers=h).json()["items"]] == [OWEN]
+    assert client.get("/admin/inbox/senders", params={"mailbox": OWEN}, headers=h).json()["total"] == 1
+
+
+def test_automatic_reply_is_not_the_conversations_last_word(client, monkeypatch):
+    sent_mail(monkeypatch)
+    h = login(client, OWEN)
+    to_mailbox(client, CONTACT, "<a@x>", subject="One")
+    t = client.get("/admin/inbox", params={"mailbox": CONTACT}, headers=h).json()["items"][0]
+    assert t["last_direction"] == "in" and t["snippet"] == "Hello there" and t["count"] == 2
+
+
+def test_imported_mail_arrives_read_and_old_imports_are_marked_read(client):
+    from app.inbox_sync import store_cloudflare_rows
+    from app.routers.inbox import mark_imports_read, store_inbound
+    with SessionLocal() as db:
+        store_cloudflare_rows(db, [cf_row()])
+        assert db.query(MailThread).one().status == "reviewed"
+        store_inbound(db, CONTACT, bytes(raw_mail(sender="z@example.com", msg_id="<takeout@x>")))
+        assert db.query(MailThread).filter_by(contact_email="z@example.com").one().status == "reviewed"
+        # conversations imported as New before this: read now, but live mail stays New
+        db.query(MailThread).update({"status": "new"})
+        db.commit()
+    to_mailbox(client, CONTACT, "<live@x>", subject="Live")
+    with SessionLocal() as db:
+        assert mark_imports_read(db) == 1
+        got = {t.subject: t.status for t in db.query(MailThread)}
+    assert got == {"Old one": "reviewed", "Pilot": "new", "Live": "new"}
+
+
+def test_wider_sorting_signs(client):
+    from app.routers.inbox import platform_address, platform_mail, platform_subject
+    for a in ("billing@acme.example", "receipts@shop.example", "news@paper.example", "a@github.com", "team-alerts@acme.example"):
+        assert platform_address(a), a
+    for a in ("newsome@example.com", "accounting.owen@example.com", "ordera@example.com", "joshua@gmail.com"):
+        assert not platform_address(a), a
+    for x in ("Your verification code is 1234", "Security alert", "Someone started following you", "Reset your password"):
+        assert platform_subject(x), x
+    for x in ("August 2027 SIWES Enquiry", "3D CAD and mechanical design support", "Re: Pilot"):
+        assert not platform_subject(x), x
+    assert platform_mail(raw_mail(sender="hi@acme.example", msg_id="<f@x>", Feedback_ID="1:2:3"), "hi@acme.example")

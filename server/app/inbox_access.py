@@ -1,8 +1,9 @@
 """Who can read which mailbox in the portal inbox."""
+from sqlalchemy import exists
 from sqlalchemy.orm import Session
 
 from .config import settings
-from .models import Admin
+from .models import Admin, MailContact, MailThread
 
 
 def tracked_mailboxes() -> list[str]:
@@ -20,4 +21,10 @@ def visible_mailboxes(db: Session, me: Admin) -> list[str]:
     if not me.is_super:
         return [m for m in tracked_mailboxes() if m == own]
     other_supers = {e.lower() for (e,) in db.query(Admin.email).filter(Admin.is_super.is_(True), Admin.id != me.id)}
-    return [m for m in tracked_mailboxes() if m not in other_supers]
+    # their own mailbox comes first
+    return sorted((m for m in tracked_mailboxes() if m not in other_supers), key=lambda m: m != own)
+
+
+def is_platform_thread():
+    """A filter: the thread's sender is filed under Platforms."""
+    return exists().where(MailContact.mailbox == MailThread.mailbox, MailContact.email == MailThread.contact_email, MailContact.kind == "platform")

@@ -4,7 +4,7 @@ import { Check, Mail, Pencil, Plus, Trash2, X } from 'lucide-react'
 import { Button, Card, ConfirmDialog, Empty, ErrorNote, Input, PageHeader, Pagination, SearchInput, Select, SkeletonRows, StatusBadge } from '../components/ui'
 import { api } from '../lib/api'
 import { MAIL_STATUSES } from '../lib/constants'
-import { useToast } from '../lib/contexts'
+import { useAuth, useToast } from '../lib/contexts'
 import { fmtDate, fmtRelative } from '../lib/format'
 import { useApi, useDebounced } from '../lib/hooks'
 
@@ -28,10 +28,12 @@ export default function Contacts() {
   const [q, setQ] = useState('')
   const dq = useDebounced(q)
   const status = sp.get('status') || ''
-  const mailbox = sp.get('mailbox') || ''
+  const { admin } = useAuth()
+  const mailbox = sp.get('mailbox') || admin?.email?.toLowerCase() || ''
   const section = sp.get('section') || ''
+  const kind = sp.get('kind') === 'platform' ? 'platform' : 'person'
   const offset = Number(sp.get('offset') || 0)
-  const { data, error, loading, reload } = useApi('/admin/inbox/senders', { q: dq.trim(), status, mailbox, section, limit: LIMIT, offset })
+  const { data, error, loading, reload } = useApi('/admin/inbox/senders', { q: dq.trim(), status, mailbox, section, kind, limit: LIMIT, offset })
   const [adding, setAdding] = useState(false)
   const [renaming, setRenaming] = useState(false)
   const [name, setName] = useState('')
@@ -45,7 +47,7 @@ export default function Contacts() {
     if (k !== 'offset') next.delete('offset')
     setSp(next, { replace: true })
   }
-  const filtered = !!(dq || status || mailbox)
+  const filtered = !!(dq || status)
   const mailboxes = data?.mailboxes || []
   const sections = data?.sections || []
   const current = sections.find((s) => String(s.id) === section)
@@ -97,6 +99,15 @@ export default function Contacts() {
   return (
     <>
       <PageHeader title="Contacts" sub="Everyone who has emailed your BLOXio mailboxes, once each, filed by section." />
+      {mailboxes.length > 1 && (
+        <div className="mb-3 flex flex-wrap gap-2" role="group" aria-label="Mailbox">
+          {mailboxes.map((m) => <Tab key={m} active={m === (mailboxes.includes(mailbox) ? mailbox : mailboxes[0])} onClick={() => setSp({ mailbox: m }, { replace: true })} label={m} count={data?.mailbox_new?.[m] ?? 0} />)}
+        </div>
+      )}
+      <div className="mb-3 flex flex-wrap items-center gap-2">
+        <Tab active={kind === 'person'} onClick={() => setSp(sp.get('mailbox') ? { mailbox } : {}, { replace: true })} label="People" count={data?.people ?? '–'} />
+        <Tab active={kind === 'platform'} onClick={() => setSp({ ...(sp.get('mailbox') ? { mailbox } : {}), kind: 'platform' }, { replace: true })} label="Platforms" count={data?.platforms ?? '–'} />
+      </div>
       <div className="mb-4 flex flex-wrap items-center gap-2">
         <Tab active={!section} onClick={() => set('section', '')} label="All" count={data?.all ?? '–'} />
         {sections.map((s) => <Tab key={s.id} active={String(s.id) === section} onClick={() => set('section', String(s.id))} label={s.name} count={s.count} />)}
@@ -117,19 +128,13 @@ export default function Contacts() {
         </form>
       )}
       <Card>
-        <div className="grid grid-cols-1 gap-3 border-b border-line p-4 min-[360px]:grid-cols-2 sm:p-5 lg:grid-cols-[1fr_auto_auto_auto]">
+        <div className="grid grid-cols-1 gap-3 border-b border-line p-4 min-[360px]:grid-cols-2 sm:p-5 lg:grid-cols-[1fr_auto_auto]">
           <SearchInput className="min-[360px]:col-span-2 lg:col-span-1" placeholder="Search name, email, subject, message…" aria-label="Search contacts" value={q} onChange={(e) => setQ(e.target.value)} />
-          {mailboxes.length > 1 && (
-            <Select aria-label="Mailbox" value={mailbox} onChange={(e) => set('mailbox', e.target.value)}>
-              <option value="">All mailboxes</option>
-              {mailboxes.map((m) => <option key={m} value={m}>{m}</option>)}
-            </Select>
-          )}
           <Select aria-label="Status" value={status} onChange={(e) => set('status', e.target.value)}>
             <option value="">All statuses</option>
             {MAIL_STATUSES.map((s) => <option key={s} value={s}>{s[0].toUpperCase() + s.slice(1)}</option>)}
           </Select>
-          {filtered && <Button variant="ghost" icon={X} onClick={() => { setQ(''); const next = new URLSearchParams(section ? { section } : {}); setSp(next, { replace: true }) }}>Clear</Button>}
+          {filtered && <Button variant="ghost" icon={X} onClick={() => { setQ(''); setSp({ ...(sp.get('mailbox') ? { mailbox } : {}), ...(section ? { section } : {}), ...(kind === 'platform' ? { kind } : {}) }, { replace: true }) }}>Clear</Button>}
         </div>
         {error && <div className="p-4"><ErrorNote error={error} onRetry={reload} /></div>}
         {!data && !error ? <SkeletonRows /> : data && (
@@ -148,7 +153,6 @@ export default function Contacts() {
                       <div className="min-w-0 flex-1 basis-40">
                         <Link to={to} onClick={(ev) => ev.stopPropagation()} className={`block truncate ${r.new ? 'font-bold' : 'font-medium'}`}>{r.name || r.email}</Link>
                         {r.name && <p className="truncate text-xs text-muted">{r.email}</p>}
-                        {mailboxes.length > 1 && <p className="truncate text-xs text-accent">{r.mailbox}</p>}
                         <p className="mt-0.5 truncate text-sm">{r.last_subject || '(no subject)'}</p>
                         <p className="truncate text-xs text-muted">{plural(r.emails, 'email')}{r.conversations > 1 ? ` · ${plural(r.conversations, 'conversation')}` : ''}</p>
                       </div>

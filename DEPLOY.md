@@ -80,6 +80,8 @@ Incoming mail: Cloudflare runs `workers/inbox`, which forwards to Gmail first an
 3. In `workers/inbox`: `npx wrangler login`, `npx wrangler kv namespace create bloxio-inbox-pending` (put the id in `wrangler.toml`), `npx wrangler secret put INBOUND_SECRET` (same value as Render), `npx wrangler secret put ROUTES` (JSON mapping each mailbox to its verified Cloudflare destination), `npx wrangler deploy`.
 4. Cloudflare → Email Routing → Routing rules: point each mailbox's rule at the Worker. To undo, point the rule back at its Gmail address.
 
+People and Platforms: senders are sorted by address and bulk-mail headers (`PLATFORM_DOMAINS` and `AUTOMATED_SENDER` in `routers/inbox.py`). Platform mail stays out of the New count. Moving a sender by hand always wins.
+
 Automatic replies: a first-time sender, or someone writing after every conversation with them was closed, gets one acknowledgement from no-reply, threaded under their email. Machines, mailing lists and bloxio.tech addresses never do. Set `INBOX_AUTO_REPLY=false` on Render to stop them. Run `sync-mail` before relying on this, or people you already know count as first-time senders.
 
 Past mail: `python -m app.cli sync-mail` imports what Resend still holds (sent mail with its text) and what Cloudflare still logs (who wrote, when, subject; no text, and only the last few weeks). For the text of older incoming mail, export that Gmail account's mail with Google Takeout and run `python -m app.cli import-mbox contact@bloxio.tech All.mbox`. Running any of them twice adds nothing twice.

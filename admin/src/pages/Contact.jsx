@@ -1,8 +1,8 @@
 import { Link, useSearchParams } from 'react-router-dom'
 import { Mail } from 'lucide-react'
-import { Card, CardHeader, Empty, ErrorNote, Field, PageHeader, Select, Skeleton, SkeletonRows, StatusBadge } from '../components/ui'
+import { Button, Card, CardHeader, Empty, ErrorNote, Field, PageHeader, Select, Skeleton, SkeletonRows, StatusBadge } from '../components/ui'
 import { api } from '../lib/api'
-import { useToast } from '../lib/contexts'
+import { useCounts, useToast } from '../lib/contexts'
 import { fmtDate, fmtRelative } from '../lib/format'
 import { useApi } from '../lib/hooks'
 
@@ -11,13 +11,25 @@ export default function Contact() {
   const mailbox = sp.get('mailbox') || ''
   const email = sp.get('email') || ''
   const toast = useToast()
+  const { refresh } = useCounts()
   const { data: s, error, reload, setData } = useApi('/admin/inbox/sender', { mailbox, email })
-  const back = { to: '/contacts', label: 'Contacts' }
+  const back = { to: `/contacts?mailbox=${encodeURIComponent(mailbox)}`, label: 'Contacts' }
 
   async function file(value) {
     try {
       const out = await api('/admin/inbox/sender/section', { method: 'PUT', body: { mailbox, email, section_id: value ? Number(value) : null } })
       setData((d) => ({ ...d, section_id: out.section_id }))
+    } catch (e) {
+      toast.error(e)
+    }
+  }
+
+  async function sort(kind) {
+    try {
+      await api('/admin/inbox/sender/kind', { method: 'PUT', body: { mailbox, email, kind } })
+      setData((d) => ({ ...d, kind }))
+      toast.success(kind === 'platform' ? 'Moved to Platforms.' : 'Moved to People.')
+      refresh()
     } catch (e) {
       toast.error(e)
     }
@@ -68,6 +80,7 @@ export default function Contact() {
                 {s.sections.map((x) => <option key={x.id} value={x.id}>{x.name}</option>)}
               </Select>
             </Field>
+            <Button variant="ghost" className="mt-3 w-full" onClick={() => sort(s.kind === 'platform' ? 'person' : 'platform')}>{s.kind === 'platform' ? 'Move to People' : 'Move to Platforms'}</Button>
           </div>
         </Card>
       </div>

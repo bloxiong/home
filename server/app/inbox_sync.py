@@ -12,7 +12,7 @@ from sqlalchemy.orm import Session
 
 from .inbox_access import tracked_mailboxes
 from .models import MailMessage, MailThread
-from .routers.inbox import apply_status, find_thread, html_to_text, is_ours, save, store_inbound, store_sent
+from .routers.inbox import apply_status, find_thread, html_to_text, is_ours, mark_platform, platform_address, platform_subject, save, store_inbound, store_sent
 
 CLOUDFLARE = "https://api.cloudflare.com/client/v4"
 CF_WINDOW = timedelta(days=30)  # the widest range Cloudflare answers in one query
@@ -109,10 +109,13 @@ def store_cloudflare_rows(db: Session, rows: list[dict], only: list[str] | None 
             db.add(thread)
             db.flush()
         thread.contact_name = thread.contact_name or name[:200]
-        apply_status(thread, "new", when, had_messages)
+        apply_status(thread, "reviewed", when, had_messages)  # imported mail arrives already read
         db.add(MailMessage(thread_id=thread.id, mailbox=box, direction="in", message_id=message_id, from_email=sender, from_name=name[:200], to=[box],
                            subject=subject, source="log", created_at=when))
-        added += save(db)
+        saved = save(db)
+        added += saved
+        if saved and (platform_address(sender) or platform_subject(subject)):
+            mark_platform(db, box, sender)
     return {"source": "cloudflare", "added": added, "skipped": skipped}
 
 

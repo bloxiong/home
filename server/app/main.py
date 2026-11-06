@@ -9,6 +9,7 @@ from pathlib import Path
 import httpx
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.middleware.gzip import GZipMiddleware
 from sqlalchemy import select, text
 
 from .config import settings
@@ -36,6 +37,8 @@ def seed() -> None:
             "CREATE INDEX IF NOT EXISTS ix_mail_threads_mailbox ON mail_threads (mailbox)",
             "ALTER TABLE mail_messages DROP CONSTRAINT IF EXISTS mail_messages_message_id_key",
             "CREATE UNIQUE INDEX IF NOT EXISTS uq_mail_messages_mailbox_message ON mail_messages (mailbox, message_id)",
+            "ALTER TABLE mail_contacts ADD COLUMN IF NOT EXISTS kind VARCHAR(10) NOT NULL DEFAULT 'person'",
+            "ALTER TABLE mail_contacts ADD COLUMN IF NOT EXISTS kind_manual BOOLEAN NOT NULL DEFAULT false",
         ):
             conn.execute(text(statement))
     with SessionLocal() as db:
@@ -71,6 +74,14 @@ def seed() -> None:
         if not db.scalar(select(AuditLog).where(AuditLog.action == "system.mail_sections")):
             db.add_all(MailSection(name=n, created_by="system") for n in ("Application", "Inquiry", "Project"))
             db.add(AuditLog(admin_email="system", action="system.mail_sections", entity="mail", summary="Added the starting inbox sections"))
+        # senders already in the inbox when People and Platforms arrived; once
+        if not db.scalar(select(AuditLog).where(AuditLog.action == "system.mail_kinds")):
+            inbox.sort_existing_senders(db)
+            db.add(AuditLog(admin_email="system", action="system.mail_kinds", entity="mail", summary="Sorted existing senders into People and Platforms"))
+        if not db.scalar(select(AuditLog).where(AuditLog.action == "system.mail_kinds_2")):
+            inbox.sort_existing_senders(db)  # with the wider rules
+            inbox.mark_imports_read(db)
+            db.add(AuditLog(admin_email="system", action="system.mail_kinds_2", entity="mail", summary="Sorted senders again and marked imported mail as read"))
         refreshed = []
         if DEFAULTS.exists():
             defaults = json.loads(DEFAULTS.read_text())
@@ -123,6 +134,7 @@ async def lifespan(_: FastAPI):
 
 
 app = FastAPI(title="BLOXio API", lifespan=lifespan, docs_url="/docs")
+app.add_middleware(GZipMiddleware, minimum_size=1000)  # emails are large and connections can be slow
 app.add_middleware(CORSMiddleware, allow_origins=settings().origins, allow_credentials=False,
                    allow_methods=["*"], allow_headers=["*"], expose_headers=["Content-Disposition"])
 app.include_router(public.router)
