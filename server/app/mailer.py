@@ -77,7 +77,7 @@ def render(*, subject: str, greeting: str | None, body_html: str, button: tuple[
 def send(db: Session, *, to: list[str], subject: str, body_html: str, kind: str, greeting: str | None = None,
          button: tuple[str, str] | None = None, sent_by: str | None = None, reply_to: str | None = None,
          sign_name: str = "The BLOXio team", title: str | None = None, from_addr: str | None = None,
-         headers: dict[str, str] | None = None) -> EmailLog:
+         headers: dict[str, str] | None = None, logged: bool = True) -> EmailLog:
     # `title` is accepted for older callers and used as the greeting
     greeting = greeting if greeting is not None else title
     s = settings()
@@ -103,6 +103,7 @@ def send(db: Session, *, to: list[str], subject: str, body_html: str, kind: str,
             entry.status, entry.error = "failed", str(e)[:1000]
     if entry.status == "failed":
         log.error("Email to %s failed (%s): %s", to, subject, entry.error)
-    db.add(entry)
-    db.flush()
+    if logged:  # the log is visible to every admin
+        db.add(entry)
+        db.flush()
     return entry

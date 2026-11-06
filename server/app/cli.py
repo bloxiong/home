@@ -3,14 +3,19 @@
   python -m app.cli invite owen@bloxio.tech        # email a fresh set-password link
   python -m app.cli set-password EMAIL PASSWORD    # local development only
   python -m app.cli import-sheet responses.csv     # load old Google Sheet answers
+  python -m app.cli sync-mail                      # past mail from Resend and Cloudflare (CLOUDFLARE_API_TOKEN)
+  python -m app.cli import-mbox contact@bloxio.tech All.mbox  # past mail with its text, from Google Takeout
 """
 import csv
 import json
+import os
 import sys
 from datetime import datetime, timezone
 
 from sqlalchemy import String, cast, select
 
+from . import inbox_sync
+from .config import settings
 from .db import SessionLocal
 from .main import seed
 from .models import Admin, SurveyResponse
@@ -87,6 +92,12 @@ def main(argv: list[str]) -> None:
                                           created_at=created))
                     n += 1
             print(f"Imported {n} responses" + (f", skipped {skipped} already imported" if skipped else ""))
+        elif cmd == "sync-mail":
+            print(inbox_sync.sync_resend(db, settings().resend_api_key))
+            if os.environ.get("CLOUDFLARE_API_TOKEN"):
+                print(inbox_sync.sync_cloudflare(db, os.environ["CLOUDFLARE_API_TOKEN"]))
+        elif cmd == "import-mbox":
+            print(inbox_sync.import_mbox(db, args[0].lower(), args[1]))
         else:
             print(__doc__)
             return

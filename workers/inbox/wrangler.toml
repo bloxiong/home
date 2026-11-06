@@ -1,15 +1,17 @@
 name = "bloxio-inbox"
 main = "src/index.js"
 compatibility_date = "2026-10-01"
+workers_dev = false # email only: no public web address
+preview_urls = false
 
 [vars]
 API_URL = "https://api.bloxio.tech"
-# FORWARD_TO (your verified Gmail address) and INBOUND_SECRET are set with
+# ROUTES ({"mailbox": "verified Gmail address"}) and INBOUND_SECRET are set with
 # `wrangler secret put`, so neither is kept in this public repo.
 
 [[kv_namespaces]]
 binding = "PENDING"
-id = "REPLACE_WITH_KV_NAMESPACE_ID" # from `wrangler kv namespace create bloxio-inbox-pending`
+id = "d9a48971caf84334826e3b71f944ae8d"
 
 [triggers]
 crons = ["*/10 * * * *"]

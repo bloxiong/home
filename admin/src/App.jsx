@@ -13,6 +13,8 @@ import SurveyDetail from './pages/SurveyDetail'
 import Enquiries from './pages/Enquiries'
 import EnquiryDetail from './pages/EnquiryDetail'
 import Inbox from './pages/Inbox'
+import Contacts from './pages/Contacts'
+import Contact from './pages/Contact'
 import InboxThread from './pages/InboxThread'
 import Email from './pages/Email'
 import Content from './pages/Content'
@@ -85,6 +87,8 @@ const router = createBrowserRouter([
           { path: 'enquiries', element: <Enquiries /> },
           { path: 'enquiries/:id', element: <EnquiryDetail /> },
           { path: 'inbox', element: <Inbox /> },
+          { path: 'contacts', element: <Contacts /> },
+          { path: 'contacts/person', element: <Contact /> },
           { path: 'inbox/:id', element: <InboxThread /> },
           { path: 'email', element: <Email /> },
           { path: 'content', element: <Content /> },

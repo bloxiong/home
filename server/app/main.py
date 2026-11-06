@@ -9,11 +9,11 @@ from pathlib import Path
 import httpx
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from sqlalchemy import select
+from sqlalchemy import select, text
 
 from .config import settings
 from .db import Base, SessionLocal, engine
-from .models import Admin, AuditLog, ContentDoc
+from .models import Admin, AuditLog, ContentDoc, MailSection
 from .routers import admin, analytics, auth, inbox, public
 from .routers.auth import send_password_link
 
@@ -28,6 +28,16 @@ def seed() -> None:
     """Create tables, the founding admins (each emailed a set-password link)
     and any content section the database doesn't have yet."""
     Base.metadata.create_all(engine)
+    with engine.begin() as conn:  # create_all doesn't add columns to tables that already exist
+        for statement in (
+            "ALTER TABLE mail_messages ADD COLUMN IF NOT EXISTS html TEXT NOT NULL DEFAULT ''",
+            "ALTER TABLE mail_threads ADD COLUMN IF NOT EXISTS mailbox VARCHAR(255) NOT NULL DEFAULT 'contact@bloxio.tech'",
+            "ALTER TABLE mail_messages ADD COLUMN IF NOT EXISTS mailbox VARCHAR(255) NOT NULL DEFAULT 'contact@bloxio.tech'",
+            "CREATE INDEX IF NOT EXISTS ix_mail_threads_mailbox ON mail_threads (mailbox)",
+            "ALTER TABLE mail_messages DROP CONSTRAINT IF EXISTS mail_messages_message_id_key",
+            "CREATE UNIQUE INDEX IF NOT EXISTS uq_mail_messages_mailbox_message ON mail_messages (mailbox, message_id)",
+        ):
+            conn.execute(text(statement))
     with SessionLocal() as db:
         for item in settings().seed_admins.split(","):
             if not item.strip():
@@ -57,6 +67,10 @@ def seed() -> None:
             if not failed:  # otherwise try again on the next start
                 db.add(AuditLog(admin_email="system", action="system.resend_links", entity="admin",
                                 entity_id=RESEND_ROUND, summary="Emailed every admin a fresh set-password link"))
+        # the starting sections, once; after that they are the admins' to change
+        if not db.scalar(select(AuditLog).where(AuditLog.action == "system.mail_sections")):
+            db.add_all(MailSection(name=n, created_by="system") for n in ("Application", "Inquiry", "Project"))
+            db.add(AuditLog(admin_email="system", action="system.mail_sections", entity="mail", summary="Added the starting inbox sections"))
         refreshed = []
         if DEFAULTS.exists():
             defaults = json.loads(DEFAULTS.read_text())

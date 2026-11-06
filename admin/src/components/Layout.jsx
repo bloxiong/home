@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { NavLink, Outlet, useLocation } from 'react-router-dom'
 import {
-  Activity, ChevronsLeft, ChevronsRight, ClipboardList, FileText, Globe2, Inbox, LayoutDashboard, LogOut, Mail, MailOpen,
+  Activity, BookUser, ChevronsLeft, ChevronsRight, ClipboardList, FileText, Globe2, Inbox, LayoutDashboard, LogOut, Mail, MailOpen,
   MoreHorizontal, Moon, Sun, Users, X,
 } from 'lucide-react'
 import { useAuth, useCounts, useTheme } from '../lib/contexts'
@@ -16,6 +16,7 @@ const GROUPS = [
   ] },
   { title: 'Inbox', items: [
     { to: '/inbox', label: 'Inbox', icon: MailOpen, count: 'inbox_new' },
+    { to: '/contacts', label: 'Contacts', icon: BookUser },
     { to: '/surveys', label: 'Surveys', icon: ClipboardList, count: 'surveys_new' },
     { to: '/enquiries', label: 'Enquiries', icon: Inbox, count: 'enquiries_new' },
     { to: '/email', label: 'Email', icon: Mail },

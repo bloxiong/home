@@ -14,6 +14,7 @@ from .. import audit, mailer
 from ..config import settings
 from ..db import get_db
 from ..models import Admin, AuditLog, ContentDoc, EmailLog, Enquiry, MailThread, PasswordToken, SurveyResponse, now
+from ..inbox_access import visible_mailboxes
 from ..security import current_admin, super_admin
 from .auth import admin_out, send_password_link
 from .public import SURVEY_LABELS
@@ -30,7 +31,7 @@ def page(q, limit: int, offset: int):
 
 # ── dashboard ─────────────────────────────────────────────────────────
 @router.get("/stats")
-def stats(db: Session = Depends(get_db)):
+def stats(me: Admin = Depends(current_admin), db: Session = Depends(get_db)):
     surveys = db.query(SurveyResponse)
     by_type = dict(db.query(SurveyResponse.respondent_type, func.count()).group_by(SurveyResponse.respondent_type).all())
     by_consider = {}
@@ -49,7 +50,7 @@ def stats(db: Session = Depends(get_db)):
         "wants_updates": surveys.filter(SurveyResponse.wants_updates.is_(True)).count(),
         "enquiries": db.query(Enquiry).count(),
         "enquiries_new": db.query(Enquiry).filter(Enquiry.status == "new").count(),
-        "inbox_new": db.query(MailThread).filter(MailThread.status == "new").count(),
+        "inbox_new": db.query(MailThread).filter(MailThread.status == "new", MailThread.mailbox.in_(visible_mailboxes(db, me))).count(),
         "avg_usefulness": round(sum(ratings) / len(ratings), 2) if ratings else None,
         "by_type": {k or "—": v for k, v in by_type.items()},
         "by_consider": by_consider,

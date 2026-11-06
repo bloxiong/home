@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
-import { useParams } from 'react-router-dom'
-import { CheckCircle2, Mail, Paperclip, Send } from 'lucide-react'
+import { Link, useParams } from 'react-router-dom'
+import { Archive, CheckCircle2, Mail, Paperclip, RotateCcw, Send } from 'lucide-react'
 import TriagePanel from '../components/TriagePanel'
 import { Button, Card, CardHeader, ErrorNote, Field, PageHeader, Skeleton, SkeletonRows, StatusBadge, Textarea } from '../components/ui'
 import { api } from '../lib/api'
@@ -9,26 +9,81 @@ import { useCounts, useToast } from '../lib/contexts'
 import { fmtDate, fmtRelative } from '../lib/format'
 import { useApi } from '../lib/hooks'
 
-const SOURCE = { smtp: 'Sent from Gmail', portal: 'Sent from the portal' }
+const SOURCE = { smtp: 'Sent from Gmail', portal: 'Sent from the portal', auto: 'Automatic reply' }
 
-function Message({ m }) {
+// earlier emails quoted at the bottom of a reply, which Gmail also hides
+const QUOTE_CSS = '.gmail_quote,.gmail_attr,blockquote[type="cite"],.yahoo_quoted,#appendonsend,#divRplyFwdMsg{display:none!important}'
+const HAS_QUOTE = /gmail_quote|type="?cite|yahoo_quoted|divRplyFwdMsg/
+const TEXT_QUOTE = /^\s*(On .{5,200}wrote:|-{2,}\s*Original Message\s*-{2,}|From: .+\n(Sent|Date): )/m
+
+/* The email as it was sent, in a sandbox: no scripts or forms, and links open in
+   a new tab. allow-same-origin only lets us measure its height. */
+function EmailFrame({ html, showQuoted }) {
+  const ref = useRef(null)
+  const [height, setHeight] = useState(160)
+  // a meta refresh could send the frame to another page, which the sandbox doesn't stop
+  const safe = html.replace(/<meta\b[^>]*http-equiv[^>]*>/gi, '')
+  const doc = `<!doctype html><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src https: data:; style-src 'unsafe-inline' https:; font-src https: data:"><base target="_blank"><style>body{margin:0;padding:16px;font:14px/1.6 Arial,Helvetica,sans-serif;color:#111;background:#fff;overflow-wrap:anywhere}img{max-width:100%;height:auto}${showQuoted ? '' : QUOTE_CSS}</style>${safe}`
+  return (
+    <iframe ref={ref} title="Email" sandbox="allow-same-origin allow-popups allow-popups-to-escape-sandbox" srcDoc={doc} style={{ height }}
+      className="block w-full border-0 bg-white"
+      onLoad={() => {
+        try {
+          const h = ref.current?.contentDocument?.documentElement?.scrollHeight
+          if (h) setHeight(h + 2)
+        } catch { /* keep the default height */ }
+      }} />
+  )
+}
+
+function MailBody({ m }) {
+  const [showQuoted, setShowQuoted] = useState(false)
+  const quoted = m.html ? HAS_QUOTE.test(m.html) : TEXT_QUOTE.test(m.body || '')
+  const text = quoted && !showQuoted ? (m.body || '').split(TEXT_QUOTE)[0].trim() : m.body
+  return (
+    <div>
+      {m.html ? <EmailFrame html={m.html} showQuoted={showQuoted} /> : (
+        <p className="whitespace-pre-wrap break-words px-5 py-4 text-[15px] leading-relaxed sm:px-6">
+          {text || <span className="text-muted">{m.direction === 'out' ? 'Sent. The text of this reply is in Gmail.' : 'The text of this email is in Gmail.'}</span>}
+        </p>
+      )}
+      {quoted && (
+        <div className="px-5 py-2 sm:px-6">
+          <button type="button" onClick={() => setShowQuoted((v) => !v)} aria-expanded={showQuoted} aria-label={showQuoted ? 'Hide earlier messages' : 'Show earlier messages'}
+            className="rounded-md border border-line px-2 text-xs font-bold leading-5 text-muted transition hover:text-ink">•••</button>
+        </div>
+      )}
+    </div>
+  )
+}
+
+function Message({ m, startOpen }) {
+  const [open, setOpen] = useState(startOpen)
   const out = m.direction === 'out'
   return (
-    <Card className={out ? 'border-accent/40' : ''}>
-      <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1 border-b border-line px-5 py-3.5 sm:px-6">
-        <p className="min-w-0 break-words text-sm font-bold">{out ? (m.sent_by || 'BLOXio') : (m.from_name || m.from_email)}</p>
-        <p className="text-xs text-muted" title={fmtDate(m.created_at)}>{out ? `${SOURCE[m.source] || 'Sent'} · ` : ''}{fmtRelative(m.created_at)}</p>
-      </div>
-      <p className="whitespace-pre-wrap break-words p-5 text-[15px] leading-relaxed sm:p-6">
-        {m.body || <span className="text-muted">{out ? 'Sent. The text of this reply is in Gmail.' : 'This email had no text. Open it in Gmail.'}</span>}
-      </p>
-      {m.attachments?.length > 0 && (
-        <ul className="space-y-1 border-t border-line px-5 py-3.5 text-xs text-muted sm:px-6">
-          {m.attachments.map((a, i) => <li key={i} className="flex items-center gap-2 break-all"><Paperclip className="h-3.5 w-3.5 shrink-0" aria-hidden />{a}</li>)}
-          <li>Attachments stay in Gmail.</li>
-        </ul>
+    <li>
+      <button type="button" onClick={() => setOpen((o) => !o)} aria-expanded={open}
+        className="flex w-full items-start gap-3 px-5 py-4 text-left transition hover:bg-ink/[0.035] sm:px-6">
+        <span className="min-w-0 flex-1">
+          <span className="block truncate text-sm font-bold">{m.from_name || (out ? 'BLOXio' : m.from_email)}</span>
+          <span className="block truncate text-xs text-muted">
+            {open ? `to ${(m.to || []).join(', ')}${out && SOURCE[m.source] ? ` · ${SOURCE[m.source]}` : ''}` : (m.snippet || m.subject)}
+          </span>
+        </span>
+        <span className="shrink-0 text-xs text-muted" title={fmtDate(m.created_at)}>{fmtRelative(m.created_at)}</span>
+      </button>
+      {open && (
+        <>
+          <MailBody m={m} />
+          {m.attachments?.length > 0 && (
+            <ul className="space-y-1 border-t border-line px-5 py-3.5 text-xs text-muted sm:px-6">
+              {m.attachments.map((a, i) => <li key={i} className="flex items-center gap-2 break-all"><Paperclip className="h-3.5 w-3.5 shrink-0" aria-hidden />{a}</li>)}
+              <li>Attachments stay in Gmail.</li>
+            </ul>
+          )}
+        </>
       )}
-    </Card>
+    </li>
   )
 }
 
@@ -52,7 +107,7 @@ function ReplyBox({ thread, onSent }) {
 
   return (
     <Card>
-      <CardHeader title="Reply" sub={`Sends from contact@bloxio.tech to ${thread.contact_email}. Replying from Gmail is tracked too.`} />
+      <CardHeader title="Reply" sub={`Sends from ${thread.mailbox} to ${thread.contact_email}. Replying from Gmail is tracked too.`} />
       <div className="space-y-4 p-5 sm:p-6">
         <Field label="Message" htmlFor="reply" hint="Plain text. Leave a blank line to start a new paragraph.">
           <Textarea id="reply" rows={7} value={body} onChange={(e) => setBody(e.target.value)} />
@@ -92,7 +147,7 @@ export default function InboxThread() {
     }
   }
 
-  const back = { to: '/inbox', label: 'Inbox' }
+  const back = { to: t?.status === 'closed' ? '/inbox?state=closed' : '/inbox', label: 'Inbox' }
   if (error) return <><PageHeader title="Conversation" back={back} /><ErrorNote error={error} onRetry={reload} /></>
   if (!t) {
     return (
@@ -106,11 +161,15 @@ export default function InboxThread() {
   return (
     <>
       <PageHeader title={t.subject || '(no subject)'} back={back}
-        sub={<>{t.contact_name ? `${t.contact_name} · ` : ''}{t.contact_email}</>}
+        sub={<>{t.contact_name ? `${t.contact_name} · ` : ''}{t.contact_email} · in {t.mailbox}</>}
         actions={<StatusBadge status={t.status} />} />
       <div className="grid grid-cols-1 items-start gap-5 lg:grid-cols-[minmax(0,1fr)_20rem]">
         <div className="min-w-0 space-y-5">
-          {t.messages.map((m) => <Message key={m.id} m={m} />)}
+          <Card className="overflow-hidden">
+            <ul className="divide-y divide-line">
+              {t.messages.map((m, i) => <Message key={m.id} m={m} startOpen={i === t.messages.length - 1} />)}
+            </ul>
+          </Card>
           <ReplyBox key={t.id} thread={t} onSent={(d) => { setData(d); refresh() }} />
         </div>
         <div className="min-w-0 space-y-5 lg:sticky lg:top-6">
@@ -118,9 +177,13 @@ export default function InboxThread() {
             <CardHeader title="Contact" />
             <div className="space-y-3 p-4 text-sm sm:p-5">
               <p className="flex items-center gap-2.5"><Mail className="h-4 w-4 shrink-0 text-muted" aria-hidden /><a className="min-w-0 break-all hover:underline" href={`mailto:${t.contact_email}`}>{t.contact_email}</a></p>
-              {t.status !== 'replied' && (
+              <Link to={`/contacts/person?mailbox=${encodeURIComponent(t.mailbox)}&email=${encodeURIComponent(t.contact_email)}`} className="block text-xs font-bold text-accent hover:underline">All emails from this person</Link>
+              {t.status !== 'replied' && t.status !== 'closed' && (
                 <Button variant="secondary" icon={CheckCircle2} className="w-full" onClick={() => patch({ status: 'replied' })}>Mark as replied</Button>
               )}
+              {t.status === 'closed'
+                ? <Button variant="secondary" icon={RotateCcw} className="w-full" onClick={() => patch({ status: 'reviewed' })}>Reopen conversation</Button>
+                : <Button variant="ghost" icon={Archive} className="w-full" onClick={() => patch({ status: 'closed' })}>Close conversation</Button>}
             </div>
           </Card>
           <TriagePanel key={t.id} item={t} statuses={MAIL_STATUSES} onSave={patch} />

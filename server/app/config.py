@@ -33,10 +33,12 @@ class Settings(BaseSettings):
     # Shared with the site's /api/visit function so only it can record visits
     visit_secret: str = ""
 
-    # Portal inbox: the address it tracks, the secret shared with the Cloudflare
+    # Portal inbox: the shared address and every tracked mailbox, the secret shared with the Cloudflare
     # Worker that copies incoming mail, and the Resend webhook's signing secret
     inbox_address: str = "contact@bloxio.tech"
     inbox_from: str = "BLOXio <contact@bloxio.tech>"
+    inbox_addresses: str = "contact@bloxio.tech,owen@bloxio.tech,austin@bloxio.tech"  # every mailbox tracked
+    inbox_auto_reply: bool = True  # the acknowledgement from no-reply; set false on Render to stop it
     inbound_secret: str = ""
     resend_webhook_secret: str = ""
 

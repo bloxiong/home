@@ -77,7 +77,13 @@ Incoming mail: Cloudflare runs `workers/inbox`, which forwards to Gmail first an
 
 1. Render: set `INBOUND_SECRET` to a long random string.
 2. Resend → Webhooks: add `https://api.bloxio.tech/public/resend-webhook` with the `email.sent` event, then set its signing secret on Render as `RESEND_WEBHOOK_SECRET`.
-3. In `workers/inbox`: `npx wrangler login`, `npx wrangler kv namespace create bloxio-inbox-pending` (put the id in `wrangler.toml`), `npx wrangler secret put INBOUND_SECRET` (same value as Render), `npx wrangler secret put FORWARD_TO` (a verified Cloudflare destination), `npx wrangler deploy`.
-4. Cloudflare → Email Routing → Routing rules: point a test address at the Worker and try it. Then point `contact@bloxio.tech` at it. To undo, point the rule back at your Gmail address.
+3. In `workers/inbox`: `npx wrangler login`, `npx wrangler kv namespace create bloxio-inbox-pending` (put the id in `wrangler.toml`), `npx wrangler secret put INBOUND_SECRET` (same value as Render), `npx wrangler secret put ROUTES` (JSON mapping each mailbox to its verified Cloudflare destination), `npx wrangler deploy`.
+4. Cloudflare → Email Routing → Routing rules: point each mailbox's rule at the Worker. To undo, point the rule back at its Gmail address.
+
+Automatic replies: a first-time sender, or someone writing after every conversation with them was closed, gets one acknowledgement from no-reply, threaded under their email. Machines, mailing lists and bloxio.tech addresses never do. Set `INBOX_AUTO_REPLY=false` on Render to stop them. Run `sync-mail` before relying on this, or people you already know count as first-time senders.
+
+Past mail: `python -m app.cli sync-mail` imports what Resend still holds (sent mail with its text) and what Cloudflare still logs (who wrote, when, subject; no text, and only the last few weeks). For the text of older incoming mail, export that Gmail account's mail with Google Takeout and run `python -m app.cli import-mbox contact@bloxio.tech All.mbox`. Running any of them twice adds nothing twice.
+
+Who sees what: a super admin sees every mailbox except another super admin's address; anyone else sees only their own address. Personal mailboxes stay out of the shared email log and activity log. Adding a mailbox means adding it to `INBOX_ADDRESSES`, `ROUTES` and a routing rule.
 
 The server's Resend key needs read access to store the text of Gmail replies. With a sending-only key they are still tracked, without their text.

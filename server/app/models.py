@@ -1,6 +1,6 @@
 from datetime import datetime, timezone
 
-from sqlalchemy import JSON, Boolean, DateTime, ForeignKey, Integer, String, Text
+from sqlalchemy import JSON, Boolean, DateTime, ForeignKey, Index, Integer, String, Text
 from sqlalchemy.orm import Mapped, mapped_column
 
 from .db import Base
@@ -88,10 +88,31 @@ class EmailLog(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=now, index=True)
 
 
+class MailSection(Base):
+    """A heading senders are filed under: Application, Inquiry, Project... Admins add their own."""
+    __tablename__ = "mail_sections"
+    id: Mapped[int] = mapped_column(primary_key=True)
+    name: Mapped[str] = mapped_column(String(60), unique=True)
+    created_by: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=now)
+
+
+class MailContact(Base):
+    """Which section a sender is filed under. Kept per mailbox, so filing someone
+    in a personal mailbox says nothing to admins who can't see that mailbox."""
+    __tablename__ = "mail_contacts"
+    __table_args__ = (Index("uq_mail_contacts_mailbox_email", "mailbox", "email", unique=True),)
+    id: Mapped[int] = mapped_column(primary_key=True)
+    mailbox: Mapped[str] = mapped_column(String(255))
+    email: Mapped[str] = mapped_column(String(255))
+    section_id: Mapped[int | None] = mapped_column(ForeignKey("mail_sections.id", ondelete="SET NULL"), nullable=True, index=True)
+
+
 class MailThread(Base):
     """A conversation with someone who emails contact@bloxio.tech."""
     __tablename__ = "mail_threads"
     id: Mapped[int] = mapped_column(primary_key=True)
+    mailbox: Mapped[str] = mapped_column(String(255), default="contact@bloxio.tech", server_default="contact@bloxio.tech", index=True)
     contact_email: Mapped[str] = mapped_column(String(255), index=True)
     contact_name: Mapped[str] = mapped_column(String(200), default="")
     subject: Mapped[str] = mapped_column(String(300), default="")
@@ -105,16 +126,20 @@ class MailMessage(Base):
     """One email in a thread: received through the Cloudflare Worker, or sent
     (from Gmail through Resend's SMTP server, or from the portal)."""
     __tablename__ = "mail_messages"
+    # the same email can reach two mailboxes, and each keeps its own copy
+    __table_args__ = (Index("uq_mail_messages_mailbox_message", "mailbox", "message_id", unique=True),)
     id: Mapped[int] = mapped_column(primary_key=True)
+    mailbox: Mapped[str] = mapped_column(String(255), default="contact@bloxio.tech", server_default="contact@bloxio.tech")
     thread_id: Mapped[int] = mapped_column(ForeignKey("mail_threads.id", ondelete="CASCADE"), index=True)
     direction: Mapped[str] = mapped_column(String(3))  # in | out
-    message_id: Mapped[str | None] = mapped_column(String(500), nullable=True, unique=True)  # links replies to it
+    message_id: Mapped[str | None] = mapped_column(String(500), nullable=True)  # links replies to it
     resend_id: Mapped[str | None] = mapped_column(String(80), nullable=True, unique=True)  # outgoing only
     from_email: Mapped[str] = mapped_column(String(255), default="")
     from_name: Mapped[str] = mapped_column(String(200), default="")
     to: Mapped[list] = mapped_column(JSON, default=list)
     subject: Mapped[str] = mapped_column(String(300), default="")
-    body: Mapped[str] = mapped_column(Text, default="")  # plain text only; never rendered as HTML
+    body: Mapped[str] = mapped_column(Text, default="")  # plain text, for search and previews
+    html: Mapped[str] = mapped_column(Text, default="", server_default="")  # shown only in a sandboxed frame
     attachments: Mapped[list] = mapped_column(JSON, default=list)  # file names only; the files stay in Gmail
     source: Mapped[str] = mapped_column(String(10))  # worker | smtp | portal
     sent_by: Mapped[str | None] = mapped_column(String(255), nullable=True)
