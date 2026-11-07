@@ -2,7 +2,7 @@
    Gmail inbox (ROUTES, a secret: {"mailbox": "gmail address"}) first, so it arrives whatever happens to the portal. A copy then goes to the
    portal's inbox; if the portal can't take it, the copy waits in KV and the
    scheduled run tries again. */
-const MAX_COPY = 2_000_000; // enough for the text; attachments stay in Gmail
+const MAX_COPY = 25_000_000; // Email Routing's own limit, so attachments come too
 const KEEP_FOR = 7 * 24 * 60 * 60; // seconds
 
 async function post(body, mailbox, env) {
@@ -30,8 +30,12 @@ async function retry(env) {
   const { keys } = await env.PENDING.list({ prefix: 'mail:', limit: 50 });
   for (const { name, metadata } of keys) {
     const raw = await env.PENDING.get(name, 'arrayBuffer');
-    if (raw) await post(raw, metadata?.mailbox || '', env);
-    await env.PENDING.delete(name);
+    try {
+      if (raw) await post(raw, metadata?.mailbox || '', env);
+      await env.PENDING.delete(name);
+    } catch (e) {
+      console.error('retry failed, keeping for the next run:', e.message); // one large email mustn't hold up the rest
+    }
   }
 }
 

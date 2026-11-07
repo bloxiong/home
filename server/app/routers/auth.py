@@ -27,7 +27,7 @@ class LoginIn(BaseModel):
 def login(body: LoginIn, db: Session = Depends(get_db)):
     a = db.query(Admin).filter(Admin.email == str(body.email).lower()).first()
     if not a or not a.active or not verify_password(body.password, a.password_hash):
-        raise HTTPException(401, "Wrong email or password. If you haven't set a password yet, use the link in your invite email or “Forgot password?”.")
+        raise HTTPException(401, "Wrong password.")
     a.last_login_at = now()
     db.commit()
     return {"token": make_token(a), "admin": admin_out(a)}

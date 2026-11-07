@@ -124,7 +124,7 @@ def test_invite_link_sets_password_then_login_works(client):
         raw = new_password_token(db, a, "invite")
         db.commit()
     bad = client.post("/auth/login", json={"email": "austin@bloxio.tech", "password": "Whatever123x"})
-    assert bad.status_code == 401 and "invite email" in bad.json()["detail"]
+    assert bad.status_code == 401 and bad.json()["detail"] == "Wrong password."
     assert client.post("/auth/reset", json={"token": raw, "password": "MyNewPass123"}).status_code == 200
     assert client.post("/auth/reset", json={"token": raw, "password": "MyNewPass123"}).status_code == 400  # single use
     ok = client.post("/auth/login", json={"email": "Austin@Bloxio.tech", "password": "MyNewPass123"})

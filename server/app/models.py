@@ -1,7 +1,7 @@
 from datetime import datetime, timezone
 
-from sqlalchemy import JSON, Boolean, DateTime, ForeignKey, Index, Integer, String, Text
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy import JSON, Boolean, DateTime, ForeignKey, Index, Integer, LargeBinary, String, Text
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from .db import Base
 
@@ -142,10 +142,21 @@ class MailMessage(Base):
     subject: Mapped[str] = mapped_column(String(300), default="")
     body: Mapped[str] = mapped_column(Text, default="")  # plain text, for search and previews
     html: Mapped[str] = mapped_column(Text, default="", server_default="")  # shown only in a sandboxed frame
-    attachments: Mapped[list] = mapped_column(JSON, default=list)  # file names only; the files stay in Gmail
+    attachments: Mapped[list] = mapped_column(JSON, default=list)  # every file name, kept or not
     source: Mapped[str] = mapped_column(String(10))  # worker | smtp | portal
     sent_by: Mapped[str | None] = mapped_column(String(255), nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=now, index=True)
+    files: Mapped[list["MailAttachment"]] = relationship(cascade="all, delete-orphan", passive_deletes=True)
+
+
+class MailAttachment(Base):
+    """A file that came with an email. Very large files stay in Gmail only."""
+    __tablename__ = "mail_attachments"
+    id: Mapped[int] = mapped_column(primary_key=True)
+    mail_message_id: Mapped[int] = mapped_column(ForeignKey("mail_messages.id", ondelete="CASCADE"), index=True)
+    name: Mapped[str] = mapped_column(String(200), default="attachment")
+    size: Mapped[int] = mapped_column(Integer, default=0)
+    data: Mapped[bytes] = mapped_column(LargeBinary, deferred=True)  # never loaded just to list a conversation
 
 
 class AuditLog(Base):

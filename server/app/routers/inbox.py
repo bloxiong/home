@@ -13,9 +13,10 @@ from datetime import datetime, timedelta, timezone
 from email import policy
 from email.parser import BytesParser
 from email.utils import getaddresses, parseaddr, parsedate_to_datetime
+from urllib.parse import quote
 
 import httpx
-from fastapi import APIRouter, Depends, Header, HTTPException, Request
+from fastapi import APIRouter, Depends, Header, HTTPException, Request, Response
 from pydantic import BaseModel, Field
 from sqlalchemy import func, or_
 from sqlalchemy.dialects.postgresql import insert
@@ -26,7 +27,7 @@ from .. import audit, mailer
 from ..config import settings
 from ..db import get_db
 from ..inbox_access import is_platform_thread, is_shared, tracked_mailboxes, visible_mailboxes
-from ..models import Admin, AuditLog, Enquiry, MailContact, MailMessage, MailSection, MailThread, now
+from ..models import Admin, AuditLog, Enquiry, MailAttachment, MailContact, MailMessage, MailSection, MailThread, now
 from ..security import current_admin
 from .admin import StatusNotesIn, page
 
@@ -36,6 +37,7 @@ admin = APIRouter(prefix="/admin", tags=["admin"], dependencies=[Depends(current
 MAIL_STATUSES = {"new", "reviewed", "replied", "closed"}
 MAX_BODY = 100_000
 MAX_HTML = 500_000
+MAX_FILE = 15_000_000
 SUBJECT_MATCH_DAYS = 60
 
 
@@ -111,6 +113,18 @@ def read_attachments(msg) -> list[str]:
         return [(a.get_filename() or "attachment")[:200] for a in msg.iter_attachments()][:50]
     except (LookupError, ValueError, AttributeError):
         return []
+
+
+def read_files(msg) -> list[MailAttachment]:
+    files = []
+    try:
+        for a in list(msg.iter_attachments())[:50]:
+            data = a.get_payload(decode=True)
+            if data and len(data) <= MAX_FILE:
+                files.append(MailAttachment(name=(a.get_filename() or "attachment")[:200], size=len(data), data=data))
+    except (LookupError, ValueError, AttributeError):
+        pass
+    return files
 
 
 def sent_at(value: str | None) -> datetime:
@@ -260,11 +274,17 @@ def store_inbound(db: Session, mailbox: str, raw: bytes, live: bool = False) -> 
     message_id = (header_ids(str(msg.get("Message-ID", ""))) or [f"<{hashlib.sha256(raw).hexdigest()}@inbound>"])[0][:500]
     text, markup = read_body(msg), read_html(msg)
     known = db.query(MailMessage).filter(MailMessage.mailbox == mailbox, MailMessage.message_id == message_id).first()
-    if known:  # imported earlier from Cloudflare's log, which has no content
-        if known.body or known.html or not (text or markup):
+    if known:  # imported earlier from Cloudflare's log, which has no content, or kept before files were
+        files = [] if db.query(MailAttachment.id).filter(MailAttachment.mail_message_id == known.id).first() else read_files(msg)
+        empty = not (known.body or known.html) and bool(text or markup)
+        if not empty and not files:
             return False
-        known.body, known.html, known.from_name = text, markup, name[:200]
-        known.attachments = read_attachments(msg)
+        if empty:
+            known.body, known.html, known.from_name = text, markup, name[:200]
+            known.attachments = read_attachments(msg)
+        for f in files:
+            f.mail_message_id = known.id
+        db.add_all(files)
         return save(db)
     subject = str(msg.get("Subject", ""))[:300]
     when = sent_at(str(msg.get("Date", "")) or None)
@@ -286,7 +306,7 @@ def store_inbound(db: Session, mailbox: str, raw: bytes, live: bool = False) -> 
         apply_status(thread, "new" if live else "reviewed", when, had_messages)
     to = [a for _, a in getaddresses([str(v) for v in msg.get_all("To", [])]) if a][:50]
     db.add(MailMessage(thread_id=thread.id, mailbox=mailbox, direction="in", message_id=message_id, from_email=sender, from_name=name[:200],
-                       to=to, subject=subject, body=text, html=markup, attachments=read_attachments(msg), source="worker",
+                       to=to, subject=subject, body=text, html=markup, attachments=read_attachments(msg), files=read_files(msg), source="worker",
                        created_at=when))
     saved = save(db)
     if saved and platform_mail(msg, sender):
@@ -395,8 +415,8 @@ def resend_event(raw: bytes = Depends(raw_body), svix_id: str = Header(default="
 
 
 # ── reading and replying ────────────────────
-def message_out(m: MailMessage) -> dict:
-    return {"id": m.id, "direction": m.direction, "from_email": m.from_email, "from_name": m.from_name, "to": m.to,
+def message_out(m: MailMessage, files: list[dict]) -> dict:
+    return {"id": m.id, "files": files, "direction": m.direction, "from_email": m.from_email, "from_name": m.from_name, "to": m.to,
             "subject": m.subject, "body": m.body, "html": m.html, "snippet": strip_quoted(m.body)[:160], "attachments": m.attachments, "source": m.source,
             "sent_by": m.sent_by, "created_at": m.created_at}
 
@@ -642,7 +662,22 @@ def read_thread(tid: int, me: Admin = Depends(current_admin), db: Session = Depe
     t = get_thread(tid, me, db)
     msgs = db.query(MailMessage).filter(MailMessage.thread_id == tid).order_by(MailMessage.created_at, MailMessage.id).all()
     c = db.query(MailContact).filter(MailContact.mailbox == t.mailbox, MailContact.email == t.contact_email).first()
-    return {**thread_out(db, t), "kind": c.kind if c else "person", "messages": [message_out(m) for m in msgs]}
+    files: dict[int, list[dict]] = {}
+    for fid, mid, name, size in db.query(MailAttachment.id, MailAttachment.mail_message_id, MailAttachment.name, MailAttachment.size) \
+            .filter(MailAttachment.mail_message_id.in_([m.id for m in msgs])).order_by(MailAttachment.id):
+        files.setdefault(mid, []).append({"id": fid, "name": name, "size": size})
+    return {**thread_out(db, t), "kind": c.kind if c else "person", "messages": [message_out(m, files.get(m.id, [])) for m in msgs]}
+
+
+@admin.get("/inbox/{tid}/files/{fid}")
+def download_file(tid: int, fid: int, me: Admin = Depends(current_admin), db: Session = Depends(get_db)):
+    get_thread(tid, me, db)  # the mailbox check
+    f = db.query(MailAttachment).join(MailMessage).filter(MailAttachment.id == fid, MailMessage.thread_id == tid).first()
+    if not f:
+        raise HTTPException(404, "That file isn't here.")
+    # always a download, never opened on the portal's own address: it came from a stranger
+    return Response(f.data, media_type="application/octet-stream", headers={
+        "Content-Disposition": f"attachment; filename*=UTF-8''{quote(f.name, safe='')}", "X-Content-Type-Options": "nosniff"})
 
 
 @admin.patch("/inbox/{tid}")

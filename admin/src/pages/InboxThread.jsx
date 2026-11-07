@@ -1,9 +1,9 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
-import { Archive, CheckCircle2, Mail, Paperclip, RotateCcw, Send } from 'lucide-react'
+import { Archive, CheckCircle2, Download, Mail, Paperclip, RotateCcw, Send } from 'lucide-react'
 import TriagePanel from '../components/TriagePanel'
 import { Button, Card, CardHeader, ErrorNote, Field, PageHeader, Skeleton, SkeletonRows, StatusBadge, Textarea } from '../components/ui'
-import { api } from '../lib/api'
+import { api, download } from '../lib/api'
 import { MAIL_STATUSES } from '../lib/constants'
 import { useCounts, useToast } from '../lib/contexts'
 import { fmtDate, fmtRelative } from '../lib/format'
@@ -57,7 +57,39 @@ function MailBody({ m }) {
   )
 }
 
-function Message({ m, startOpen }) {
+function fileSize(bytes) {
+  return bytes < 1024 * 1024 ? `${Math.max(1, Math.round(bytes / 1024))} KB` : `${(bytes / 1024 / 1024).toFixed(1)} MB`
+}
+
+function Attachments({ m, threadId }) {
+  const toast = useToast()
+  const files = m.files || []
+  // anything we hold a file for can be downloaded; names without one were too large or are older mail
+  const elsewhere = [...(m.attachments || [])]
+  files.forEach((f) => { const i = elsewhere.indexOf(f.name); if (i >= 0) elsewhere.splice(i, 1) })
+  async function save(f) {
+    try {
+      await download(`/admin/inbox/${threadId}/files/${f.id}`, undefined, f.name)
+    } catch (e) {
+      toast.error(e)
+    }
+  }
+  return (
+    <ul className="space-y-1 border-t border-line px-5 py-3.5 text-xs text-muted sm:px-6">
+      {files.map((f) => (
+        <li key={f.id}>
+          <button type="button" onClick={() => save(f)} className="flex max-w-full items-center gap-2 break-all text-left font-bold text-accent hover:underline">
+            <Download className="h-3.5 w-3.5 shrink-0" aria-hidden />{f.name}<span className="shrink-0 font-normal text-muted">{fileSize(f.size)}</span>
+          </button>
+        </li>
+      ))}
+      {elsewhere.map((a, i) => <li key={i} className="flex items-center gap-2 break-all"><Paperclip className="h-3.5 w-3.5 shrink-0" aria-hidden />{a}</li>)}
+      {elsewhere.length > 0 && <li>{elsewhere.length === 1 ? 'This attachment is' : 'These attachments are'} only in Gmail.</li>}
+    </ul>
+  )
+}
+
+function Message({ m, startOpen, threadId }) {
   const [open, setOpen] = useState(startOpen)
   const out = m.direction === 'out'
   return (
@@ -75,12 +107,7 @@ function Message({ m, startOpen }) {
       {open && (
         <>
           <MailBody m={m} />
-          {m.attachments?.length > 0 && (
-            <ul className="space-y-1 border-t border-line px-5 py-3.5 text-xs text-muted sm:px-6">
-              {m.attachments.map((a, i) => <li key={i} className="flex items-center gap-2 break-all"><Paperclip className="h-3.5 w-3.5 shrink-0" aria-hidden />{a}</li>)}
-              <li>Attachments stay in Gmail.</li>
-            </ul>
-          )}
+          {(m.attachments?.length > 0 || m.files?.length > 0) && <Attachments m={m} threadId={threadId} />}
         </>
       )}
     </li>
@@ -178,7 +205,7 @@ export default function InboxThread() {
         <div className="min-w-0 space-y-5">
           <Card className="overflow-hidden">
             <ul className="divide-y divide-line">
-              {t.messages.map((m, i) => <Message key={m.id} m={m} startOpen={i === t.messages.length - 1} />)}
+              {t.messages.map((m, i) => <Message key={m.id} m={m} threadId={t.id} startOpen={i === t.messages.length - 1} />)}
             </ul>
           </Card>
           <ReplyBox key={t.id} thread={t} onSent={(d) => { setData(d); refresh() }} />

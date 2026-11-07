@@ -62,6 +62,46 @@ def test_inbound_makes_a_thread_once_and_keeps_text_only(client):
         assert (m.from_name, m.body, m.attachments) == ("Ada Obi", "Hello there", ["spec.pdf"])
 
 
+def test_attachments_download_only_from_a_mailbox_you_can_read(client):
+    mail = raw_mail()
+    mail.add_attachment(b"%PDF-1.7 real", maintype="application", subtype="pdf", filename="cv final.pdf")
+    inbound(client, mail)
+    inbound(client, mail)  # a retry doesn't keep it twice
+    h = login(client, OWEN)
+    tid = client.get("/admin/inbox", headers=h).json()["items"][0]["id"]
+    m = client.get(f"/admin/inbox/{tid}", headers=h).json()["messages"][0]
+    assert [(f["name"], f["size"]) for f in m["files"]] == [("cv final.pdf", 13)]
+    url = f"/admin/inbox/{tid}/files/{m['files'][0]['id']}"
+    got = client.get(url, headers=h)
+    assert got.content == b"%PDF-1.7 real"
+    assert got.headers["content-disposition"] == "attachment; filename*=UTF-8''cv%20final.pdf"
+    assert client.get(url).status_code == 401
+    assert client.get(f"/admin/inbox/{tid + 1}/files/{m['files'][0]['id']}", headers=h).status_code == 404
+
+
+def test_file_too_large_to_keep_still_shows_its_name(client, monkeypatch):
+    monkeypatch.setattr("app.routers.inbox.MAX_FILE", 4)
+    mail = raw_mail()
+    mail.add_attachment(b"too big", maintype="application", subtype="pdf", filename="big.pdf")
+    inbound(client, mail)
+    h = login(client, OWEN)
+    tid = client.get("/admin/inbox", headers=h).json()["items"][0]["id"]
+    m = client.get(f"/admin/inbox/{tid}", headers=h).json()["messages"][0]
+    assert (m["attachments"], m["files"]) == (["big.pdf"], [])
+
+
+def test_a_later_copy_adds_the_file_to_mail_kept_without_one(client, monkeypatch):
+    mail = raw_mail()
+    mail.add_attachment(b"pdf", maintype="application", subtype="pdf", filename="spec.pdf")
+    monkeypatch.setattr("app.routers.inbox.MAX_FILE", 1)
+    inbound(client, mail)
+    monkeypatch.setattr("app.routers.inbox.MAX_FILE", 100)
+    inbound(client, mail)
+    h = login(client, OWEN)
+    tid = client.get("/admin/inbox", headers=h).json()["items"][0]["id"]
+    assert [f["name"] for f in client.get(f"/admin/inbox/{tid}", headers=h).json()["messages"][0]["files"]] == ["spec.pdf"]
+
+
 def test_designed_mail_keeps_its_html(client):
     mail = raw_mail(body="Plain version")
     mail.add_alternative("<table><tr><td>Designed</td></tr></table>", subtype="html")
