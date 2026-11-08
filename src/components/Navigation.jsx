@@ -117,7 +117,7 @@ export default function Navigation() {
     };
   }, [location.pathname]);
 
-  // Close the mobile menu on navigation (adjust state during render).
+  // Close the menu on navigation (adjust state during render).
   const [menuPath, setMenuPath] = useState(location.pathname);
   if (menuPath !== location.pathname) {
     setMenuPath(location.pathname);
@@ -148,13 +148,6 @@ export default function Navigation() {
 
   const overDark = isOpen || onDark;
 
-  const linkCls = ({ isActive }) =>
-    `relative px-3 py-2 text-sm font-medium transition-colors duration-200 ${
-      overDark
-        ? isActive ? 'text-on-forest' : 'text-forest-muted hover:text-on-forest'
-        : isActive ? 'text-accent' : 'text-muted hover:text-ink'
-    }`;
-
   return (
     <>
       <nav
@@ -181,38 +174,13 @@ export default function Navigation() {
               </Link>
             )}
 
-            <div className="hidden items-center gap-1 lg:flex">
-              {NAV_LINKS.map((l) => (
-                <NavLink key={l.to} to={l.to} className={linkCls}>
-                  {({ isActive }) => (
-                    <>
-                      {l.label}
-                      <span
-                        className={`absolute inset-x-3 -bottom-0.5 h-px origin-left transition-transform duration-300 ${
-                          overDark ? 'bg-signal' : 'bg-accent'
-                        } ${isActive ? 'scale-x-100' : 'scale-x-0'}`}
-                      />
-                    </>
-                  )}
-                </NavLink>
-              ))}
-            </div>
-
             <div className="flex shrink-0 items-center gap-2 sm:gap-3">
               <ThemeToggle />
-              <Link
-                to="/contact?topic=project"
-                className={`group hidden min-h-11 items-center gap-2 rounded-xl px-5 text-sm font-semibold transition-all duration-200 lg:inline-flex ${
-                  overDark ? 'bg-on-forest text-forest hover:bg-white' : 'bg-accent text-on-accent hover:brightness-110'
-                }`}
-              >
-                Start a project
-              </Link>
               <button
                 ref={buttonRef}
                 type="button"
                 onClick={toggleMenu}
-                className="burger nav-gold flex h-11 w-11 items-center justify-center rounded-full lg:hidden"
+                className="burger nav-gold flex h-11 w-11 items-center justify-center rounded-full"
                 data-open={isOpen}
                 aria-label={isOpen ? 'Close menu' : 'Open menu'}
                 aria-expanded={isOpen}
@@ -225,17 +193,17 @@ export default function Navigation() {
         </div>
       </nav>
 
-      {/* Mobile menu: grows out of the button as a circle, links follow */}
+      {/* The menu, at every size: grows out of the button as a circle, links follow */}
       <div
         id="mobile-menu"
-        className="menu-panel on-forest fixed inset-0 z-[46] bg-forest text-on-forest lg:hidden"
+        className="menu-panel on-forest fixed inset-0 z-[46] bg-forest text-on-forest"
         data-open={isOpen}
         style={{ '--mx': origin.x, '--my': origin.y }}
         aria-hidden={!isOpen}
         inert={!isOpen}
       >
         <div className="field-glow pointer-events-none absolute inset-0" aria-hidden="true" />
-        <div className="relative flex h-full flex-col overflow-y-auto px-5 pt-24 pb-10 sm:px-6">
+        <div className="relative mx-auto flex h-full max-w-7xl flex-col overflow-y-auto px-5 pt-24 pb-10 sm:px-6">
           <nav className="flex flex-col gap-1" aria-label="Mobile">
             {[{ label: 'Home', to: isAgroHost ? '/__home' : '/' }, ...NAV_LINKS].map((l, i) => (
               <NavLink
@@ -255,7 +223,7 @@ export default function Navigation() {
           </nav>
           <Link
             to="/contact?topic=project"
-            className="menu-item mt-8 inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-on-forest px-6 font-semibold text-forest"
+            className="menu-item mt-8 inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-on-forest px-6 font-semibold text-forest sm:self-start sm:px-10"
             style={{ '--k': NAV_LINKS.length + 1 }}
           >
             Start a project

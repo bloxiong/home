@@ -266,6 +266,9 @@ export function Photo({ id, alt = '', className = '', imgClassName = '', paralla
 }
 
 /* Content-page header on a dark field with an engineering grid. */
+// the font size, as a share of the column, at which the title's longest word still fits on one line
+const fitWord = (title) => (100 / (Math.max(...String(title).split(/\s+/).map((w) => w.length)) * 0.95)).toFixed(2)
+
 export function PageHeader({ label, title, lead, children, aside, image, footer, cinematic = false }) {
   return (
     <header className={`on-forest relative overflow-hidden bg-forest text-on-forest ${cinematic ? 'ph-cinematic' : ''}`}>
@@ -278,12 +281,13 @@ export function PageHeader({ label, title, lead, children, aside, image, footer,
       )}
       <div className="field-glow pointer-events-none absolute inset-0" aria-hidden="true" />
       <div className="relative mx-auto max-w-6xl px-5 pt-28 pb-12 sm:px-6 md:pt-36 md:pb-16">
-        <div className={aside ? 'grid gap-12 lg:grid-cols-[1.4fr_1fr] lg:items-end' : ''}>
-          <div>
+        <div className={aside ? 'grid gap-12 lg:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)] lg:items-end' : ''}>
+          {/* the title is sized to its own column, so a long word never runs under the aside */}
+          <div className="min-w-0 [container-type:inline-size]">
             {label && <p className="script-label rise-in text-forest-muted">{label}</p>}
             <h1
               className="split-load font-display mt-4 uppercase leading-[0.95] text-balance"
-              style={{ fontSize: 'clamp(1.05rem, max(6vw, min(8.5vw, 2.25rem)), 4.75rem)' }}
+              style={{ fontSize: `clamp(1.05rem, min(max(6vw, min(8.5vw, 2.25rem)), ${fitWord(title)}cqi), 4.75rem)` }}
             >
               <SplitWords text={title} />
             </h1>
