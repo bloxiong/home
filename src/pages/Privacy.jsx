@@ -14,8 +14,8 @@ const SECTIONS = [
   {
     h: 'What we collect, and why',
     list: [
-      ['Contact form', 'Your name, email, phone and organisation, and your message are stored on our database so we caan reply. We send you one confirmation email, and use your details only to answer you.'],
-      ['AgroSense360 survey', 'Your answers, and your email address if you give it, are stored on our server that only BLOXio can access. We use them to design AgroSense360 and, if you asked, to contact you about early access and launch updates.'],
+      ['Contact form', 'Your name, email, phone and organisation, and your message are stored in our system so we caan reply. We send you one confirmation email, and use your details only to answer you.'],
+      ['AgroSense360 survey', 'Your answers, and your email address if you give it, are stored in our system. We use them to improve AgroSense360 and, if you asked, to contact you about early access and launch updates.'],
     ],
   },
   {
