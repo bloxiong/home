@@ -77,7 +77,7 @@ def render(*, subject: str, greeting: str | None, body_html: str, button: tuple[
 def send(db: Session, *, to: list[str], subject: str, body_html: str, kind: str, greeting: str | None = None,
          button: tuple[str, str] | None = None, sent_by: str | None = None, reply_to: str | None = None,
          sign_name: str = "The BLOXio team", title: str | None = None, from_addr: str | None = None,
-         headers: dict[str, str] | None = None, logged: bool = True) -> EmailLog:
+         headers: dict[str, str] | None = None, logged: bool = True, bcc: list[str] | None = None) -> EmailLog:
     # `title` is accepted for older callers and used as the greeting
     greeting = greeting if greeting is not None else title
     s = settings()
@@ -91,6 +91,8 @@ def send(db: Session, *, to: list[str], subject: str, body_html: str, kind: str,
             payload["headers"] = headers
         if reply_to:
             payload["reply_to"] = reply_to
+        if bcc:
+            payload["bcc"] = bcc
         try:
             r = httpx.post("https://api.resend.com/emails", json=payload, timeout=15,
                            headers={"Authorization": f"Bearer {s.resend_api_key}"})

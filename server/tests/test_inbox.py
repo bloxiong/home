@@ -503,6 +503,7 @@ def test_each_mailbox_greets_separately_and_signs_for_its_owner(client, monkeypa
     to_mailbox(client, OWEN, "<o1@x>")
     to_mailbox(client, CONTACT, "<o1@x>")
     assert len(calls) == 2 and calls[0]["reply_to"] == OWEN and "Owen" in calls[0]["html"]
+    assert [c["bcc"] for c in calls] == [[OWEN], [CONTACT]]  # each mailbox keeps a copy of its own
     with SessionLocal() as db:
         from app.models import EmailLog
         assert db.query(EmailLog).filter_by(kind="auto").count() == 1  # only the shared mailbox is logged
@@ -598,6 +599,15 @@ def test_people_known_from_history_are_not_first_time(client, monkeypatch):
         store_cloudflare_rows(db, [cf_row()])
     inbound(client, raw_mail(subject="Something new", msg_id="<later@x>"))
     assert calls == []
+
+
+def test_the_copy_of_an_automatic_reply_does_not_start_a_conversation(client, monkeypatch):
+    sent_mail(monkeypatch)
+    inbound(client, raw_mail())
+    before = threads()  # their email and the automatic reply
+    copy = raw_mail(sender=f"BLOXio <{settings().mail_from.split('<')[-1].strip('> ')}>", subject="Re: Pilot", msg_id="<copy@x>")
+    assert inbound(client, copy).status_code == 204
+    assert threads() == before == [("ada@example.com", "new", 2)]
 
 
 def test_an_automatic_reply_is_shown_and_does_not_count_as_answered(client, monkeypatch):

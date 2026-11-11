@@ -253,6 +253,8 @@ def acknowledge(db: Session, thread: MailThread, message_id: str, subject: str, 
     reply_subject = subject if bare_subject(subject) != subject.strip().casefold() else f"Re: {subject}".strip()
     entry = mailer.send(db, to=[thread.contact_email], subject=reply_subject, greeting=f"Hello {name.split()[0]}," if name.strip() else "Hello,",
                         body_html=mailer.text_to_html(text), kind="auto", sign_name=sign, reply_to=thread.mailbox,
+                        # a copy for the mailbox's own Gmail; it comes back from no-reply, which the inbox ignores
+                        bcc=[thread.mailbox],
                         headers={"In-Reply-To": message_id, "References": message_id, "Auto-Submitted": "auto-replied", "X-Auto-Response-Suppress": "All"},
                         logged=is_shared(thread.mailbox))
     if entry.status != "sent":
